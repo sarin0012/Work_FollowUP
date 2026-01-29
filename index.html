@@ -64,7 +64,6 @@
         .toast-error { background: var(--danger); color: white; }
         .toast-success { background: var(--success); color: white; }
         
-        /* Reduce header height */
         .slim-header { padding: 12px 20px; }
         .slim-stats { padding: 4px 0; }
     </style>
@@ -78,7 +77,7 @@
         <div class="bg-indigo-700 slim-header text-white flex justify-between items-center">
             <div>
                 <h1 class="text-xl font-bold tracking-tight">Work Follow UP</h1>
-                <p class="text-[9px] opacity-70 uppercase tracking-widest">v2.7 Ultra Compact</p>
+                <p class="text-[9px] opacity-70 uppercase tracking-widest">v2.8 Ultra Compact + Reason</p>
             </div>
             <button onclick="fetchData()" class="p-2 bg-white/10 rounded-lg active:bg-white/20">
                 <i class="fas fa-sync-alt text-sm"></i>
@@ -93,7 +92,7 @@
         </div>
 
         <div class="p-2">
-            <!-- Stats Bar (Compact) -->
+            <!-- Stats Bar -->
             <div id="statsBar" class="hidden grid grid-cols-4 gap-1 mb-2 slim-stats">
                 <div class="bg-slate-50 p-1.5 rounded-lg text-center border"><p class="text-[8px] text-slate-400 font-bold">รวม</p><p id="statTotal" class="text-sm font-bold">0</p></div>
                 <div class="bg-amber-50 p-1.5 rounded-lg text-center border border-amber-100 text-amber-600"><p class="text-[8px] font-bold">ค้าง</p><p id="statPending" class="text-sm font-bold">0</p></div>
@@ -101,7 +100,7 @@
                 <div class="bg-red-50 p-1.5 rounded-lg text-center border border-red-100 text-red-600"><p class="text-[8px] font-bold">ช้า</p><p id="statOverdue" class="text-sm font-bold">0</p></div>
             </div>
 
-            <!-- Filters (One line) -->
+            <!-- Filters -->
             <div id="filterContainer" class="hidden flex gap-1 mb-2">
                 <select id="filterMonth" onchange="render()" class="flex-1 p-1.5 text-[11px] rounded-lg bg-slate-50 border outline-none">
                     <option value="">ทุกเดือน</option>
@@ -116,7 +115,7 @@
                 <i class="fas fa-exclamation-triangle mr-1.5"></i> มีงานเลยกำหนด <span id="overdueAlertCount" class="font-bold mx-1">0</span> รายการ!
             </div>
 
-            <!-- New Task Details -->
+            <!-- Active Section -->
             <div id="activeSection">
                 <details class="bg-indigo-50/30 rounded-xl mb-2 border overflow-hidden">
                     <summary class="p-3 cursor-pointer font-bold text-indigo-700 flex justify-between items-center text-xs">
@@ -134,7 +133,7 @@
                                         <option value="Repair Mold">Repair Mold</option>
                                         <option value="Spare part Mold">Spare part Mold</option>
                                         <option value="TPM Mold">TPM Mold</option>
-                                        <option value="Fit flashing">Fit flashing</option>
+                                        <option value="Fit flashing">Fit flashing Mold</option>
                                     </optgroup>
                                     <optgroup label="Machine">
                                         <option value="Repair machine">Repair machine</option>
@@ -188,14 +187,14 @@
         </div>
     </div>
 
-    <!-- Modals (Ultra Slim) -->
+    <!-- Modals -->
     <div id="editModal" class="modal"><div class="modal-content">
         <h2 class="text-sm font-bold text-indigo-700 mb-3 italic">แก้ไขข้อมูล</h2>
         <div class="space-y-3">
             <input type="hidden" id="edId">
             <input type="text" id="edTask" class="w-full p-2.5 rounded-lg border outline-none text-xs font-medium">
             <input type="date" id="edEnd" class="w-full p-2.5 rounded-lg border outline-none text-red-500 font-bold text-xs">
-            <textarea id="edReason" rows="2" placeholder="ระบุเหตุผลการแก้ไข..." class="w-full p-2.5 rounded-lg border outline-none text-xs"></textarea>
+            <textarea id="edReason" rows="2" placeholder="ระบุเหตุผลการเลื่อนเวลา/แก้ไข..." class="w-full p-2.5 rounded-lg border outline-none text-xs font-medium"></textarea>
             <button onclick="update()" id="upBtn" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold active:scale-95 text-xs flex justify-center items-center gap-2">อัปเดต <div class="loader" id="upLd"></div></button>
         </div>
     </div></div>
@@ -278,6 +277,26 @@
             }
         }
 
+        // --- DATA ACTIONS ---
+        function openEdit(id) {
+            const t = tasks.find(x => x.id === id); if(!t) return;
+            document.getElementById('edId').value = t.id;
+            document.getElementById('edTask').value = t.task;
+            document.getElementById('edEnd').value = t.deadline || "";
+            document.getElementById('edReason').value = t.reason || "";
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function openComp(id) {
+            curId = id; outImgs = []; document.getElementById('preOut').innerHTML = '';
+            document.getElementById('compModal').style.display = 'block';
+        }
+
+        function openDel(id) {
+            targetDelId = id;
+            document.getElementById('delModal').style.display = 'block';
+        }
+
         async function handleSave() {
             const task = document.getElementById('taskInput').value;
             const start = document.getElementById('startInput').value;
@@ -294,10 +313,7 @@
             if(dept === "Other") dept = document.getElementById('otherDeptInput').value.trim();
 
             try {
-                await fetchWithRetry(SCRIPT_URL, { 
-                    method: "POST", 
-                    body: JSON.stringify({ action: "add", task, type, asset, startDate: start, deadline: end, images: inImgs, vendor: dept }) 
-                });
+                await fetchWithRetry(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "add", task, type, asset, startDate: start, deadline: end, images: inImgs, vendor: dept }) });
                 showToast("บันทึกสำเร็จ"); setTimeout(() => location.reload(), 1000);
             } catch(e) { showToast("บันทึกไม่สำเร็จ", 'error'); btn.disabled = false; if(ld) ld.style.display = "none"; }
         }
@@ -406,11 +422,13 @@
                             </div>
                             <h3 class="text-xs font-bold text-slate-800 leading-tight truncate italic"><i class="fas fa-tools mr-1 text-slate-300"></i>${t.task||'ปัญหา'}</h3>
                             <p class="text-[10px] text-indigo-600 font-semibold truncate"><i class="fas fa-cube mr-1 opacity-40"></i>${t.asset||'ไม่ระบุ'}</p>
-                            <div class="flex items-center gap-2 mt-1">
+                            <div class="flex flex-wrap items-center gap-2 mt-1">
                                 <div class="text-[9px] text-slate-500 font-medium"><i class="far fa-calendar-alt mr-1 text-[8px]"></i>${formatThaiDate(t.deadline)}</div>
                                 <div class="text-[9px] text-slate-400 truncate max-w-[60px]">R: ${t.vendor||'-'}</div>
                                 <div class="flex gap-0.5">${imgs}</div>
                             </div>
+                            <!-- แสดงเหตุผล (Reason) เป็นตัวเล็กๆ -->
+                            ${t.reason ? `<p class="text-[8px] text-amber-700 font-medium mt-1 italic line-clamp-1 opacity-80 border-t border-amber-100 pt-0.5">เหตุผล: ${t.reason}</p>` : ''}
                         </div>
                         <div class="flex gap-1 ml-1.5 shrink-0">
                             ${t.status==='pending' ? `
@@ -435,17 +453,10 @@
             if(tb) { tb.style.display = tl.length > 0 ? 'block' : 'none'; document.getElementById('todayCount').innerText = tl.length; }
         }
 
-        // --- GLOBAL MAPPING (SAFE) ---
-        window.openEdit = id => {
-            const t = tasks.find(x => x.id === id); if(!t) return;
-            document.getElementById('edId').value = t.id;
-            document.getElementById('edTask').value = t.task;
-            document.getElementById('edEnd').value = t.deadline || "";
-            document.getElementById('edReason').value = t.reason || "";
-            document.getElementById('editModal').style.display = 'block';
-        };
-        window.openComp = id => { curId = id; outImgs = []; document.getElementById('preOut').innerHTML = ''; document.getElementById('compModal').style.display = 'block'; };
-        window.openDel = id => { targetDelId = id; document.getElementById('delModal').style.display = 'block'; };
+        // --- GLOBAL MAPPING ---
+        window.openEdit = openEdit;
+        window.openComp = openComp;
+        window.openDel = openDel;
         window.confirmDel = handleConfirmDel;
         window.save = handleSave;
         window.update = handleUpdate;
@@ -455,7 +466,7 @@
         window.handleImg = handleImg;
         window.toggleOther = v => { const el = document.getElementById('otherAssetWrapper'); if(el) el.className = v.trim() === "อื่นๆ (ระบุเอง)" ? "block" : "hidden"; };
         window.toggleDeptOther = v => { const el = document.getElementById('otherDeptWrapper'); if(el) el.className = v === "Other" ? "block" : "hidden"; };
-        window.toggleJobTypeOther = v => { const el = document.getElementById('otherJobTypeWrapper'); if(el) el.className = v === "Other" ? "block" : "hidden"; if(v==="Other") document.getElementById('otherJobTypeInput').focus(); };
+        window.toggleJobTypeOther = v => { const el = document.getElementById('otherJobTypeWrapper'); if(el) el.className = v === "Other" ? "block mt-1" : "hidden"; if(v==="Other") document.getElementById('otherJobTypeInput').focus(); };
         window.resetAssetInput = () => { const el = document.getElementById('assetInput'); if(el) { el.value = ""; window.toggleOther(""); el.focus(); } };
         window.resetFilters = () => { if(document.getElementById('filterMonth')) document.getElementById('filterMonth').value = ""; if(document.getElementById('filterAsset')) document.getElementById('filterAsset').value = ""; render(); };
 
