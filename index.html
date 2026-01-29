@@ -13,250 +13,215 @@
             --primary: #4f46e5;
             --danger: #ef4444;
             --success: #10b981;
-            --bg-gray: #f8fafc;
+            --amber: #f59e0b;
         }
 
         body { 
             font-family: 'Kanit', sans-serif; 
             font-weight: 400; 
             color: #1e293b; 
-            line-height: 1.5;
-            background-color: var(--bg-gray);
+            background-color: #f1f5f9;
             -webkit-tap-highlight-color: transparent;
         }
-
-        .loader { border: 2.5px solid #f3f3f3; border-top: 2.5px solid var(--primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: none; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .tab-active { 
             color: var(--primary); 
             font-weight: 600; 
-            position: relative;
-        }
-        .tab-active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 25%;
-            width: 50%;
-            height: 4px;
-            background: var(--primary);
-            border-radius: 10px;
+            border-bottom: 3px solid var(--primary);
         }
 
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(8px); }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
         .modal-content { 
             background-color: #fff; 
-            margin: 15% auto; 
-            padding: 24px; 
-            border-radius: 2.5rem; 
+            margin: 10% auto; 
+            padding: 20px; 
+            border-radius: 2rem; 
             width: 92%; 
-            max-width: 480px; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-width: 450px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
         }
 
-        .card-shadow { box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        
-        /* สไตล์พิเศษสำหรับ Samsung S23 Ultra (Reachability) */
-        .header-gradient {
-            background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+        .compact-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-left: 6px solid var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: transform 0.2s;
         }
+        .compact-card:active { transform: scale(0.98); }
+        .compact-card.overdue { border-left-color: var(--danger); background-color: #fff1f2; }
+        
+        .loader { border: 2px solid #f3f3f3; border-top: 2px solid var(--primary); border-radius: 50%; width: 18px; height: 18px; animation: spin 1s linear infinite; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .toast { 
-            display: none; 
-            position: fixed; 
-            bottom: 30px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            padding: 14px 28px; 
-            border-radius: 20px; 
-            z-index: 200; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            width: auto;
-            min-width: 250px;
-            text-align: center;
-            font-weight: 500;
+            display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
+            padding: 12px 24px; border-radius: 1rem; z-index: 200; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            min-width: 200px; text-align: center;
         }
-        .toast-error { background: #ef4444; color: white; }
-        .toast-success { background: #10b981; color: white; }
+        .toast-error { background: var(--danger); color: white; }
+        .toast-success { background: var(--success); color: white; }
     </style>
 </head>
 <body class="min-h-screen pb-10">
     <div id="toast" class="toast">แจ้งเตือน</div>
 
-    <div class="max-w-2xl mx-auto bg-white min-h-screen shadow-sm md:mt-4 md:rounded-[3rem] overflow-hidden">
-        <!-- Banner งานวันนี้ -->
-        <div id="todayBanner" class="hidden bg-red-600 p-3 text-white text-center text-sm font-medium">
-            <i class="fas fa-clock mr-2"></i> วันนี้มีงานต้องส่ง <span id="todayCount" class="font-bold">0</span> รายการ <button onclick="switchTab('dashboard')" class="underline ml-2 font-semibold">ดูเลย</button>
+    <div class="max-w-xl mx-auto min-h-screen bg-slate-50 md:shadow-xl md:my-4 md:rounded-[2.5rem] overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-indigo-700 p-6 text-white flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">Work Follow UP</h1>
+                <p class="text-[10px] opacity-70 uppercase tracking-widest font-light">Sarin Systems v2.5 (Dynamic Input Update)</p>
+            </div>
+            <button onclick="fetchData()" class="p-3 bg-white/10 rounded-xl active:bg-white/20">
+                <i class="fas fa-sync-alt"></i>
+            </button>
         </div>
 
-        <!-- Header - ออกแบบสไตล์ One UI -->
-        <div class="header-gradient p-8 text-white">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h1 class="text-3xl font-bold tracking-tight">Work Follow UP</h1>
-                    <p class="text-indigo-100 text-xs opacity-80 mt-1 uppercase tracking-widest">Sarin Management v2.2</p>
-                </div>
-                <button onclick="fetchData()" class="bg-white/20 p-4 rounded-2xl active:scale-90 transition-all">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
-            </div>
+        <!-- Navigation Tabs -->
+        <div class="flex bg-white shadow-sm px-2">
+            <button onclick="switchTab('active')" id="tabActive" class="flex-1 py-3 text-sm font-medium tab-active">งานปัจจุบัน</button>
+            <button onclick="switchTab('dashboard')" id="tabDashboard" class="flex-1 py-3 text-sm font-medium text-slate-400">สรุปงาน</button>
+            <button onclick="switchTab('history')" id="tabHistory" class="flex-1 py-3 text-sm font-medium text-slate-400">ประวัติ</button>
         </div>
 
-        <div class="p-5 md:p-8">
-            <!-- Navigation Tabs -->
-            <div class="flex justify-around border-b border-slate-100 mb-6">
-                <button onclick="switchTab('active')" id="tabActive" class="pb-4 flex-1 text-center tab-active transition-all text-sm font-medium">บันทึกงาน</button>
-                <button onclick="switchTab('dashboard')" id="tabDashboard" class="pb-4 flex-1 text-center text-slate-400 transition-all text-sm font-medium">สรุปงาน</button>
-                <button onclick="switchTab('history')" id="tabHistory" class="pb-4 flex-1 text-center text-slate-400 transition-all text-sm font-medium">ประวัติ</button>
+        <div class="p-4">
+            <!-- Stats Bar -->
+            <div id="statsBar" class="hidden grid grid-cols-4 gap-2 mb-4">
+                <div class="bg-white p-2 rounded-xl text-center border"><p class="text-[9px] text-slate-400 font-bold">รวม</p><p id="statTotal" class="text-lg font-bold">0</p></div>
+                <div class="bg-amber-50 p-2 rounded-xl text-center border border-amber-100 text-amber-600"><p class="text-[9px] font-bold">ค้าง</p><p id="statPending" class="text-lg font-bold">0</p></div>
+                <div class="bg-emerald-50 p-2 rounded-xl text-center border border-emerald-100 text-emerald-600"><p class="text-[9px] font-bold">เสร็จ</p><p id="statCompleted" class="text-lg font-bold">0</p></div>
+                <div class="bg-red-50 p-2 rounded-xl text-center border border-red-100 text-red-600"><p class="text-[9px] font-bold">ช้า</p><p id="statOverdue" class="text-lg font-bold">0</p></div>
             </div>
 
-            <!-- กรองข้อมูล -->
-            <div id="filterContainer" class="hidden bg-slate-50 p-5 rounded-[2rem] mb-6 space-y-4 border border-slate-100">
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="col-span-1">
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">เดือน</label>
-                        <select id="filterMonth" onchange="render()" class="w-full p-3 bg-white rounded-2xl border-none shadow-sm text-sm outline-none focus:ring-2 focus:ring-indigo-500">
-                            <option value="">ทั้งหมด</option>
-                        </select>
-                    </div>
-                    <div class="col-span-1">
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">โมล/เครื่อง</label>
-                        <select id="filterAsset" onchange="render()" class="w-full p-3 bg-white rounded-2xl border-none shadow-sm text-sm outline-none focus:ring-2 focus:ring-indigo-500">
-                            <option value="">ทั้งหมด</option>
-                        </select>
-                    </div>
-                </div>
+            <!-- Filters -->
+            <div id="filterContainer" class="hidden flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
+                <select id="filterMonth" onchange="render()" class="flex-1 min-w-[100px] p-2 text-xs rounded-xl bg-white border-none shadow-sm outline-none">
+                    <option value="">ทุกเดือน</option>
+                </select>
+                <select id="filterAsset" onchange="render()" class="flex-2 min-w-[150px] p-2 text-xs rounded-xl bg-white border-none shadow-sm outline-none">
+                    <option value="">ทุก โมล/เครื่อง</option>
+                </select>
+                <button onclick="resetFilters()" class="p-2 bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold">ล้าง</button>
             </div>
 
-            <!-- Dashboard Section -->
-            <div id="dashboardSection" class="hidden">
-                <div id="overdueAlertBox" class="hidden mb-6 bg-red-500 p-5 rounded-[2rem] shadow-lg shadow-red-100">
-                    <div class="flex items-center text-white">
-                        <i class="fas fa-exclamation-circle text-2xl mr-3"></i>
-                        <div>
-                            <p class="font-semibold leading-tight">เลยกำหนดส่ง!</p>
-                            <p class="text-xs opacity-90">ค้างจ่ายงาน <span id="overdueAlertCount">0</span> รายการ</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-4 gap-2 mb-8">
-                    <div class="bg-slate-50 p-4 rounded-3xl text-center"><p class="text-[9px] text-slate-400 font-bold uppercase">รวม</p><p id="statTotal" class="text-xl font-bold">0</p></div>
-                    <div class="bg-amber-50 p-4 rounded-3xl text-center text-amber-600"><p class="text-[9px] font-bold uppercase">ทำอยู่</p><p id="statPending" class="text-xl font-bold">0</p></div>
-                    <div class="bg-emerald-50 p-4 rounded-3xl text-center text-emerald-600"><p class="text-[9px] font-bold uppercase">เสร็จ</p><p id="statCompleted" class="text-xl font-bold">0</p></div>
-                    <div class="bg-red-50 p-4 rounded-3xl text-center text-red-600"><p class="text-[9px] font-bold uppercase">ช้า</p><p id="statOverdue" class="text-xl font-bold">0</p></div>
-                </div>
-                <div id="dashList" class="space-y-4"></div>
+            <div id="overdueAlertBox" class="hidden bg-red-600 text-white p-3 rounded-xl mb-4 text-xs flex items-center shadow-md animate-pulse">
+                <i class="fas fa-exclamation-triangle mr-2"></i> มีงานเลยกำหนด <span id="overdueAlertCount" class="font-bold mx-1">0</span> รายการ!
             </div>
 
-            <!-- Active Section -->
+            <!-- ส่วนบันทึกงาน -->
             <div id="activeSection">
-                <details class="bg-indigo-50/50 rounded-[2rem] mb-6 overflow-hidden border border-indigo-100" open>
-                    <summary class="p-5 cursor-pointer font-semibold text-indigo-700 list-none flex items-center justify-between">
-                        <span><i class="fas fa-plus-circle mr-2"></i>บันทึกงานซ่อมใหม่</span>
-                        <i class="fas fa-chevron-down text-xs"></i>
+                <details class="bg-white rounded-2xl mb-4 shadow-sm border overflow-hidden">
+                    <summary class="p-4 cursor-pointer font-bold text-indigo-700 flex justify-between items-center text-sm">
+                        <span><i class="fas fa-plus-circle mr-2"></i>บันทึกงานใหม่</span>
+                        <i class="fas fa-chevron-down text-[10px]"></i>
                     </summary>
-                    <div class="p-6 pt-0 space-y-4">
+                    <div class="p-4 pt-0 space-y-3">
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">ชื่องาน / รายละเอียด (ปัญหา)</label>
-                            <input type="text" id="taskInput" placeholder="อาการเสียที่พบ..." class="w-full p-4 rounded-2xl border-none shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1 ml-1">ชื่องาน / รายละเอียด (ปัญหา)</label>
+                            <input type="text" id="taskInput" placeholder="อาการเสีย / ปัญหาที่พบ..." class="w-full p-3 text-sm rounded-xl bg-slate-50 border-none outline-none focus:ring-1 focus:ring-indigo-500">
                         </div>
-                        <div class="grid grid-cols-2 gap-3">
+
+                        <div class="flex flex-col gap-3">
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">ประเภท</label>
-                                <select id="typeInput" class="w-full p-4 rounded-2xl border-none shadow-sm outline-none bg-white">
-                                    <option>Repair Mold</option><option>Fit flashing</option><option>TPM Mold</option><option>Machine modify</option><option>New Machine</option><option>Other</option>
+                                <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1 ml-1">ประเภทงาน</label>
+                                <select id="typeInput" onchange="toggleJobTypeOther(this.value)" class="w-full p-3 text-sm rounded-xl bg-slate-50 border-none outline-none font-medium">
+                                    <!-- กลุ่ม Mold -->
+                                    <option value="Repair Mold">Repair Mold</option>
+                                    <option value="Spare part Mold">Spare part Mold</option>
+                                    <option value="TPM Mold">TPM Mold</option>
+                                    <option value="Fit flashing">Fit flashing Mold</option>
+                                    <!-- กลุ่ม Machine -->
+                                    <option value="Repair machine">Repair machine</option>
+                                    <option value="Spare part machine">Spare part machine</option>
+                                    <option value="Machine modify">Machine modify</option>
+                                    <option value="New Machine">New Machine</option>
+                                    <option value="Other">Other (อื่นๆ)</option>
                                 </select>
                             </div>
-                            <div class="relative">
-                                <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">โมล/เครื่อง</label>
-                                <input type="text" id="assetInput" list="assetList" oninput="toggleOther(this.value)" placeholder="ค้นหา..." class="w-full p-4 rounded-2xl border-none shadow-sm outline-none font-medium">
+                            <div id="otherJobTypeWrapper" class="hidden">
+                                <input type="text" id="otherJobTypeInput" placeholder="ระบุประเภทงานเอง..." class="w-full p-3 text-sm rounded-xl border-2 border-dashed border-indigo-200 bg-white outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1 ml-1">โมล/เครื่อง</label>
+                                <input type="text" id="assetInput" list="assetList" oninput="toggleOther(this.value)" placeholder="ค้นหาหรือเลือก โมล/เครื่อง..." class="w-full p-3 text-sm rounded-xl bg-slate-50 border-none outline-none font-medium text-indigo-900">
                                 <datalist id="assetList"></datalist>
                             </div>
                         </div>
-                        <div id="otherAssetWrapper" class="hidden">
-                            <input type="text" id="otherAssetInput" placeholder="ระบุชื่อโมล/เครื่องใหม่..." class="w-full p-4 rounded-2xl border-2 border-dashed border-indigo-200 bg-white outline-none">
-                        </div>
+                        <div id="otherAssetWrapper" class="hidden"><input type="text" id="otherAssetInput" placeholder="ระบุชื่อโมล/เครื่องใหม่..." class="w-full p-3 text-sm rounded-xl border-2 border-dashed border-indigo-200 outline-none"></div>
+                        
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">ผู้รับผิดชอบ (Dept)</label>
-                            <select id="deptInput" onchange="toggleDeptOther(this.value)" class="w-full p-4 rounded-2xl border-none shadow-sm bg-white text-indigo-600 font-medium">
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1 ml-1">ผู้รับผิดชอบ (Dept)</label>
+                            <select id="deptInput" onchange="toggleDeptOther(this.value)" class="w-full p-3 text-sm rounded-xl bg-slate-50 border-none outline-none text-indigo-600 font-medium">
                                 <option value="">-- เลือกผู้จัดทำ --</option>
-                                <option value="TP/MDS">1. TP/MDS</option>
-                                <option value="PE">2. PE</option>
-                                <option value="Other">3. Other (ระบุเอง)</option>
+                                <option value="TP/MDS">TP/MDS</option><option value="PE">PE</option><option value="Other">ระบุเอง</option>
                             </select>
                         </div>
-                        <div id="otherDeptWrapper" class="hidden">
-                            <input type="text" id="otherDeptInput" placeholder="ระบุแผนก/บุคคล..." class="w-full p-4 rounded-2xl border-none shadow-sm">
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">วันเริ่ม</label>
-                                <input type="date" id="startInput" class="w-full p-4 rounded-2xl border-none shadow-sm outline-none">
+                        <div id="otherDeptWrapper" class="hidden"><input type="text" id="otherDeptInput" placeholder="ระบุแผนก..." class="w-full p-3 text-sm rounded-xl bg-slate-50"></div>
+                        
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">เริ่ม</label>
+                                <input type="date" id="startInput" class="w-full p-2 text-sm rounded-xl bg-slate-50 border-none outline-none">
                             </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">กำหนดเสร็จ</label>
-                                <input type="date" id="endInput" class="w-full p-4 rounded-2xl border-none shadow-sm outline-none text-red-500 font-semibold">
+                            <div class="flex-1">
+                                <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">กำหนดเสร็จ</label>
+                                <input type="date" id="endInput" class="w-full p-2 text-sm rounded-xl bg-slate-50 border-none outline-none text-red-500 font-bold">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">รูปภาพแจ้งซ่อม</label>
-                            <input type="file" multiple accept="image/*" onchange="handleImg(this, 'preIn', 'in')" class="text-xs block w-full text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                            <div id="preIn" class="flex flex-wrap gap-2 mt-3"></div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1 ml-1">รูปภาพแจ้งซ่อม</label>
+                            <input type="file" multiple accept="image/*" onchange="handleImg(this, 'preIn', 'in')" class="text-[10px] block w-full file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-indigo-50 file:text-indigo-700">
+                            <div id="preIn" class="flex flex-wrap gap-2 mt-2"></div>
                         </div>
-                        <button onclick="save()" id="saveBtn" class="w-full bg-indigo-600 text-white py-5 rounded-[1.5rem] font-semibold uppercase shadow-lg active:scale-95 transition-all flex justify-center items-center gap-3">
-                            <i class="fas fa-save"></i> บันทึกข้อมูล <div class="loader" id="saveLd"></div>
+                        <button onclick="save()" id="saveBtn" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold uppercase shadow-md active:scale-95 transition-all flex justify-center items-center gap-2">
+                            บันทึกข้อมูล <div class="loader" id="saveLd"></div>
                         </button>
                     </div>
                 </details>
-                <div id="listActive" class="space-y-4"></div>
+                <div id="listActive" class="space-y-2"></div>
             </div>
 
-            <!-- History Section -->
-            <div id="historySection" class="hidden"><div id="listHistory" class="space-y-4"></div></div>
+            <div id="dashboardSection" class="hidden space-y-2"><div id="dashList" class="space-y-2"></div></div>
+            <div id="historySection" class="hidden space-y-2"><div id="listHistory" class="space-y-2"></div></div>
         </div>
     </div>
 
     <!-- Modals -->
-    <div id="editModal" class="modal"><div class="modal-content animate-in zoom-in fade-in duration-200">
-        <div class="flex justify-between items-center mb-6"><h2 class="text-xl font-bold text-indigo-700 italic uppercase">แก้ไขข้อมูลงาน</h2><button onclick="closeM('editModal')" class="text-slate-300 p-2"><i class="fas fa-times text-xl"></i></button></div>
-        <div class="space-y-5">
+    <div id="editModal" class="modal"><div class="modal-content">
+        <h2 class="text-lg font-bold text-indigo-700 mb-4 italic">แก้ไขข้อมูล</h2>
+        <div class="space-y-4">
             <input type="hidden" id="edId">
-            <div><label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">ปัญหาที่พบ</label><input type="text" id="edTask" class="w-full p-4 rounded-2xl bg-slate-50 border-none outline-none font-medium"></div>
-            <div><label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">กำหนดเสร็จใหม่</label><input type="date" id="edEnd" class="w-full p-4 rounded-2xl bg-slate-50 border-none outline-none font-bold text-red-500"></div>
-            <div><label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">ระบุเหตุผลในการแก้ไข</label><textarea id="edReason" rows="3" class="w-full p-4 rounded-2xl bg-slate-50 border-none outline-none text-sm"></textarea></div>
-            <button onclick="update()" id="upBtn" class="w-full bg-indigo-600 text-white py-5 rounded-2xl font-bold active:scale-95 transition-all flex justify-center items-center gap-2">อัปเดตงาน <div class="loader" id="upLd"></div></button>
+            <input type="text" id="edTask" class="w-full p-3 rounded-xl bg-slate-100 border-none outline-none text-sm font-medium">
+            <input type="date" id="edEnd" class="w-full p-3 rounded-xl bg-slate-100 border-none outline-none text-red-500 font-bold">
+            <textarea id="edReason" rows="2" placeholder="ระบุเหตุผลการแก้ไข..." class="w-full p-3 rounded-xl bg-slate-100 border-none outline-none text-sm font-medium"></textarea>
+            <button onclick="update()" id="upBtn" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold active:scale-95 flex justify-center items-center gap-2">อัปเดต <div class="loader" id="upLd"></div></button>
         </div>
     </div></div>
 
-    <div id="compModal" class="modal"><div class="modal-content text-center p-10 animate-in zoom-in duration-200">
-        <div class="bg-emerald-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 text-emerald-600 text-3xl"><i class="fas fa-check"></i></div>
-        <h2 class="text-2xl font-bold text-slate-800 mb-2 uppercase">ปิดงานซ่อม</h2>
-        <p class="text-xs text-slate-400 mb-6 italic">อัปโหลดรูปภาพหลังซ่อมเสร็จ (ถ้ามี)</p>
-        <input type="file" multiple accept="image/*" onchange="handleImg(this, 'preOut', 'out')" class="text-xs w-full mb-6"><div id="preOut" class="flex flex-wrap gap-2 mb-6 justify-center"></div>
-        <div class="flex gap-3"><button onclick="closeM('compModal')" class="flex-1 bg-slate-100 text-slate-400 py-4 rounded-2xl font-bold uppercase">ยกเลิก</button><button onclick="complete()" id="cpBtn" class="flex-[2] bg-emerald-600 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 flex justify-center items-center gap-2 uppercase">ยืนยันปิดงาน <div class="loader" id="cpLd"></div></button></div>
+    <div id="compModal" class="modal"><div class="modal-content text-center">
+        <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fas fa-check"></i></div>
+        <h2 class="text-xl font-bold mb-2 uppercase">ปิดงานซ่อม</h2>
+        <input type="file" multiple accept="image/*" onchange="handleImg(this, 'preOut', 'out')" class="text-xs mb-4">
+        <div id="preOut" class="flex flex-wrap gap-2 mb-4 justify-center"></div>
+        <div class="flex gap-2"><button onclick="closeM('compModal')" class="flex-1 py-3 bg-slate-100 rounded-xl font-bold text-slate-400">ยกเลิก</button><button onclick="complete()" id="cpBtn" class="flex-2 py-3 bg-emerald-600 text-white rounded-xl font-bold uppercase flex justify-center items-center gap-2">ยืนยัน <div class="loader" id="cpLd"></div></button></div>
     </div></div>
 
-    <div id="delModal" class="modal"><div class="modal-content text-center p-10">
-        <div class="bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 text-red-600 text-3xl"><i class="fas fa-trash-alt"></i></div>
-        <h2 class="text-xl font-bold text-slate-800 mb-6 uppercase">ต้องการลบงานนี้?</h2>
-        <div class="flex gap-3"><button onclick="closeM('delModal')" class="flex-1 bg-slate-100 text-slate-400 py-4 rounded-2xl font-bold uppercase">ยกเลิก</button><button onclick="confirmDel()" id="delBtn" class="flex-[2] bg-red-600 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 flex justify-center items-center gap-2 uppercase">ยืนยันลบ <div class="loader" id="delLd"></div></button></div>
+    <div id="delModal" class="modal"><div class="modal-content text-center">
+        <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fas fa-trash-alt"></i></div>
+        <h2 class="text-lg font-bold mb-6 uppercase">ยืนยันการลบ?</h2>
+        <div class="flex gap-2"><button onclick="closeM('delModal')" class="flex-1 py-3 bg-slate-100 rounded-xl font-bold text-slate-400">ยกเลิก</button><button onclick="confirmDel()" id="delBtn" class="flex-2 py-3 bg-red-600 text-white rounded-xl font-bold uppercase flex justify-center items-center gap-2">ลบถาวร <div class="loader" id="delLd"></div></button></div>
     </div></div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwX4EWwdUgmL9KqL_lKmTuh0-K6TGhAO-UVwa0dka2aQkkkOV_OrffP7VvVzOMPLTtzjQ/exec";
         let tasks = [], inImgs = [], outImgs = [], masterAssets = [], curId = "", currentTab = "active", targetDelId = "";
 
-        // --- Core Utils ---
-        function showToast(m, t = 'success') {
-            const x = document.getElementById('toast'); if(!x) return;
-            x.innerText = m; x.className = `toast toast-${t}`;
-            x.style.display = 'block'; setTimeout(() => { x.style.display = 'none'; }, 4000);
-        }
-
+        // --- Core Helpers ---
         function formatThaiDate(dStr) {
             if (!dStr || dStr === "-") return "-";
             try {
@@ -266,6 +231,12 @@
             } catch(e) { return dStr; }
         }
 
+        function showToast(m, t='success') {
+            const x = document.getElementById('toast'); if(!x) return;
+            x.innerText = m; x.className = `toast toast-${t}`; x.style.display = 'block';
+            setTimeout(() => { x.style.display = 'none'; }, 4000);
+        }
+
         function closeM(id) { const el = document.getElementById(id); if(el) el.style.display = 'none'; }
 
         // --- Data Logic ---
@@ -273,7 +244,7 @@
             for (let i = 0; i < retries; i++) {
                 try {
                     const res = await fetch(url, opt);
-                    if (!res.ok) throw new Error('Network fail');
+                    if (!res.ok) throw new Error('Fail');
                     return res;
                 } catch (e) {
                     if (i === retries - 1) throw e;
@@ -301,10 +272,10 @@
                         const img = new Image(); img.src = e.target.result;
                         img.onload = () => {
                             const can = document.createElement('canvas'); const ctx = can.getContext('2d');
-                            let w = img.width, h = img.height; if(w > 1000) { h = (1000/w)*h; w = 1000; }
+                            let w = img.width, h = img.height; if(w > 800) { h = (800/w)*h; w = 800; }
                             can.width = w; can.height = h; ctx.drawImage(img, 0, 0, w, h);
                             const b64 = can.toDataURL('image/jpeg', 0.6); target.push(b64);
-                            const i = document.createElement('img'); i.src = b64; i.className = "w-16 h-16 object-cover rounded-xl shadow-sm border border-slate-100"; pre.appendChild(i);
+                            const i = document.createElement('img'); i.src = b64; i.className = "w-10 h-10 object-cover rounded-lg border"; pre.appendChild(i);
                         };
                     };
                 }
@@ -315,15 +286,32 @@
             const task = document.getElementById('taskInput').value;
             const start = document.getElementById('startInput').value;
             const end = document.getElementById('endInput').value;
-            if(!task || !start || !end) return alert("ข้อมูลไม่ครบ");
+            if(!task || !end) return alert("ข้อมูลไม่ครบ");
             const btn = document.getElementById('saveBtn'); const ld = document.getElementById('saveLd');
             btn.disabled = true; if(ld) ld.style.display = "block";
+
+            // จัดการประเภทงาน (Job Type)
+            let type = document.getElementById('typeInput').value;
+            if(type === "Other") {
+                type = document.getElementById('otherJobTypeInput').value.trim();
+                if(!type) { btn.disabled = false; ld.style.display="none"; return alert("กรุณาระบุประเภทงานเอง"); }
+            }
+
+            // จัดการโมล/เครื่อง
             let asset = document.getElementById('assetInput').value.trim();
             if(asset === "อื่นๆ (ระบุเอง)") asset = document.getElementById('otherAssetInput').value.trim();
+            if(!asset) { btn.disabled = false; ld.style.display="none"; return alert("กรุณาเลือกโมล/เครื่อง"); }
+
+            // จัดการแผนก
             let dept = document.getElementById('deptInput').value;
             if(dept === "Other") dept = document.getElementById('otherDeptInput').value.trim();
+            if(!dept) { btn.disabled = false; ld.style.display="none"; return alert("กรุณาเลือกแผนก"); }
+
             try {
-                await fetchWithRetry(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "add", task, type: document.getElementById('typeInput').value, asset, startDate: start, deadline: end, images: inImgs, vendor: dept }) });
+                await fetchWithRetry(SCRIPT_URL, { 
+                    method: "POST", 
+                    body: JSON.stringify({ action: "add", task, type: type, asset, startDate: start, deadline: end, images: inImgs, vendor: dept }) 
+                });
                 showToast("บันทึกสำเร็จ"); setTimeout(() => location.reload(), 1000);
             } catch(e) { showToast("บันทึกไม่สำเร็จ", 'error'); btn.disabled = false; if(ld) ld.style.display = "none"; }
         };
@@ -333,7 +321,6 @@
             const task = document.getElementById('edTask').value;
             const deadline = document.getElementById('edEnd').value;
             const reason = document.getElementById('edReason').value;
-            if(!reason) return alert("ระบุเหตุผล");
             const btn = document.getElementById('upBtn'); const ld = document.getElementById('upLd');
             btn.disabled = true; if(ld) ld.style.display = "block";
             try {
@@ -354,23 +341,21 @@
                 render();
                 await fetchWithRetry(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "complete", id: curId, images: outImgs }) });
                 showToast("ปิดงานสำเร็จ"); closeM('compModal'); await fetchData();
-            } catch (e) { showToast("ปิดงานล้มเหลว", 'error'); } finally { btn.disabled = false; if(ld) ld.style.display = "none"; }
+            } catch (e) { showToast("ปิดงานไม่สำเร็จ", 'error'); } finally { btn.disabled = false; if(ld) ld.style.display = "none"; }
         };
 
         window.confirmDel = async function() {
             if(!targetDelId) return;
             const btn = document.getElementById('delBtn'); const ld = document.getElementById('delLd');
             btn.disabled = true; if(ld) ld.style.display = "block";
-            const oldTasks = [...tasks];
-            tasks = tasks.filter(t => t.id !== targetDelId);
-            render();
+            const oldT = [...tasks]; tasks = tasks.filter(t => t.id !== targetDelId); render();
             try {
                 await fetchWithRetry(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", id: targetDelId }) });
                 showToast("ลบข้อมูลสำเร็จ"); closeM('delModal');
-            } catch(e) { tasks = oldTasks; render(); showToast("ลบไม่สำเร็จ", 'error'); } finally { btn.disabled = false; if(ld) ld.style.display = "none"; targetDelId = ""; }
+            } catch(e) { tasks = oldT; render(); showToast("ลบไม่สำเร็จ", 'error'); } finally { btn.disabled = false; if(ld) ld.style.display = "none"; targetDelId = ""; }
         };
 
-        // --- UI Logic ---
+        // --- UI Rendering ---
         function updateMasterAssetList() {
             const l = document.getElementById('assetList'); if(!l) return;
             l.innerHTML = masterAssets.map(a => `<option value="${(typeof a === 'object') ? a.fullText : a}">`).join('') + '<option value="อื่นๆ (ระบุเอง)">';
@@ -381,9 +366,9 @@
             if(!fA || !fM) return;
             let relS = currentTab === 'dashboard' ? 'pending' : 'completed';
             const molds = [...new Set(tasks.filter(t => t.status === relS).map(t => t.asset))].sort();
-            fA.innerHTML = '<option value="">ทั้งหมด</option>' + molds.map(a => `<option value="${a}">${a}</option>`).join('');
+            fA.innerHTML = '<option value="">โมล/เครื่อง: ทั้งหมด</option>' + molds.map(a => `<option value="${a}">${a}</option>`).join('');
             const mons = [...new Set(tasks.filter(t => t.deadline).map(t => t.deadline.toString().substring(0, 7)))].filter(m => m).sort().reverse();
-            fM.innerHTML = '<option value="">ทั้งหมด</option>' + mons.map(m => `<option value="${m}">${m}</option>`).join('');
+            fM.innerHTML = '<option value="">ทุกเดือน</option>' + mons.map(m => `<option value="${m}">${m}</option>`).join('');
         }
 
         window.switchTab = function(mode) {
@@ -394,7 +379,8 @@
             document.getElementById('tab' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('tab-active');
             ['activeSection', 'dashboardSection', 'historySection'].forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); });
             document.getElementById(mode + 'Section').classList.remove('hidden');
-            document.getElementById('filterContainer').style.display = (mode === 'dashboard' || mode === 'history') ? 'block' : 'none';
+            document.getElementById('statsBar').style.display = (mode === 'dashboard' || mode === 'history') ? 'grid' : 'none';
+            document.getElementById('filterContainer').style.display = (mode === 'dashboard' || mode === 'history') ? 'flex' : 'none';
             updateFilters(); render();
         };
 
@@ -420,43 +406,40 @@
                 const isOver = t.status === 'pending' && t.deadline < today;
                 const rawImgs = (t.imageUrl ? t.imageUrl.split(',') : []).concat(t.finishImageUrl ? t.finishImageUrl.split(',') : []);
                 const imgs = rawImgs.map(u => u.trim()).filter(u => u && u.startsWith('http'))
-                    .map(u => `<img src="${u}" onclick="window.open('${u}')" class="w-20 h-20 object-cover rounded-2xl shadow-sm border border-slate-50 cursor-pointer active:scale-95" onerror="this.style.display='none'">`).join('');
+                    .map(u => `<img src="${u}" onclick="window.open('${u}')" class="w-8 h-8 object-cover rounded-md border border-slate-200">`).join('');
                 
                 return `
-                <div class="bg-white p-6 rounded-[2.5rem] card-shadow border-l-8 ${isOver?'border-red-500 bg-red-50/10':'border-indigo-500'} animate-in fade-in duration-300">
+                <div class="compact-card ${isOver?'overdue':''}">
                     <div class="flex justify-between items-start">
                         <div class="flex-1">
-                            <div class="flex gap-2 items-center mb-3">
-                                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${isOver?'bg-red-600 text-white':'bg-indigo-100 text-indigo-700'} uppercase">${t.type}</span>
-                                ${isOver?'<span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600 animate-pulse">LATE</span>':''}
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-[8px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 uppercase">${t.type}</span>
+                                ${isOver?'<span class="text-[8px] font-bold px-1.5 py-0.5 rounded bg-red-600 text-white animate-pulse">LATE</span>':''}
                             </div>
-                            <h3 class="text-xl font-semibold text-slate-800 leading-tight mb-1 italic"><i class="fas fa-tools mr-2 text-indigo-300"></i>${t.task||'ปัญหา'}</h3>
-                            <p class="text-sm text-indigo-600 font-medium mb-4"><i class="fas fa-cube mr-2 text-indigo-200"></i>โมล/เครื่อง: ${t.asset||'N/A'}</p>
-                            
-                            <div class="flex items-center gap-4 bg-slate-50 p-4 rounded-3xl inline-flex">
-                                <div class="text-[10px] text-slate-400 font-bold uppercase">Deadline:</div>
-                                <div class="text-lg font-bold ${isOver?'text-red-600':'text-slate-700'}">${formatThaiDate(t.deadline)}</div>
+                            <h3 class="text-md font-semibold text-slate-800 leading-tight italic"><i class="fas fa-tools mr-1 opacity-50"></i>${t.task||'ปัญหา'}</h3>
+                            <p class="text-[11px] text-indigo-600 font-medium italic"><i class="fas fa-cube mr-1 opacity-50"></i>${t.asset||'ไม่ระบุ'}</p>
+                            <div class="flex items-center gap-3 mt-2">
+                                <div class="text-[10px] text-slate-500 font-medium"><i class="far fa-calendar-alt mr-1"></i>${formatThaiDate(t.deadline)}</div>
+                                <div class="text-[10px] text-slate-400 font-medium">Resp: ${t.vendor||'-'}</div>
+                                <div class="flex gap-1">${imgs}</div>
                             </div>
-                            
-                            <div class="mt-2 text-[11px] text-slate-400 font-medium ml-1">ผู้รับผิดชอบ: ${t.vendor||'N/A'}</div>
-                            ${t.reason?`<div class="mt-3 p-3 bg-amber-50 rounded-2xl text-xs text-amber-800 border-l-4 border-amber-300 italic"><b>Note:</b> ${t.reason}</div>`:''}
-                            <div class="flex flex-wrap gap-2 mt-4">${imgs}</div>
+                            ${t.reason?`<div class="mt-2 text-[9px] text-amber-700 bg-amber-50 p-1 rounded px-2 font-medium italic">Note: ${t.reason}</div>`:''}
                         </div>
-                        <div class="flex flex-col gap-3 ml-4">
+                        <div class="flex gap-1 ml-2">
                             ${t.status==='pending' ? `
-                                <button onclick="openComp('${t.id}')" class="w-12 h-12 rounded-2xl bg-emerald-500 text-white shadow-lg shadow-emerald-100 active:scale-90 flex items-center justify-center"><i class="fas fa-check text-lg"></i></button>
-                                <button onclick="openEdit('${t.id}')" class="w-12 h-12 rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-100 active:scale-90 flex items-center justify-center"><i class="fas fa-edit text-lg"></i></button>
+                                <button onclick="openComp('${t.id}')" class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center"><i class="fas fa-check text-xs"></i></button>
+                                <button onclick="openEdit('${t.id}')" class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center"><i class="fas fa-edit text-xs"></i></button>
                             ` : ''}
-                            <button onclick="openDel('${t.id}')" class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 active:bg-red-500 active:text-white transition-all flex items-center justify-center"><i class="fas fa-trash-alt text-lg"></i></button>
+                            <button onclick="openDel('${t.id}')" class="w-10 h-10 rounded-xl bg-slate-100 text-slate-300 flex items-center justify-center active:bg-red-500 active:text-white"><i class="fas fa-trash-alt text-xs"></i></button>
                         </div>
                     </div>
                 </div>`;
             };
 
             const listA = document.getElementById('listActive');
-            if(listA) listA.innerHTML = activeAll.length ? activeAll.reverse().map(makeItem).join('') : '<p class="text-center py-10 text-slate-300">ไม่มีงานค้าง</p>';
+            if(listA) listA.innerHTML = activeAll.length ? activeAll.reverse().map(makeItem).join('') : '<p class="text-center py-10 text-slate-300 text-xs uppercase font-bold tracking-widest">No pending tasks</p>';
             const listH = document.getElementById('listHistory');
-            if(listH) listH.innerHTML = doneFiltered.length ? doneFiltered.reverse().map(makeItem).join('') : '<p class="text-center py-10 text-slate-300">ไม่มีประวัติ</p>';
+            if(listH) listH.innerHTML = doneFiltered.length ? doneFiltered.reverse().map(makeItem).join('') : '<p class="text-center py-10 text-slate-300 text-xs">No history</p>';
             const listD = document.getElementById('dashList');
             if(listD) listD.innerHTML = activeFiltered.sort((a,b)=>(a.deadline||'9999')>(b.deadline||'9999')?1:-1).map(makeItem).join('');
             
@@ -465,15 +448,13 @@
             if(tb) { tb.style.display = tl.length > 0 ? 'block' : 'none'; document.getElementById('todayCount').innerText = tl.length; }
         }
 
-        window.openEdit = id => {
-            const t = tasks.find(x => x.id === id); if(!t) return;
-            document.getElementById('edId').value = t.id; document.getElementById('edTask').value = t.task; document.getElementById('edEnd').value = t.deadline || ""; document.getElementById('edReason').value = t.reason || "";
-            document.getElementById('editModal').style.display = 'block';
-        };
-        window.openComp = id => { curId = id; outImgs = []; document.getElementById('preOut').innerHTML = ''; document.getElementById('compModal').style.display = 'block'; };
-        window.openDel = id => { targetDelId = id; document.getElementById('delModal').style.display = 'block'; };
-        window.toggleOther = v => { const el = document.getElementById('otherAssetWrapper'); if(el) el.className = v.trim() === "อื่นๆ (ระบุเอง)" ? "block mt-2" : "hidden"; };
-        window.toggleDeptOther = v => { const el = document.getElementById('otherDeptWrapper'); if(el) el.className = v === "Other" ? "block mt-2" : "hidden"; };
+        // --- Global Access ---
+        window.openEdit = id => openEdit(id);
+        window.openComp = id => openComp(id);
+        window.openDel = id => openDel(id);
+        window.toggleOther = v => { const el = document.getElementById('otherAssetWrapper'); if(el) el.className = v.trim() === "อื่นๆ (ระบุเอง)" ? "block mt-1" : "hidden"; };
+        window.toggleDeptOther = v => { const el = document.getElementById('otherDeptWrapper'); if(el) el.className = v === "Other" ? "block mt-1" : "hidden"; };
+        window.toggleJobTypeOther = v => { const el = document.getElementById('otherJobTypeWrapper'); if(el) el.className = v === "Other" ? "block mt-1" : "hidden"; if(v==="Other") document.getElementById('otherJobTypeInput').focus(); };
         window.resetAssetInput = () => { const el = document.getElementById('assetInput'); if(el) { el.value = ""; toggleOther(""); el.focus(); } };
         window.resetFilters = () => { if(document.getElementById('filterMonth')) document.getElementById('filterMonth').value = ""; if(document.getElementById('filterAsset')) document.getElementById('filterAsset').value = ""; render(); };
 
