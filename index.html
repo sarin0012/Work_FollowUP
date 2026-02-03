@@ -8,127 +8,59 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
-        
-        :root {
-            --primary: #4f46e5;
-            --danger: #ef4444;
-            --success: #10b981;
-            --amber: #f59e0b;
-        }
-
-        body { 
-            font-family: 'Kanit', sans-serif; 
-            font-weight: 400; 
-            color: #1e293b; 
-            background-color: #f8fafc;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .tab-active { 
-            color: var(--primary); 
-            font-weight: 600; 
-            border-bottom: 2px solid var(--primary);
-        }
-
+        :root { --primary: #4f46e5; --danger: #ef4444; --success: #10b981; --amber: #f59e0b; }
+        body { font-family: 'Kanit', sans-serif; font-weight: 400; color: #1e293b; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
+        .tab-active { color: var(--primary); font-weight: 600; border-bottom: 2px solid var(--primary); }
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); backdrop-filter: blur(2px); }
-        .modal-content { 
-            background-color: #fff; 
-            margin: 10% auto; 
-            padding: 16px; 
-            border-radius: 1.5rem; 
-            width: 90%; 
-            max-width: 400px; 
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-        }
-
-        /* Ultra Compact Card */
-        .compact-card {
-            background: white;
-            border-radius: 1rem;
-            padding: 8px 12px;
-            margin-bottom: 4px;
-            border-left: 4px solid var(--primary);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            transition: all 0.2s;
-        }
+        .modal-content { background-color: #fff; margin: 10% auto; padding: 16px; border-radius: 1.5rem; width: 90%; max-width: 400px; box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
+        .compact-card { background: white; border-radius: 1rem; padding: 8px 12px; margin-bottom: 4px; border-left: 4px solid var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: all 0.2s; }
         .compact-card.overdue { border-left-color: var(--danger); background-color: #fff1f2; }
-        
         .loader { border: 2px solid #f3f3f3; border-top: 2px solid var(--primary); border-radius: 50%; width: 14px; height: 14px; animation: spin 1s linear infinite; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .toast { 
-            display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); 
-            padding: 10px 20px; border-radius: 0.8rem; z-index: 200; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            min-width: 180px; text-align: center; font-size: 13px;
-        }
+        .toast { display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 10px 20px; border-radius: 0.8rem; z-index: 200; box-shadow: 0 5px 15px rgba(0,0,0,0.1); min-width: 180px; text-align: center; font-size: 13px; }
         .toast-error { background: var(--danger); color: white; }
         .toast-success { background: var(--success); color: white; }
-        
-        .slim-header { padding: 12px 20px; }
-        .slim-stats { padding: 4px 0; }
     </style>
 </head>
 <body class="min-h-screen pb-6">
     <div id="toast" class="toast">แจ้งเตือน</div>
-
     <div class="max-w-xl mx-auto min-h-screen bg-white md:shadow-lg md:my-2 md:rounded-[2rem] overflow-hidden">
         
-        <!-- Header -->
-        <div class="bg-indigo-700 slim-header text-white flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-bold tracking-tight">Work Follow UP</h1>
-                <p class="text-[9px] opacity-70 uppercase tracking-widest">v2.10 Sarin & WEN Update</p>
-            </div>
-            <button onclick="fetchData()" class="p-2 bg-white/10 rounded-lg active:bg-white/20">
-                <i class="fas fa-sync-alt text-sm"></i>
-            </button>
+        <div class="bg-indigo-700 p-3 px-5 text-white flex justify-between items-center">
+            <div><h1 class="text-xl font-bold">Work Follow UP</h1><p class="text-[9px] opacity-70 uppercase">v2.10 Sarin & WEN Update</p></div>
+            <button onclick="fetchData()" class="p-2 bg-white/10 rounded-lg active:bg-white/20"><i class="fas fa-sync-alt text-sm"></i></button>
         </div>
 
-        <!-- Navigation Tabs -->
-        <div class="flex bg-white shadow-sm border-b">
+        <div class="flex bg-white border-b">
             <button onclick="switchTab('active')" id="tabActive" class="flex-1 py-2 text-xs font-medium tab-active">งานปัจจุบัน</button>
             <button onclick="switchTab('dashboard')" id="tabDashboard" class="flex-1 py-2 text-xs font-medium text-slate-400">สรุปงาน</button>
             <button onclick="switchTab('history')" id="tabHistory" class="flex-1 py-2 text-xs font-medium text-slate-400">ประวัติ</button>
         </div>
 
         <div class="p-2">
-            <!-- Stats Bar -->
-            <div id="statsBar" class="hidden grid grid-cols-4 gap-1 mb-2 slim-stats">
+            <div id="statsBar" class="hidden grid grid-cols-4 gap-1 mb-2">
                 <div class="bg-slate-50 p-1.5 rounded-lg text-center border"><p class="text-[8px] text-slate-400 font-bold">รวม</p><p id="statTotal" class="text-sm font-bold">0</p></div>
-                <div class="bg-amber-50 p-1.5 rounded-lg text-center border border-amber-100 text-amber-600"><p class="text-[8px] font-bold">ค้าง</p><p id="statPending" class="text-sm font-bold">0</p></div>
-                <div class="bg-emerald-50 p-1.5 rounded-lg text-center border border-emerald-100 text-emerald-600"><p class="text-[8px] font-bold">เสร็จ</p><p id="statCompleted" class="text-sm font-bold">0</p></div>
-                <div class="bg-red-50 p-1.5 rounded-lg text-center border border-red-100 text-red-600"><p class="text-[8px] font-bold">ช้า</p><p id="statOverdue" class="text-sm font-bold">0</p></div>
+                <div class="bg-amber-50 p-1.5 rounded-lg text-center border text-amber-600"><p class="text-[8px] font-bold">ค้าง</p><p id="statPending" class="text-sm font-bold">0</p></div>
+                <div class="bg-emerald-50 p-1.5 rounded-lg text-center border text-emerald-600"><p class="text-[8px] font-bold">เสร็จ</p><p id="statCompleted" class="text-sm font-bold">0</p></div>
+                <div class="bg-red-50 p-1.5 rounded-lg text-center border text-red-600"><p class="text-[8px] font-bold">ช้า</p><p id="statOverdue" class="text-sm font-bold">0</p></div>
             </div>
 
-            <!-- Filters -->
             <div id="filterContainer" class="hidden flex gap-1 mb-2">
-                <select id="filterMonth" onchange="render()" class="flex-1 p-1.5 text-[11px] rounded-lg bg-slate-50 border outline-none">
-                    <option value="">ทุกเดือน</option>
-                </select>
-                <select id="filterAsset" onchange="render()" class="flex-[1.5] p-1.5 text-[11px] rounded-lg bg-slate-50 border outline-none">
-                    <option value="">ทุก โมล/เครื่อง</option>
-                </select>
+                <select id="filterMonth" onchange="render()" class="flex-1 p-1.5 text-[11px] rounded-lg bg-slate-50 border outline-none"><option value="">ทุกเดือน</option></select>
+                <select id="filterAsset" onchange="render()" class="flex-[1.5] p-1.5 text-[11px] rounded-lg bg-slate-50 border outline-none"><option value="">ทุก โมล/เครื่อง</option></select>
                 <button onclick="resetFilters()" class="px-3 bg-indigo-50 text-indigo-700 rounded-lg text-[10px] font-bold">ล้าง</button>
             </div>
 
-            <div id="overdueAlertBox" class="hidden bg-red-600 text-white p-2 rounded-lg mb-2 text-[10px] flex items-center shadow-sm">
-                <i class="fas fa-exclamation-triangle mr-1.5"></i> มีงานเลยกำหนด <span id="overdueAlertCount" class="font-bold mx-1">0</span> รายการ!
-            </div>
+            <div id="overdueAlertBox" class="hidden bg-red-600 text-white p-2 rounded-lg mb-2 text-[10px] flex items-center shadow-sm"><i class="fas fa-exclamation-triangle mr-1.5"></i> มีงานเลยกำหนด <span id="overdueAlertCount" class="font-bold mx-1">0</span> รายการ!</div>
 
-            <!-- Active Section -->
             <div id="activeSection">
                 <details class="bg-indigo-50/30 rounded-xl mb-2 border overflow-hidden">
-                    <summary class="p-3 cursor-pointer font-bold text-indigo-700 flex justify-between items-center text-xs">
-                        <span><i class="fas fa-plus-circle mr-1.5"></i>บันทึกงานใหม่</span>
-                        <i class="fas fa-chevron-down text-[8px]"></i>
-                    </summary>
+                    <summary class="p-3 cursor-pointer font-bold text-indigo-700 flex justify-between items-center text-xs"><span><i class="fas fa-plus-circle mr-1.5"></i>บันทึกงานใหม่</span><i class="fas fa-chevron-down text-[8px]"></i></summary>
                     <div class="p-3 pt-0 space-y-2">
-                        <input type="text" id="taskInput" placeholder="อาการเสีย / ปัญหา..." class="w-full p-2.5 text-xs rounded-lg border outline-none focus:ring-1 focus:ring-indigo-400">
-                        
+                        <input type="text" id="taskInput" placeholder="อาการเสีย / ปัญหา..." class="w-full p-2.5 text-xs rounded-lg border outline-none">
                         <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5 ml-1">ประเภทงาน</label>
-                                <select id="typeInput" onchange="toggleJobTypeOther(this.value)" class="w-full p-2 text-xs rounded-lg border outline-none bg-white font-medium">
+                            <div><label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5 ml-1">ประเภทงาน</label>
+                                <select id="typeInput" onchange="toggleJobTypeOther(this.value)" class="w-full p-2 text-xs rounded-lg border outline-none bg-white">
                                     <optgroup label="Mold">
                                         <option value="Repair Mold">Repair Mold</option>
                                         <option value="Spare part Mold">Spare part Mold</option>
@@ -145,77 +77,52 @@
                                     <option value="Other">Other (ระบุเอง)</option>
                                 </select>
                             </div>
-                            <div>
-                                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5 ml-1">โมล/เครื่อง</label>
-                                <input type="text" id="assetInput" list="assetList" oninput="toggleOther(this.value)" placeholder="ค้นหา..." class="w-full p-2 text-xs rounded-lg border outline-none font-medium">
+                            <div><label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5 ml-1">โมล/เครื่อง</label>
+                                <input type="text" id="assetInput" list="assetList" oninput="toggleOther(this.value)" placeholder="ค้นหา..." class="w-full p-2 text-xs rounded-lg border outline-none">
                                 <datalist id="assetList"></datalist>
                             </div>
                         </div>
-
-                        <div id="otherJobTypeWrapper" class="hidden"><input type="text" id="otherJobTypeInput" placeholder="พิมพ์ประเภทงาน..." class="w-full p-2 text-xs rounded-lg border-2 border-dashed border-indigo-200"></div>
-                        <div id="otherAssetWrapper" class="hidden"><input type="text" id="otherAssetInput" placeholder="พิมพ์ชื่อโมล/เครื่อง..." class="w-full p-2 text-xs rounded-lg border-2 border-dashed border-indigo-200"></div>
-                        
+                        <div id="otherJobTypeWrapper" class="hidden"><input type="text" id="otherJobTypeInput" placeholder="ระบุประเภทงาน..." class="w-full p-2 text-xs rounded-lg border-2 border-dashed border-indigo-200"></div>
+                        <div id="otherAssetWrapper" class="hidden"><input type="text" id="otherAssetInput" placeholder="ชื่อโมล/เครื่องใหม่..." class="w-full p-2 text-xs rounded-lg border-2 border-dashed border-indigo-200"></div>
                         <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5 ml-1">ผู้รับผิดชอบ</label>
+                            <div><label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5 ml-1">ผู้รับผิดชอบ</label>
                                 <select id="deptInput" onchange="toggleDeptOther(this.value)" class="w-full p-2 text-xs rounded-lg border outline-none bg-white font-medium text-indigo-600">
                                     <option value="">-- เลือก --</option>
-                                    <option value="Sarin">Sarin</option>
-                                    <option value="WEN">WEN</option>
-                                    <option value="TP/MDS">TP/MDS</option>
-                                    <option value="PE">PE</option>
-                                    <option value="Other">ระบุเอง</option>
+                                    <option value="Sarin">Sarin</option><option value="WEN">WEN</option><option value="TP/MDS">TP/MDS</option><option value="PE">PE</option><option value="Other">ระบุเอง</option>
                                 </select>
                             </div>
                             <div class="flex items-end"><div id="otherDeptWrapper" class="hidden w-full"><input type="text" id="otherDeptInput" placeholder="ระบุแผนก..." class="w-full p-2 text-xs rounded-lg border"></div></div>
                         </div>
-                        
                         <div class="flex gap-2">
                             <div class="flex-1"><label class="text-[9px] font-bold text-slate-400 uppercase ml-1">เริ่ม</label><input type="date" id="startInput" class="w-full p-1.5 text-xs rounded-lg border"></div>
                             <div class="flex-1"><label class="text-[9px] font-bold text-slate-400 uppercase ml-1">กำหนดเสร็จ</label><input type="date" id="endInput" class="w-full p-1.5 text-xs rounded-lg border text-red-500 font-bold"></div>
                         </div>
-
-                        <div class="flex items-center justify-between">
-                            <input type="file" id="fileIn" multiple accept="image/*" onchange="handleImg(this, 'preIn', 'in')" class="text-[9px] w-1/2 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-indigo-50 file:text-indigo-600">
-                            <div id="preIn" class="flex gap-1 overflow-x-auto max-w-[50%]"></div>
-                        </div>
-                        <button onclick="save()" id="saveBtn" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold uppercase text-xs shadow active:scale-95 transition-all flex justify-center items-center gap-2">
-                            บันทึกงาน <div class="loader" id="saveLd"></div>
-                        </button>
+                        <div class="flex items-center justify-between"><input type="file" id="fileIn" multiple accept="image/*" onchange="handleImg(this, 'preIn', 'in')" class="text-[9px] w-1/2 file:mr-2 file:py-1 file:px-2 file:rounded file:bg-indigo-50 file:text-indigo-600"><div id="preIn" class="flex gap-1 overflow-x-auto max-w-[50%]"></div></div>
+                        <button onclick="save()" id="saveBtn" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold uppercase text-xs shadow active:scale-95 flex justify-center items-center gap-2">บันทึกงาน <div class="loader" id="saveLd"></div></button>
                     </div>
                 </details>
                 <div id="listActive" class="space-y-1"></div>
             </div>
-
             <div id="dashboardSection" class="hidden space-y-1"><div id="dashList" class="space-y-1"></div></div>
             <div id="historySection" class="hidden space-y-1"><div id="listHistory" class="space-y-1"></div></div>
         </div>
     </div>
 
-    <!-- Modals -->
+    <!-- Modals (Edit Image Enabled) -->
     <div id="editModal" class="modal"><div class="modal-content">
         <h2 class="text-sm font-bold text-indigo-700 mb-3 italic">แก้ไขข้อมูล</h2>
         <div class="space-y-3">
             <input type="hidden" id="edId">
+            <input type="text" id="edTask" class="w-full p-2.5 rounded-lg border outline-none text-xs font-medium">
+            <input type="date" id="edEnd" class="w-full p-2.5 rounded-lg border outline-none text-red-500 font-bold text-xs">
             <div>
-                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5 ml-1">ชื่องาน / ปัญหา</label>
-                <input type="text" id="edTask" class="w-full p-2.5 rounded-lg border outline-none text-xs font-medium">
+                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 ml-1">แนบรูปเพิ่ม (Optional)</label>
+                <input type="file" id="fileEd" multiple accept="image/*" onchange="handleImg(this, 'preEd', 'ed')" class="text-[10px] w-full file:mr-2 file:bg-indigo-50 file:text-indigo-600">
+                <div id="preEd" class="flex gap-1 mt-2 overflow-x-auto"></div>
             </div>
-            <div>
-                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5 ml-1">กำหนดเสร็จใหม่</label>
-                <input type="date" id="edEnd" class="w-full p-2.5 rounded-lg border outline-none text-red-500 font-bold text-xs">
-            </div>
-            <div>
-                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5 ml-1">แนบรูปภาพเพิ่มเติม (ถ้ามี)</label>
-                <input type="file" id="fileEd" multiple accept="image/*" onchange="handleImg(this, 'preEd', 'ed')" class="text-[10px] block w-full file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-indigo-50 file:text-indigo-600 mb-2">
-                <div id="preEd" class="flex gap-1 overflow-x-auto"></div>
-            </div>
-            <div>
-                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5 ml-1">ระบุเหตุผลการแก้ไข</label>
-                <textarea id="edReason" rows="2" placeholder="ระบุเหตุผล..." class="w-full p-2.5 rounded-lg border outline-none text-xs font-medium"></textarea>
-            </div>
-            <button onclick="update()" id="upBtn" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold active:scale-95 text-xs flex justify-center items-center gap-2">อัปเดต <div class="loader" id="upLd"></div></button>
-            <button onclick="closeM('editModal')" class="w-full bg-slate-100 text-slate-500 py-2 rounded-lg font-bold text-xs mt-1">ยกเลิก</button>
+            <textarea id="edReason" rows="2" placeholder="ระบุเหตุผลแก้ไข..." class="w-full p-2.5 rounded-lg border text-xs"></textarea>
+            <button onclick="update()" id="upBtn" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold text-xs flex justify-center items-center gap-2">อัปเดต <div class="loader" id="upLd"></div></button>
+            <button onclick="closeM('editModal')" class="w-full bg-slate-100 py-2 rounded-lg text-xs font-bold text-slate-500">ยกเลิก</button>
         </div>
     </div></div>
 
@@ -223,206 +130,64 @@
         <h2 class="text-base font-bold mb-3 uppercase">ปิดงานซ่อม</h2>
         <input type="file" id="fileOut" multiple accept="image/*" onchange="handleImg(this, 'preOut', 'out')" class="text-[10px] mb-3">
         <div id="preOut" class="flex flex-wrap gap-1 mb-3 justify-center"></div>
-        <div class="flex gap-2"><button onclick="closeM('compModal')" class="flex-1 py-2 bg-slate-100 rounded-lg text-xs font-bold text-slate-400">ยกเลิก</button><button onclick="complete()" id="cpBtn" class="flex-2 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold uppercase flex justify-center items-center gap-2">ปิดงาน <div class="loader" id="cpLd"></div></button></div>
+        <div class="flex gap-2"><button onclick="closeM('compModal')" class="flex-1 py-2 bg-slate-100 rounded-lg text-xs font-bold text-slate-400">ยกเลิก</button><button onclick="complete()" id="cpBtn" class="flex-2 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold flex justify-center items-center gap-2">ปิดงาน <div class="loader" id="cpLd"></div></button></div>
     </div></div>
 
-    <div id="delModal" class="modal"><div class="modal-content text-center p-6">
-        <i class="fas fa-trash-alt text-red-500 text-2xl mb-2"></i>
-        <h2 class="text-sm font-bold mb-4 uppercase">ยืนยันการลบถาวร?</h2>
-        <div class="flex gap-4 font-medium">
-            <button onclick="closeM('delModal')" class="flex-1 py-2 bg-slate-50 rounded-lg text-xs font-bold">ยกเลิก</button>
-            <button onclick="confirmDel()" id="delBtn" class="flex-1 py-2 bg-red-600 text-white rounded-lg text-xs font-bold">ลบ <div class="loader" id="delLd"></div></button>
-        </div>
-    </div></div>
+    <div id="delModal" class="modal"><div class="modal-content text-center p-6"><i class="fas fa-trash-alt text-red-500 text-2xl mb-2"></i><h2 class="text-sm font-bold mb-4 uppercase">ลบถาวร?</h2><div class="flex gap-2"><button onclick="closeM('delModal')" class="flex-1 py-2 bg-slate-50 rounded-lg text-xs font-bold">ยกเลิก</button><button onclick="confirmDel()" id="delBtn" class="flex-1 py-2 bg-red-600 text-white rounded-lg text-xs font-bold">ลบ <div class="loader" id="delLd"></div></button></div></div></div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwX4EWwdUgmL9KqL_lKmTuh0-K6TGhAO-UVwa0dka2aQkkkOV_OrffP7VvVzOMPLTtzjQ/exec";
         let tasks = [], inImgs = [], outImgs = [], edImgs = [], masterAssets = [], curId = "", currentTab = "active", targetDelId = "";
 
-        // --- Core Helpers ---
-        function formatThaiDate(dStr) {
-            if (!dStr || dStr === "-" || dStr === "") return "-";
-            try {
-                const d = new Date(dStr);
-                if (isNaN(d.getTime())) return dStr;
-                return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()+543}`;
-            } catch(e) { return dStr; }
-        }
-
-        function showToast(m, t='success') {
-            const x = document.getElementById('toast'); if(!x) return;
-            x.innerText = m; x.className = `toast toast-${t}`; x.style.display = 'block';
-            setTimeout(() => { x.style.display = 'none'; }, 4000);
-        }
-
+        function formatThaiDate(s) { if (!s || s === "-") return "-"; try { const d = new Date(s); if (isNaN(d.getTime())) return s; return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()+543}`; } catch(e) { return s; } }
+        function showToast(m, t='success') { const x = document.getElementById('toast'); if(!x) return; x.innerText = m; x.className = `toast toast-${t}`; x.style.display = 'block'; setTimeout(() => x.style.display = 'none', 4000); }
         function closeM(id) { const el = document.getElementById(id); if(el) el.style.display = 'none'; }
 
-        // --- Logic ---
-        async function fetchWithRetry(url, opt = {}, retries = 5) {
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const res = await fetch(url, opt);
-                    if (!res.ok) throw new Error('Fail');
-                    return res;
-                } catch (e) {
-                    if (i === retries - 1) throw e;
-                    await new Promise(r => setTimeout(r, 1000 * Math.pow(2, i)));
-                }
-            }
-        }
-
-        async function fetchData() {
-            try {
-                const res = await fetchWithRetry(SCRIPT_URL.trim());
-                const data = await res.json();
-                tasks = data.tasks || []; masterAssets = data.assets || [];
-                updateMasterAssetList(); updateFilters(); render();
-            } catch (e) { console.error(e); showToast("ดึงข้อมูลล้มเหลว", 'error'); }
-        }
+        async function fetchWithRetry(u, o = {}, r = 5) { for (let i = 0; i < r; i++) { try { const res = await fetch(u, o); if (!res.ok) throw new Error('Fail'); return res; } catch (e) { if (i === r - 1) throw e; await new Promise(x => setTimeout(x, 1000 * Math.pow(2, i))); } } }
+        async function fetchData() { try { const res = await fetchWithRetry(SCRIPT_URL.trim()); const data = await res.json(); tasks = data.tasks || []; masterAssets = data.assets || []; updateMasterAssetList(); updateFilters(); render(); } catch (e) { console.error(e); showToast("ดึงข้อมูลล้มเหลว", 'error'); } }
 
         async function handleImg(input, preId, type) {
             const pre = document.getElementById(preId); if(!pre) return; pre.innerHTML = '';
-            let target;
-            if (type === 'in') target = inImgs;
-            else if (type === 'out') target = outImgs;
-            else if (type === 'ed') target = edImgs;
-            
-            target.length = 0;
-            if (input.files) {
-                for (let f of Array.from(input.files)) {
-                    const r = new FileReader(); r.readAsDataURL(f);
-                    r.onload = (e) => {
-                        const img = new Image(); img.src = e.target.result;
-                        img.onload = () => {
-                            const can = document.createElement('canvas'); const ctx = can.getContext('2d');
-                            let w = img.width, h = img.height; if(w > 600) { h = (600/w)*h; w = 600; }
-                            can.width = w; can.height = h; ctx.drawImage(img, 0, 0, w, h);
-                            const b64 = can.toDataURL('image/jpeg', 0.5); target.push(b64);
-                            const i = document.createElement('img'); i.src = b64; i.className = "w-8 h-8 object-cover rounded border"; pre.appendChild(i);
-                        };
-                    };
-                }
-            }
+            let target = (type === 'in') ? inImgs : (type === 'out') ? outImgs : edImgs; target.length = 0;
+            if (input.files) { for (let f of Array.from(input.files)) { const r = new FileReader(); r.readAsDataURL(f); r.onload = (e) => { const img = new Image(); img.src = e.target.result; img.onload = () => { const can = document.createElement('canvas'); const ctx = can.getContext('2d'); let w = img.width, h = img.height; if(w > 600) { h = (600/w)*h; w = 600; } can.width = w; can.height = h; ctx.drawImage(img, 0, 0, w, h); const b64 = can.toDataURL('image/jpeg', 0.5); target.push(b64); const i = document.createElement('img'); i.src = b64; i.className = "w-8 h-8 object-cover rounded border"; pre.appendChild(i); }; }; } }
         }
 
-        // --- DATA ACTIONS ---
-        function openEdit(id) {
-            const t = tasks.find(x => x.id === id); if(!t) return;
-            document.getElementById('edId').value = t.id;
-            document.getElementById('edTask').value = t.task;
-            document.getElementById('edEnd').value = t.deadline || "";
-            document.getElementById('edReason').value = t.reason || "";
-            edImgs = [];
-            document.getElementById('preEd').innerHTML = '';
-            document.getElementById('fileEd').value = '';
-            document.getElementById('editModal').style.display = 'block';
-        }
+        window.openEdit = id => { const t = tasks.find(x => x.id === id); if(!t) return; document.getElementById('edId').value = t.id; document.getElementById('edTask').value = t.task; document.getElementById('edEnd').value = t.deadline || ""; document.getElementById('edReason').value = t.reason || ""; edImgs = []; document.getElementById('preEd').innerHTML = ''; document.getElementById('editModal').style.display = 'block'; };
+        window.openComp = id => { curId = id; outImgs = []; document.getElementById('preOut').innerHTML = ''; document.getElementById('compModal').style.display = 'block'; };
+        window.openDel = id => { targetDelId = id; document.getElementById('delModal').style.display = 'block'; };
+        window.confirmDel = async () => { if(!targetDelId) return; const btn = document.getElementById('delBtn'); const ld = document.getElementById('delLd'); btn.disabled = true; ld.style.display = "inline-block"; const old = [...tasks]; tasks = tasks.filter(t => t.id !== targetDelId); render(); try { await fetchWithRetry(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", id: targetDelId }) }); showToast("ลบสำเร็จ"); closeM('delModal'); } catch(e) { tasks = old; render(); showToast("ลบไม่สำเร็จ", 'error'); } finally { btn.disabled = false; ld.style.display = "none"; targetDelId = ""; } };
 
-        function openComp(id) {
-            curId = id; outImgs = []; 
-            document.getElementById('preOut').innerHTML = '';
-            document.getElementById('fileOut').value = '';
-            document.getElementById('compModal').style.display = 'block';
-        }
+        window.save = async () => {
+            const task = document.getElementById('taskInput').value; const start = document.getElementById('startInput').value; const end = document.getElementById('endInput').value; if(!task || !end) return alert("ข้อมูลไม่ครบ"); const btn = document.getElementById('saveBtn'); const ld = document.getElementById('saveLd'); btn.disabled = true; ld.style.display = "inline-block";
+            let type = document.getElementById('typeInput').value; if(type === "Other") type = document.getElementById('otherJobTypeInput').value.trim();
+            let asset = document.getElementById('assetInput').value.trim(); if(asset === "อื่นๆ (ระบุเอง)") asset = document.getElementById('otherAssetInput').value.trim();
+            let dept = document.getElementById('deptInput').value; if(dept === "Other") dept = document.getElementById('otherDeptInput').value.trim();
+            try { await fetchWithRetry(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "add", task, type, asset, startDate: start, deadline: end, images: inImgs, vendor: dept }) }); showToast("บันทึกสำเร็จ"); setTimeout(() => location.reload(), 1000); } catch(e) { showToast("ล้มเหลว", 'error'); btn.disabled = false; ld.style.display = "none"; }
+        };
 
-        function openDel(id) {
-            targetDelId = id;
-            document.getElementById('delModal').style.display = 'block';
-        }
+        window.update = async () => {
+            const id = document.getElementById('edId').value; const task = document.getElementById('edTask').value; const deadline = document.getElementById('edEnd').value; const reason = document.getElementById('edReason').value; const btn = document.getElementById('upBtn'); const ld = document.getElementById('upLd'); btn.disabled = true; ld.style.display = "inline-block";
+            try { const idx = tasks.findIndex(t => t.id === id); if(idx !== -1) { tasks[idx].task = task; tasks[idx].deadline = deadline; tasks[idx].reason = reason; } render(); await fetchWithRetry(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "update", id, task, deadline, reason, images: edImgs }) }); showToast("อัปเดตสำเร็จ"); closeM('editModal'); await fetchData(); } catch (e) { showToast("ล้มเหลว", 'error'); } finally { btn.disabled = false; ld.style.display = "none"; }
+        };
 
-        async function handleSave() {
-            const task = document.getElementById('taskInput').value;
-            const start = document.getElementById('startInput').value;
-            const end = document.getElementById('endInput').value;
-            if(!task || !end) return alert("ข้อมูลไม่ครบ");
-            const btn = document.getElementById('saveBtn'); const ld = document.getElementById('saveLd');
-            btn.disabled = true; if(ld) ld.style.display = "inline-block";
+        window.complete = async () => {
+            const btn = document.getElementById('cpBtn'); const ld = document.getElementById('cpLd'); btn.disabled = true; ld.style.display = "inline-block";
+            try { const idx = tasks.findIndex(t => t.id === curId); if(idx !== -1) tasks[idx].status = 'completed'; render(); await fetchWithRetry(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "complete", id: curId, images: outImgs }) }); showToast("ปิดงานสำเร็จ"); closeM('compModal'); await fetchData(); } catch (e) { showToast("ล้มเหลว", 'error'); } finally { btn.disabled = false; ld.style.display = "none"; }
+        };
 
-            let type = document.getElementById('typeInput').value;
-            if(type === "Other") type = document.getElementById('otherJobTypeInput').value.trim();
-            let asset = document.getElementById('assetInput').value.trim();
-            if(asset === "อื่นๆ (ระบุเอง)") asset = document.getElementById('otherAssetInput').value.trim();
-            let dept = document.getElementById('deptInput').value;
-            if(dept === "Other") dept = document.getElementById('otherDeptInput').value.trim();
+        function updateMasterAssetList() { const l = document.getElementById('assetList'); if(!l) return; l.innerHTML = masterAssets.map(a => `<option value="${(typeof a === 'object') ? a.fullText : a}">`).join('') + '<option value="อื่นๆ (ระบุเอง)">'; }
+        function updateFilters() { const fA = document.getElementById('filterAsset'); const fM = document.getElementById('filterMonth'); if(!fA || !fM) return; let relS = currentTab === 'dashboard' ? 'pending' : 'completed'; const molds = [...new Set(tasks.filter(t => t.status === relS).map(t => t.asset))].sort(); fA.innerHTML = '<option value="">ทั้งหมด</option>' + molds.map(a => `<option value="${a}">${a}</option>`).join(''); const mons = [...new Set(tasks.filter(t => t.deadline).map(t => String(t.deadline).substring(0, 7)))].filter(m => m && m != "-").sort().reverse(); fM.innerHTML = '<option value="">ทุกเดือน</option>' + mons.map(m => `<option value="${m}">${m}</option>`).join(''); }
 
-            try {
-                await fetchWithRetry(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "add", task, type, asset, startDate: start, deadline: end, images: inImgs, vendor: dept }) });
-                showToast("บันทึกสำเร็จ"); setTimeout(() => location.reload(), 1000);
-            } catch(e) { showToast("บันทึกไม่สำเร็จ", 'error'); btn.disabled = false; if(ld) ld.style.display = "none"; }
-        }
-
-        async function handleUpdate() {
-            const id = document.getElementById('edId').value;
-            const task = document.getElementById('edTask').value;
-            const deadline = document.getElementById('edEnd').value;
-            const reason = document.getElementById('edReason').value;
-            const btn = document.getElementById('upBtn'); const ld = document.getElementById('upLd');
-            btn.disabled = true; if(ld) ld.style.display = "inline-block";
-            try {
-                const idx = tasks.findIndex(t => t.id === id);
-                if(idx !== -1) { tasks[idx].task = task; tasks[idx].deadline = deadline; tasks[idx].reason = reason; }
-                render();
-                await fetchWithRetry(SCRIPT_URL, { 
-                    method: "POST", 
-                    body: JSON.stringify({ action: "update", id, task, deadline, reason, images: edImgs }) 
-                });
-                showToast("อัปเดตสำเร็จ"); closeM('editModal'); await fetchData();
-            } catch (e) { showToast("อัปเดตล้มเหลว", 'error'); } finally { btn.disabled = false; if(ld) ld.style.display = "none"; }
-        }
-
-        async function handleComplete() {
-            const btn = document.getElementById('cpBtn'); const ld = document.getElementById('cpLd');
-            btn.disabled = true; if(ld) ld.style.display = "inline-block";
-            try {
-                const idx = tasks.findIndex(t => t.id === curId);
-                if(idx !== -1) tasks[idx].status = 'completed';
-                render();
-                await fetchWithRetry(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "complete", id: curId, images: outImgs }) });
-                showToast("ปิดงานสำเร็จ"); closeM('compModal'); await fetchData();
-            } catch (e) { showToast("ปิดงานล้มเหลว", 'error'); } finally { btn.disabled = false; if(ld) ld.style.display = "none"; }
-        }
-
-        async function handleConfirmDel() {
-            if(!targetDelId) return;
-            const btn = document.getElementById('delBtn'); const ld = document.getElementById('delLd');
-            btn.disabled = true; if(ld) ld.style.display = "inline-block";
-            const oldT = [...tasks]; tasks = tasks.filter(t => t.id !== targetDelId); render();
-            try {
-                await fetchWithRetry(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", id: targetDelId }) });
-                showToast("ลบข้อมูลสำเร็จ"); closeM('delModal');
-            } catch(e) { tasks = oldT; render(); showToast("ลบไม่สำเร็จ", 'error'); } finally { btn.disabled = false; if(ld) ld.style.display = "none"; targetDelId = ""; }
-        }
-
-        // --- UI Rendering ---
-        function updateMasterAssetList() {
-            const l = document.getElementById('assetList'); if(!l) return;
-            l.innerHTML = masterAssets.map(a => `<option value="${(typeof a === 'object') ? a.fullText : a}">`).join('') + '<option value="อื่นๆ (ระบุเอง)">';
-        }
-
-        function updateFilters() {
-            const fA = document.getElementById('filterAsset'); const fM = document.getElementById('filterMonth');
-            if(!fA || !fM) return;
-            let relS = currentTab === 'dashboard' ? 'pending' : 'completed';
-            const molds = [...new Set(tasks.filter(t => t.status === relS).map(t => t.asset))].sort();
-            fA.innerHTML = '<option value="">ทั้งหมด</option>' + molds.map(a => `<option value="${a}">${a}</option>`).join('');
-            const mons = [...new Set(tasks.filter(t => t.deadline).map(t => String(t.deadline).substring(0, 7)))].filter(m => m && m != "-").sort().reverse();
-            fM.innerHTML = '<option value="">ทุกเดือน</option>' + mons.map(m => `<option value="${m}">${m}</option>`).join('');
-        }
-
-        function handleSwitchTab(mode) {
+        window.switchTab = mode => {
             currentTab = mode; if (mode === 'active') resetFilters();
-            ['tabActive', 'tabDashboard', 'tabHistory'].forEach(id => {
-                const el = document.getElementById(id); if(el) el.classList.remove('tab-active');
-            });
-            const activeTab = document.getElementById('tab' + mode.charAt(0).toUpperCase() + mode.slice(1));
-            if(activeTab) activeTab.classList.add('tab-active');
-            ['activeSection', 'dashboardSection', 'historySection'].forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); });
-            const section = document.getElementById(mode + 'Section');
-            if(section) section.classList.remove('hidden');
-            if(document.getElementById('statsBar')) document.getElementById('statsBar').style.display = (mode === 'dashboard' || mode === 'history') ? 'grid' : 'none';
-            if(document.getElementById('filterContainer')) document.getElementById('filterContainer').style.display = (mode === 'dashboard' || mode === 'history') ? 'flex' : 'none';
+            ['tabActive', 'tabDashboard', 'tabHistory'].forEach(id => document.getElementById(id).classList.remove('tab-active'));
+            document.getElementById('tab' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('tab-active');
+            ['activeSection', 'dashboardSection', 'historySection'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.getElementById(mode + 'Section').classList.remove('hidden');
+            document.getElementById('statsBar').style.display = (mode !== 'active') ? 'grid' : 'none';
+            document.getElementById('filterContainer').style.display = (mode !== 'active') ? 'flex' : 'none';
             updateFilters(); render();
-        }
+        };
 
         function render() {
             const today = new Date().toLocaleDateString('en-CA');
@@ -439,30 +204,20 @@
             if(document.getElementById('statCompleted')) document.getElementById('statCompleted').innerText = doneFiltered.length;
             if(document.getElementById('statOverdue')) document.getElementById('statOverdue').innerText = activeFiltered.filter(t => t.deadline && t.deadline < today).length;
 
-            const ab = document.getElementById('overdueAlertBox');
-            if(ab) { if(overdueAll.length > 0) { ab.classList.remove('hidden'); document.getElementById('overdueAlertCount').innerText = overdueAll.length; } else { ab.classList.add('hidden'); } }
+            const ab = document.getElementById('overdueAlertBox'); if(ab) { if(overdueAll.length > 0) { ab.classList.remove('hidden'); document.getElementById('overdueAlertCount').innerText = overdueAll.length; } else { ab.classList.add('hidden'); } }
 
             const makeItem = t => {
                 const isOver = t.status === 'pending' && t.deadline < today;
                 const rawImgs = (t.imageUrl ? String(t.imageUrl).split(',') : []).concat(t.finishImageUrl ? String(t.finishImageUrl).split(',') : []);
-                const imgs = rawImgs.map(u => u.trim()).filter(u => u && u.startsWith('http'))
-                    .map(u => `<img src="${u}" onclick="window.open('${u}')" class="w-6 h-6 object-cover rounded border border-slate-200">`).join('');
-                
+                const imgs = rawImgs.map(u => u.trim()).filter(u => u && u.startsWith('http')).map(u => `<img src="${u}" onclick="window.open('${u}')" class="w-6 h-6 object-cover rounded border border-slate-200">`).join('');
                 return `
                 <div class="compact-card ${isOver?'overdue':''}">
                     <div class="flex justify-between items-start">
                         <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-1.5 mb-0.5">
-                                <span class="text-[7px] font-bold px-1 py-0.25 rounded bg-slate-100 text-slate-500 uppercase">${t.type}</span>
-                                ${isOver?'<span class="text-[7px] font-bold px-1 py-0.25 rounded bg-red-600 text-white animate-pulse">LATE</span>':''}
-                            </div>
-                            <h3 class="text-xs font-bold text-slate-800 leading-tight truncate italic"><i class="fas fa-tools mr-1 text-slate-300"></i>${t.task||'ปัญหา'}</h3>
-                            <p class="text-[10px] text-indigo-600 font-semibold truncate"><i class="fas fa-cube mr-1 opacity-40"></i>${t.asset||'ไม่ระบุ'}</p>
-                            <div class="flex flex-wrap items-center gap-2 mt-1">
-                                <div class="text-[9px] text-slate-500 font-medium"><i class="far fa-calendar-alt mr-1 text-[8px]"></i>${formatThaiDate(t.deadline)}</div>
-                                <div class="text-[9px] text-slate-400 truncate max-w-[60px]">R: ${t.vendor||'-'}</div>
-                                <div class="flex gap-0.5">${imgs}</div>
-                            </div>
+                            <div class="flex items-center gap-1.5 mb-0.5"><span class="text-[7px] font-bold px-1 py-0.25 rounded bg-slate-100 text-slate-500 uppercase">${t.type}</span>${isOver?'<span class="text-[7px] font-bold px-1 py-0.25 rounded bg-red-600 text-white animate-pulse">LATE</span>':''}</div>
+                            <h3 class="text-xs font-bold text-slate-800 leading-tight truncate italic"><i class="fas fa-tools mr-1 text-slate-300"></i>${t.task}</h3>
+                            <p class="text-[10px] text-indigo-600 font-semibold truncate"><i class="fas fa-cube mr-1 opacity-40"></i>${t.asset}</p>
+                            <div class="flex items-center gap-2 mt-1"><div class="text-[9px] text-slate-500 font-medium"><i class="far fa-calendar-alt mr-1 text-[8px]"></i>${formatThaiDate(t.deadline)}</div><div class="text-[9px] text-slate-400 truncate max-w-[60px]">R: ${t.vendor||'-'}</div><div class="flex gap-0.5">${imgs}</div></div>
                             ${t.reason ? `<p class="text-[8px] text-amber-700 font-medium mt-1 italic line-clamp-1 opacity-80 border-t border-amber-100 pt-0.5">เหตุผล: ${t.reason}</p>` : ''}
                         </div>
                         <div class="flex gap-1 ml-1.5 shrink-0">
@@ -475,30 +230,12 @@
                     </div>
                 </div>`;
             };
-
-            const listA = document.getElementById('listActive');
-            if(listA) listA.innerHTML = activeAll.length ? activeAll.reverse().map(makeItem).join('') : '<p class="text-center py-6 text-slate-300 text-[10px] uppercase font-bold tracking-widest">No tasks</p>';
-            const listH = document.getElementById('listHistory');
-            if(listH) listH.innerHTML = doneFiltered.length ? doneFiltered.reverse().map(makeItem).join('') : '<p class="text-center py-6 text-slate-300 text-[10px]">No history</p>';
-            const listD = document.getElementById('dashList');
-            if(listD) listD.innerHTML = activeFiltered.sort((a,b)=>(a.deadline||'9999')>(b.deadline||'9999')?1:-1).map(makeItem).join('');
-            
-            const tb = document.getElementById('todayBanner');
-            const tl = activeAll.filter(t => t.deadline === today);
-            if(tb) { tb.style.display = tl.length > 0 ? 'block' : 'none'; document.getElementById('todayCount').innerText = tl.length; }
+            document.getElementById('listActive').innerHTML = activeAll.length ? activeAll.reverse().map(makeItem).join('') : '<p class="text-center py-6 text-slate-300 text-[10px] uppercase font-bold tracking-widest">No tasks</p>';
+            document.getElementById('listHistory').innerHTML = doneFiltered.length ? doneFiltered.reverse().map(makeItem).join('') : '<p class="text-center py-6 text-slate-300 text-[10px]">No history</p>';
+            document.getElementById('dashList').innerHTML = activeFiltered.sort((a,b)=>(a.deadline||'9999')>(b.deadline||'9999')?1:-1).map(makeItem).join('');
+            const tb = document.getElementById('todayBanner'); const tl = activeAll.filter(t => t.deadline === today); if(tb) { tb.style.display = tl.length > 0 ? 'block' : 'none'; document.getElementById('todayCount').innerText = tl.length; }
         }
 
-        // --- GLOBAL MAPPING ---
-        window.openEdit = openEdit;
-        window.openComp = openComp;
-        window.openDel = openDel;
-        window.confirmDel = handleConfirmDel;
-        window.save = handleSave;
-        window.update = handleUpdate;
-        window.complete = handleComplete;
-        window.switchTab = handleSwitchTab;
-        window.fetchData = fetchData;
-        window.handleImg = handleImg;
         window.toggleOther = v => { const el = document.getElementById('otherAssetWrapper'); if(el) el.className = v.trim() === "อื่นๆ (ระบุเอง)" ? "block" : "hidden"; };
         window.toggleDeptOther = v => { const el = document.getElementById('otherDeptWrapper'); if(el) el.className = v === "Other" ? "block" : "hidden"; };
         window.toggleJobTypeOther = v => { const el = document.getElementById('otherJobTypeWrapper'); if(el) el.className = v === "Other" ? "block mt-1" : "hidden"; if(v==="Other") document.getElementById('otherJobTypeInput').focus(); };
