@@ -77,7 +77,7 @@
         <div class="bg-indigo-700 slim-header text-white flex justify-between items-center">
             <div>
                 <h1 class="text-xl font-bold tracking-tight">Work Follow UP</h1>
-                <p class="text-[9px] opacity-70 uppercase tracking-widest">v2.8 Ultra Compact + Reason</p>
+                <p class="text-[9px] opacity-70 uppercase tracking-widest">v2.10 Sarin & WEN Update</p>
             </div>
             <button onclick="fetchData()" class="p-2 bg-white/10 rounded-lg active:bg-white/20">
                 <i class="fas fa-sync-alt text-sm"></i>
@@ -128,10 +128,11 @@
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5 ml-1">ประเภทงาน</label>
-                                <select id="typeInput" onchange="toggleJobTypeOther(this.value)" class="w-full p-2 text-xs rounded-lg border outline-none bg-white">
+                                <select id="typeInput" onchange="toggleJobTypeOther(this.value)" class="w-full p-2 text-xs rounded-lg border outline-none bg-white font-medium">
                                     <optgroup label="Mold">
                                         <option value="Repair Mold">Repair Mold</option>
                                         <option value="Spare part Mold">Spare part Mold</option>
+                                        <option value="Modify Mold">Modify Mold</option>
                                         <option value="TPM Mold">TPM Mold</option>
                                         <option value="Fit flashing">Fit flashing Mold</option>
                                     </optgroup>
@@ -159,7 +160,11 @@
                                 <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5 ml-1">ผู้รับผิดชอบ</label>
                                 <select id="deptInput" onchange="toggleDeptOther(this.value)" class="w-full p-2 text-xs rounded-lg border outline-none bg-white font-medium text-indigo-600">
                                     <option value="">-- เลือก --</option>
-                                    <option value="TP/MDS">TP/MDS</option><option value="PE">PE</option><option value="Other">ระบุเอง</option>
+                                    <option value="Sarin">Sarin</option>
+                                    <option value="WEN">WEN</option>
+                                    <option value="TP/MDS">TP/MDS</option>
+                                    <option value="PE">PE</option>
+                                    <option value="Other">ระบุเอง</option>
                                 </select>
                             </div>
                             <div class="flex items-end"><div id="otherDeptWrapper" class="hidden w-full"><input type="text" id="otherDeptInput" placeholder="ระบุแผนก..." class="w-full p-2 text-xs rounded-lg border"></div></div>
@@ -171,7 +176,7 @@
                         </div>
 
                         <div class="flex items-center justify-between">
-                            <input type="file" multiple accept="image/*" onchange="handleImg(this, 'preIn', 'in')" class="text-[9px] w-1/2 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-indigo-50 file:text-indigo-600">
+                            <input type="file" id="fileIn" multiple accept="image/*" onchange="handleImg(this, 'preIn', 'in')" class="text-[9px] w-1/2 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-indigo-50 file:text-indigo-600">
                             <div id="preIn" class="flex gap-1 overflow-x-auto max-w-[50%]"></div>
                         </div>
                         <button onclick="save()" id="saveBtn" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold uppercase text-xs shadow active:scale-95 transition-all flex justify-center items-center gap-2">
@@ -192,16 +197,31 @@
         <h2 class="text-sm font-bold text-indigo-700 mb-3 italic">แก้ไขข้อมูล</h2>
         <div class="space-y-3">
             <input type="hidden" id="edId">
-            <input type="text" id="edTask" class="w-full p-2.5 rounded-lg border outline-none text-xs font-medium">
-            <input type="date" id="edEnd" class="w-full p-2.5 rounded-lg border outline-none text-red-500 font-bold text-xs">
-            <textarea id="edReason" rows="2" placeholder="ระบุเหตุผลการเลื่อนเวลา/แก้ไข..." class="w-full p-2.5 rounded-lg border outline-none text-xs font-medium"></textarea>
+            <div>
+                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5 ml-1">ชื่องาน / ปัญหา</label>
+                <input type="text" id="edTask" class="w-full p-2.5 rounded-lg border outline-none text-xs font-medium">
+            </div>
+            <div>
+                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5 ml-1">กำหนดเสร็จใหม่</label>
+                <input type="date" id="edEnd" class="w-full p-2.5 rounded-lg border outline-none text-red-500 font-bold text-xs">
+            </div>
+            <div>
+                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5 ml-1">แนบรูปภาพเพิ่มเติม (ถ้ามี)</label>
+                <input type="file" id="fileEd" multiple accept="image/*" onchange="handleImg(this, 'preEd', 'ed')" class="text-[10px] block w-full file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-indigo-50 file:text-indigo-600 mb-2">
+                <div id="preEd" class="flex gap-1 overflow-x-auto"></div>
+            </div>
+            <div>
+                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5 ml-1">ระบุเหตุผลการแก้ไข</label>
+                <textarea id="edReason" rows="2" placeholder="ระบุเหตุผล..." class="w-full p-2.5 rounded-lg border outline-none text-xs font-medium"></textarea>
+            </div>
             <button onclick="update()" id="upBtn" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold active:scale-95 text-xs flex justify-center items-center gap-2">อัปเดต <div class="loader" id="upLd"></div></button>
+            <button onclick="closeM('editModal')" class="w-full bg-slate-100 text-slate-500 py-2 rounded-lg font-bold text-xs mt-1">ยกเลิก</button>
         </div>
     </div></div>
 
     <div id="compModal" class="modal"><div class="modal-content text-center">
         <h2 class="text-base font-bold mb-3 uppercase">ปิดงานซ่อม</h2>
-        <input type="file" multiple accept="image/*" onchange="handleImg(this, 'preOut', 'out')" class="text-[10px] mb-3">
+        <input type="file" id="fileOut" multiple accept="image/*" onchange="handleImg(this, 'preOut', 'out')" class="text-[10px] mb-3">
         <div id="preOut" class="flex flex-wrap gap-1 mb-3 justify-center"></div>
         <div class="flex gap-2"><button onclick="closeM('compModal')" class="flex-1 py-2 bg-slate-100 rounded-lg text-xs font-bold text-slate-400">ยกเลิก</button><button onclick="complete()" id="cpBtn" class="flex-2 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold uppercase flex justify-center items-center gap-2">ปิดงาน <div class="loader" id="cpLd"></div></button></div>
     </div></div>
@@ -209,16 +229,19 @@
     <div id="delModal" class="modal"><div class="modal-content text-center p-6">
         <i class="fas fa-trash-alt text-red-500 text-2xl mb-2"></i>
         <h2 class="text-sm font-bold mb-4 uppercase">ยืนยันการลบถาวร?</h2>
-        <div class="flex gap-2"><button onclick="closeM('delModal')" class="flex-1 py-2 bg-slate-50 rounded-lg text-xs font-bold">ยกเลิก</button><button onclick="confirmDel()" id="delBtn" class="flex-1 py-2 bg-red-600 text-white rounded-lg text-xs font-bold">ลบ <div class="loader" id="delLd"></div></button></div>
+        <div class="flex gap-4 font-medium">
+            <button onclick="closeM('delModal')" class="flex-1 py-2 bg-slate-50 rounded-lg text-xs font-bold">ยกเลิก</button>
+            <button onclick="confirmDel()" id="delBtn" class="flex-1 py-2 bg-red-600 text-white rounded-lg text-xs font-bold">ลบ <div class="loader" id="delLd"></div></button>
+        </div>
     </div></div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwX4EWwdUgmL9KqL_lKmTuh0-K6TGhAO-UVwa0dka2aQkkkOV_OrffP7VvVzOMPLTtzjQ/exec";
-        let tasks = [], inImgs = [], outImgs = [], masterAssets = [], curId = "", currentTab = "active", targetDelId = "";
+        let tasks = [], inImgs = [], outImgs = [], edImgs = [], masterAssets = [], curId = "", currentTab = "active", targetDelId = "";
 
         // --- Core Helpers ---
         function formatThaiDate(dStr) {
-            if (!dStr || dStr === "-") return "-";
+            if (!dStr || dStr === "-" || dStr === "") return "-";
             try {
                 const d = new Date(dStr);
                 if (isNaN(d.getTime())) return dStr;
@@ -259,7 +282,12 @@
 
         async function handleImg(input, preId, type) {
             const pre = document.getElementById(preId); if(!pre) return; pre.innerHTML = '';
-            const target = type === 'in' ? inImgs : outImgs; target.length = 0;
+            let target;
+            if (type === 'in') target = inImgs;
+            else if (type === 'out') target = outImgs;
+            else if (type === 'ed') target = edImgs;
+            
+            target.length = 0;
             if (input.files) {
                 for (let f of Array.from(input.files)) {
                     const r = new FileReader(); r.readAsDataURL(f);
@@ -284,11 +312,16 @@
             document.getElementById('edTask').value = t.task;
             document.getElementById('edEnd').value = t.deadline || "";
             document.getElementById('edReason').value = t.reason || "";
+            edImgs = [];
+            document.getElementById('preEd').innerHTML = '';
+            document.getElementById('fileEd').value = '';
             document.getElementById('editModal').style.display = 'block';
         }
 
         function openComp(id) {
-            curId = id; outImgs = []; document.getElementById('preOut').innerHTML = '';
+            curId = id; outImgs = []; 
+            document.getElementById('preOut').innerHTML = '';
+            document.getElementById('fileOut').value = '';
             document.getElementById('compModal').style.display = 'block';
         }
 
@@ -329,7 +362,10 @@
                 const idx = tasks.findIndex(t => t.id === id);
                 if(idx !== -1) { tasks[idx].task = task; tasks[idx].deadline = deadline; tasks[idx].reason = reason; }
                 render();
-                await fetchWithRetry(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "update", id, task, deadline, reason }) });
+                await fetchWithRetry(SCRIPT_URL, { 
+                    method: "POST", 
+                    body: JSON.stringify({ action: "update", id, task, deadline, reason, images: edImgs }) 
+                });
                 showToast("อัปเดตสำเร็จ"); closeM('editModal'); await fetchData();
             } catch (e) { showToast("อัปเดตล้มเหลว", 'error'); } finally { btn.disabled = false; if(ld) ld.style.display = "none"; }
         }
@@ -427,7 +463,6 @@
                                 <div class="text-[9px] text-slate-400 truncate max-w-[60px]">R: ${t.vendor||'-'}</div>
                                 <div class="flex gap-0.5">${imgs}</div>
                             </div>
-                            <!-- แสดงเหตุผล (Reason) เป็นตัวเล็กๆ -->
                             ${t.reason ? `<p class="text-[8px] text-amber-700 font-medium mt-1 italic line-clamp-1 opacity-80 border-t border-amber-100 pt-0.5">เหตุผล: ${t.reason}</p>` : ''}
                         </div>
                         <div class="flex gap-1 ml-1.5 shrink-0">
