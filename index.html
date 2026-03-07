@@ -36,7 +36,7 @@
         <div class="bg-slate-900 pt-6 pb-5 px-6 text-white relative">
             <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
             <div class="flex justify-between items-center relative z-10">
-                <div><h1 class="text-2xl font-bold italic tracking-tight bg-gradient-to-r from-indigo-300 to-white bg-clip-text text-transparent">Work Follow UP</h1><p class="text-[9px] opacity-50 uppercase tracking-[0.2em] font-bold">Stable v2.31 | Sarin</p></div>
+                <div><h1 class="text-2xl font-bold italic tracking-tight bg-gradient-to-r from-indigo-300 to-white bg-clip-text text-transparent">Work Follow UP</h1><p class="text-[9px] opacity-50 uppercase tracking-[0.2em] font-bold">Stable v2.32 | Sarin</p></div>
                 <div class="flex gap-2"><button onclick="exportToCSV()" class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-2xl"><i class="fas fa-file-export text-xs"></i></button><button onclick="fetchData()" class="w-10 h-10 flex items-center justify-center bg-indigo-600 rounded-2xl shadow-lg"><i class="fas fa-sync-alt text-xs"></i></button></div>
             </div>
         </div>
@@ -123,17 +123,33 @@
             const task = document.getElementById('taskInput').value; const start = document.getElementById('startInput').value; const end = document.getElementById('endInput').value; const reason = document.getElementById('reasonInput').value; const prio = document.getElementById('priorityInput').value;
             if(!task || !end) return alert("ข้อมูลไม่ครบ"); const btn = document.getElementById('saveBtn'); btn.disabled = true; 
             let type = document.getElementById('typeInput').value; let asset = document.getElementById('assetInput').value.trim(); let dept = document.getElementById('deptInput').value;
-            try { await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "add", task, type, asset, startDate: start, deadline: end, images: inImgs, vendor: dept, priority: prio, reason: reason }) }); showToast("บันทึกสำเร็จ"); setTimeout(() => location.reload(), 1000); } catch(e) { showToast("ล้มเหลว"); btn.disabled = false; } 
+            try { 
+                const response = await fetch(SCRIPT_URL, { 
+                    method: "POST", 
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: "add", task, type, asset, startDate: start, deadline: end, images: inImgs, vendor: dept, priority: prio, reason: reason }) 
+                }); 
+                const result = await response.json();
+                if(result.status === "success") {
+                    showToast("บันทึกข้อมูลเรียบร้อยแล้ว"); 
+                    setTimeout(() => location.reload(), 1000); 
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch(e) { 
+                showToast("บันทึกไม่สำเร็จ: " + e.message); 
+                btn.disabled = false; 
+            } 
         };
 
         window.update = async () => {
             const id = document.getElementById('edId').value; const task = document.getElementById('edTask').value; const deadline = document.getElementById('edEnd').value; const reason = document.getElementById('edReason').value; const priority = document.getElementById('edPriority').value; const btn = document.getElementById('upBtn'); btn.disabled = true;
-            try { await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "update", id, task, deadline, reason, priority, images: edImgs }) }); showToast("อัปเดตสำเร็จ"); closeM('editModal'); await fetchData(); } catch (e) { showToast("ล้มเหลว"); } finally { btn.disabled = false; }
+            try { await fetch(SCRIPT_URL, { method: "POST", headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "update", id, task, deadline, reason, priority, images: edImgs }) }); showToast("อัปเดตสำเร็จ"); closeM('editModal'); await fetchData(); } catch (e) { showToast("ล้มเหลว"); } finally { btn.disabled = false; }
         };
 
         window.complete = async () => {
             const btn = document.getElementById('cpBtn'); btn.disabled = true;
-            try { await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "complete", id: curId, images: outImgs }) }); showToast("ปิดงานสำเร็จ"); closeM('compModal'); await fetchData(); } catch (e) { showToast("ล้มเหลว"); } finally { btn.disabled = false; }
+            try { await fetch(SCRIPT_URL, { method: "POST", headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "complete", id: curId, images: outImgs }) }); showToast("ปิดงานสำเร็จ"); closeM('compModal'); await fetchData(); } catch (e) { showToast("ล้มเหลว"); } finally { btn.disabled = false; }
         };
 
         window.switchTab = mode => {
