@@ -13,7 +13,7 @@
         .tab-active { color: var(--primary); font-weight: 700; border-bottom: 3px solid var(--primary); }
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); }
         .modal-content { background-color: #fff; margin: 10% auto; padding: 24px; border-radius: 2rem; width: 92%; max-width: 420px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
-        .compact-card { background: white; border-radius: 1.25rem; padding: 12px 14px; margin-bottom: 8px; border-left: 6px solid #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
+        .compact-card { background: white; border-radius: 1.25rem; padding: 12px 14px; margin-bottom: 8px; border-left: 6px solid #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); position: relative; overflow: hidden; transition: transform 0.2s; }
         .compact-card.overdue { background-color: #fff1f2 !important; }
         .priority-high { border-left-color: var(--danger) !important; }
         .priority-medium { border-left-color: var(--amber) !important; }
@@ -36,8 +36,8 @@
         <div class="bg-slate-900 pt-6 pb-5 px-6 text-white relative">
             <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
             <div class="flex justify-between items-center relative z-10">
-                <div><h1 class="text-2xl font-bold italic tracking-tight bg-gradient-to-r from-indigo-300 to-white bg-clip-text text-transparent">Work Follow UP</h1><p class="text-[9px] opacity-50 uppercase tracking-[0.2em] font-bold">Stable v2.32 | Sarin</p></div>
-                <div class="flex gap-2"><button onclick="exportToCSV()" class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-2xl"><i class="fas fa-file-export text-xs"></i></button><button onclick="fetchData()" class="w-10 h-10 flex items-center justify-center bg-indigo-600 rounded-2xl shadow-lg"><i class="fas fa-sync-alt text-xs"></i></button></div>
+                <div><h1 class="text-2xl font-bold italic tracking-tight bg-gradient-to-r from-indigo-300 to-white bg-clip-text text-transparent">Work Follow UP</h1><p class="text-[9px] opacity-50 uppercase tracking-[0.2em] font-bold">Stable v2.33 | Sarin</p></div>
+                <div class="flex gap-2"><button onclick="exportToCSV()" class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-2xl hover:bg-white/20"><i class="fas fa-file-export text-xs"></i></button><button onclick="fetchData()" class="w-10 h-10 flex items-center justify-center bg-indigo-600 rounded-2xl shadow-lg hover:bg-indigo-500"><i class="fas fa-sync-alt text-xs"></i></button></div>
             </div>
         </div>
         <!-- Tabs -->
@@ -81,10 +81,10 @@
     </div>
     <!-- Modals -->
     <div id="editModal" class="modal"><div class="modal-content !rounded-[2.5rem]"><h2 class="text-lg font-bold text-slate-800 mb-5 uppercase tracking-tight italic">แก้ไขแผนงาน</h2><div class="space-y-4"><input type="hidden" id="edId"><div><label class="text-[10px] font-bold text-slate-400 ml-1">ปัญหา</label><input type="text" id="edTask" class="w-full p-3 rounded-xl bg-slate-100 border-none text-xs font-medium"></div><div><label class="text-[10px] font-bold text-slate-400 ml-1">ความเร่งด่วน</label><select id="edPriority" class="w-full p-3 rounded-xl bg-slate-100 border-none text-xs font-bold"><option value="low">🟢 งานทั่วไป</option><option value="medium">🟡 เร่งด่วน</option><option value="high">🔴 ด่วนที่สุด</option></select></div><div><label class="text-[10px] font-bold text-slate-400 ml-1">กำหนดเสร็จใหม่</label><input type="date" id="edEnd" class="w-full p-3 rounded-xl bg-slate-100 border-none text-rose-500 font-bold text-xs"></div><textarea id="edReason" rows="2" placeholder="เหตุผล..." class="w-full p-3 rounded-xl bg-slate-100 border-none text-xs font-medium"></textarea><button onclick="update()" id="upBtn" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold text-xs shadow-xl transition-all">อัปเดตข้อมูล</button><button onclick="closeM('editModal')" class="w-full text-slate-400 py-2 text-xs font-bold uppercase">ยกเลิก</button></div></div></div>
-    <div id="compModal" class="modal"><div class="modal-content text-center"><div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fas fa-check-circle"></i></div><h2 class="text-lg font-bold mb-1 uppercase">Finish งานซ่อม</h2><p class="text-slate-400 text-[10px] mb-5">อัปโหลดหลักฐานการทำงาน</p><input type="file" id="fileOut" multiple accept="image/*" onchange="handleImg(this, 'preOut', 'out')" class="text-[10px] mb-4"><div id="preOut" class="flex flex-wrap gap-1 mb-5 justify-center"></div><div class="flex gap-3"><button onclick="closeM('compModal')" class="flex-1 py-3 bg-slate-100 rounded-2xl text-xs font-bold text-slate-500 uppercase">ยกเลิก</button><button onclick="complete()" id="cpBtn" class="flex-1 py-3 bg-emerald-600 text-white rounded-2xl text-xs font-bold uppercase shadow-lg">เสร็จงาน</button></div></div></div>
+    <div id="compModal" class="modal"><div class="modal-content text-center"><div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fas fa-check-circle"></i></div><h2 class="text-lg font-bold mb-1 uppercase">Finish งานซ่อม</h2><input type="file" id="fileOut" multiple accept="image/*" onchange="handleImg(this, 'preOut', 'out')" class="text-[10px] mb-4"><div id="preOut" class="flex flex-wrap gap-1 mb-5 justify-center"></div><div class="flex gap-3"><button onclick="closeM('compModal')" class="flex-1 py-3 bg-slate-100 rounded-2xl text-xs font-bold text-slate-500 uppercase">ยกเลิก</button><button onclick="complete()" id="cpBtn" class="flex-1 py-3 bg-emerald-600 text-white rounded-2xl text-xs font-bold uppercase shadow-lg">เสร็จงาน</button></div></div></div>
     <div id="delModal" class="modal"><div class="modal-content text-center"><div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fas fa-trash-alt"></i></div><h2 class="text-lg font-bold mb-1 uppercase">ลบรายการ?</h2><div class="flex gap-3"><button onclick="closeM('delModal')" class="flex-1 py-3 bg-slate-100 rounded-2xl text-xs font-bold text-slate-500 uppercase">ยกเลิก</button><button onclick="confirmDel()" id="delBtn" class="flex-1 py-3 bg-rose-600 text-white rounded-2xl text-xs font-bold uppercase shadow-lg">ลบถาวร</button></div></div></div>
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwX4EWwdUgmL9KqL_lKmTuh0-K6TGhAO-UVwa0dka2aQkkkOV_OrffP7VvVzOMPLTtzjQ/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyMJlFc5Y24e8gD9n10Ssg2bCKs253-h8HCg4r3toAzHe1ux886slUqs19qMPiOVGD8-Q/exec";
         let tasks = [], inImgs = [], outImgs = [], edImgs = [], masterAssets = [], curId = "", currentTab = "active", targetDelId = "";
 
         function formatThaiDate(s) { if (!s || s === "-" || s === "") return "-"; try { const d = new Date(s); if (isNaN(d.getTime())) return s; return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()+543}`; } catch(e) { return s; } }
@@ -121,7 +121,8 @@
         
         window.save = async () => { 
             const task = document.getElementById('taskInput').value; const start = document.getElementById('startInput').value; const end = document.getElementById('endInput').value; const reason = document.getElementById('reasonInput').value; const prio = document.getElementById('priorityInput').value;
-            if(!task || !end) return alert("ข้อมูลไม่ครบ"); const btn = document.getElementById('saveBtn'); btn.disabled = true; 
+            if(!task || !end || !start) return alert("กรุณากรอกอาการเสีย, วันเริ่ม และกำหนดเสร็จให้ครบถ้วน"); 
+            const btn = document.getElementById('saveBtn'); btn.disabled = true; 
             let type = document.getElementById('typeInput').value; let asset = document.getElementById('assetInput').value.trim(); let dept = document.getElementById('deptInput').value;
             try { 
                 const response = await fetch(SCRIPT_URL, { 
@@ -131,7 +132,7 @@
                 }); 
                 const result = await response.json();
                 if(result.status === "success") {
-                    showToast("บันทึกข้อมูลเรียบร้อยแล้ว"); 
+                    showToast("บันทึกข้อมูลและปฏิทินสำเร็จ!"); 
                     setTimeout(() => location.reload(), 1000); 
                 } else {
                     throw new Error(result.message);
