@@ -6,6 +6,7 @@
     <title>Work Follow UP | SARIN Premium Black</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <!-- Chart.js สำหรับ Dashboard -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
@@ -23,21 +24,21 @@
         .tab-btn.active { color: var(--primary); font-weight: 700; }
         .tab-btn.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 20px; height: 4px; background: var(--primary); border-radius: 10px; }
 
-        /* Modal Hierarchy Fix */
+        /* Modal Hierarchy */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); animation: fadeIn 0.3s ease; }
         #detailModal { z-index: 4000; }
         #categoryModal { z-index: 2500; }
 
-        .modal-content { background: white; margin: 5% auto; padding: 2rem; border-radius: 2rem; width: 92%; max-width: 600px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: slideUp 0.4s ease; }
+        .modal-content { background: white; margin: 5% auto; padding: 1.5rem; border-radius: 2rem; width: 92%; max-width: 600px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: slideUp 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        .status-pill { font-size: 0.65rem; font-weight: 800; padding: 0.25rem 0.75rem; border-radius: 9999px; text-transform: uppercase; }
-        .priority-high { border-left: 6px solid var(--danger); }
-        .priority-medium { border-left: 6px solid var(--warning); }
-        .priority-low { border-left: 6px solid var(--accent); }
+        .status-pill { font-size: 0.6rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: 9999px; text-transform: uppercase; }
+        .priority-high { border-left: 5px solid var(--danger); }
+        .priority-medium { border-left: 5px solid var(--warning); }
+        .priority-low { border-left: 5px solid var(--accent); }
 
-        .timeline-bar-bg { height: 6px; background: #e2e8f0; border-radius: 10px; position: relative; overflow: hidden; }
+        .timeline-bar-bg { height: 5px; background: #e2e8f0; border-radius: 10px; position: relative; overflow: hidden; }
         .timeline-bar-fill { height: 100%; border-radius: 10px; transition: width 1s ease-out; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .loader { border: 2px solid #f3f3f3; border-top: 2px solid var(--primary); border-radius: 50%; width: 14px; height: 14px; animation: spin 1s linear infinite; display: none; }
@@ -58,97 +59,120 @@
                 <div>
                     <h1 class="text-3xl md:text-4xl font-extrabold tracking-tighter italic bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">Work Follow UP</h1>
                     <div class="flex items-center gap-2 mt-1">
-                        <span class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]"></span>
-                        <p class="text-[10px] md:text-xs font-bold opacity-60 uppercase tracking-[0.3em]">Responsive v3.01 | Stable Edition</p>
+                        <span class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
+                        <p class="text-[10px] md:text-xs font-bold opacity-60 uppercase tracking-[0.3em]">Responsive v3.02 | Compact UI</p>
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="exportToCSV()" title="Export Excel" class="w-11 h-11 md:w-14 md:h-14 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 shadow-lg"><i class="fas fa-file-export text-sm md:text-base"></i></button>
-                    <button onclick="fetchData()" title="Refresh" class="w-11 h-11 md:w-14 md:h-14 flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl transition-all shadow-lg"><i class="fas fa-sync-alt text-sm md:text-base"></i></button>
+                    <button onclick="exportToCSV()" title="Export Excel" class="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center bg-white/5 rounded-2xl border border-white/10 shadow-lg"><i class="fas fa-file-export text-sm"></i></button>
+                    <button onclick="fetchData()" title="Refresh" class="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center bg-indigo-600 text-white rounded-2xl transition-all shadow-lg"><i class="fas fa-sync-alt text-sm"></i></button>
                 </div>
             </div>
         </header>
 
         <nav class="nav-blur sticky top-0 z-50 flex px-4 -mt-7 border-b border-slate-200 shadow-sm mx-4 md:mx-12 rounded-3xl premium-card overflow-hidden">
-            <button onclick="switchTab('active')" id="tabActive" class="flex-1 py-5 text-xs md:text-sm font-bold transition-all tab-btn active">งานในมือ</button>
-            <button onclick="switchTab('dashboard')" id="tabDashboard" class="flex-1 py-5 text-xs md:text-sm font-medium text-slate-400 transition-all tab-btn">สรุปงาน</button>
-            <button onclick="switchTab('history')" id="tabHistory" class="flex-1 py-5 text-xs md:text-sm font-medium text-slate-400 transition-all tab-btn">ประวัติซ่อม</button>
+            <button onclick="switchTab('active')" id="tabActive" class="flex-1 py-4 md:py-5 text-[11px] md:text-sm font-bold transition-all tab-btn active">งานในมือ</button>
+            <button onclick="switchTab('dashboard')" id="tabDashboard" class="flex-1 py-4 md:py-5 text-[11px] md:text-sm font-medium text-slate-400 transition-all tab-btn">สรุปงาน</button>
+            <button onclick="switchTab('history')" id="tabHistory" class="flex-1 py-4 md:py-5 text-[11px] md:text-sm font-medium text-slate-400 transition-all tab-btn">ประวัติซ่อม</button>
         </nav>
 
         <main class="p-4 md:p-12 flex-1">
-            <div id="searchWrapper" class="mb-6 max-w-2xl mx-auto">
+            <!-- Global Search & Filter Container (COMPACT VERSION) -->
+            <div id="filterWrapper" class="mb-6 max-w-4xl mx-auto space-y-3">
+                <!-- Search Bar -->
                 <div class="relative group">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400"><i class="fas fa-search text-sm"></i></div>
-                    <input type="text" id="searchInput" oninput="render()" placeholder="ค้นหาชื่อโมล, อาการ หรือรหัส..." class="w-full pl-12 pr-4 py-4 bg-white border-none rounded-2xl text-sm outline-none shadow-sm focus:ring-4 focus:ring-indigo-500/10 font-medium">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 pointer-events-none"><i class="fas fa-search text-xs md:text-sm"></i></div>
+                    <input type="text" id="searchInput" oninput="render()" placeholder="ค้นหาชื่องาน, โมล หรือรหัส..." class="w-full pl-10 md:pl-12 pr-4 py-3 md:py-4 bg-white border-none rounded-2xl text-xs md:text-sm outline-none shadow-sm focus:ring-4 focus:ring-indigo-500/10 font-medium">
+                </div>
+                
+                <!-- Compact Filter Container -->
+                <div id="filterContainer" class="flex flex-row gap-2 md:gap-4 p-2 md:p-3 bg-white rounded-2xl md:rounded-3xl shadow-sm border border-slate-200">
+                    <div class="flex-1 relative">
+                        <label class="text-[8px] md:text-[9px] font-black text-slate-400 absolute top-1 left-2 uppercase">เดือน</label>
+                        <select id="filterMonth" onchange="render()" class="w-full pt-4 md:pt-5 pb-1 px-2 bg-transparent text-[11px] md:text-sm font-bold outline-none border-none cursor-pointer"><option value="">ทั้งหมด</option></select>
+                    </div>
+                    <div class="flex-1 relative border-l border-slate-100 pl-2">
+                        <label class="text-[8px] md:text-[9px] font-black text-slate-400 absolute top-1 left-2 uppercase">โมล</label>
+                        <select id="filterAsset" onchange="render()" class="w-full pt-4 md:pt-5 pb-1 px-2 bg-transparent text-[11px] md:text-sm font-bold outline-none border-none cursor-pointer"><option value="">ทั้งหมด</option></select>
+                    </div>
+                    <button onclick="resetFilters()" class="px-3 md:px-8 py-1 md:py-3 bg-indigo-50 text-indigo-600 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase hover:bg-indigo-100 transition-all self-center">ล้าง</button>
                 </div>
             </div>
 
             <!-- 1. ACTIVE LIST SECTION -->
             <div id="activeSection" class="space-y-4">
                 <!-- Add Task Form -->
-                <div class="max-w-2xl mx-auto mb-8">
-                    <details class="bg-indigo-600 rounded-3xl shadow-xl overflow-hidden group border-none transition-all">
-                        <summary class="p-5 md:p-6 cursor-pointer font-bold text-white flex justify-between items-center text-sm md:text-base list-none select-none">
+                <div class="max-w-2xl mx-auto mb-6">
+                    <details class="bg-indigo-600 rounded-2xl md:rounded-3xl shadow-lg overflow-hidden group border-none transition-all">
+                        <summary class="p-4 md:p-6 cursor-pointer font-bold text-white flex justify-between items-center text-xs md:text-base list-none select-none">
                             <span class="flex items-center gap-3"><i class="fas fa-plus-circle text-lg"></i> บันทึกรายการใหม่</span>
                             <i class="fas fa-chevron-right text-[10px] transition-transform group-open:rotate-90"></i>
                         </summary>
-                        <div class="p-6 pt-0 bg-white mx-1.5 mb-1.5 rounded-b-[1.8rem] space-y-4">
-                            <div class="pt-6">
-                                <label class="text-[11px] font-bold text-slate-400 uppercase ml-1">อาการเสีย / ปัญหา</label>
-                                <input type="text" id="taskInput" placeholder="ระบุสิ่งที่ตรวจพบ..." class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm focus:ring-4 focus:ring-indigo-100 transition-all font-medium">
+                        <div class="p-5 pt-0 bg-white mx-1 mb-1 rounded-b-[1.5rem] md:rounded-b-[1.8rem] space-y-4">
+                            <div class="pt-5">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">อาการเสีย / ปัญหา</label>
+                                <input type="text" id="taskInput" placeholder="สิ่งที่ตรวจพบ..." class="w-full p-3 md:p-4 mt-1 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm focus:ring-4 focus:ring-indigo-100 font-medium">
                             </div>
-                            <div class="grid grid-cols-2 gap-4">
+                            <div class="grid grid-cols-2 gap-3 md:gap-4">
                                 <div>
-                                    <label class="text-[11px] font-bold text-slate-400 uppercase ml-1">ประเภทงาน</label>
-                                    <select id="typeInput" onchange="toggleJobTypeOther(this.value)" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-bold">
-                                        <optgroup label="Mold"><option value="Repair Mold">Repair Mold</option><option value="Spare part Mold">Spare part Mold</option><option value="Modify Mold">Modify Mold</option><option value="TPM Mold">TPM Mold</option></optgroup>
-                                        <optgroup label="Machine"><option value="Repair machine">Repair machine</option><option value="Spare part machine">Spare part machine</option></optgroup>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">ประเภทงาน</label>
+                                    <select id="typeInput" onchange="toggleJobTypeOther(this.value)" class="w-full p-3 md:p-4 mt-1 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm font-bold">
+                                        <optgroup label="Mold"><option value="Repair Mold">Repair Mold</option><option value="Spare part Mold">Spare part Mold</option><option value="Modify Mold">Modify Mold</option></optgroup>
+                                        <optgroup label="Machine"><option value="Repair machine">Repair machine</option></optgroup>
                                         <option value="Other">ระบุเอง</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="text-[11px] font-bold text-slate-400 uppercase ml-1">โมล/เครื่อง</label>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">โมล/เครื่อง</label>
                                     <div class="relative mt-1">
-                                        <input type="text" id="assetInput" list="assetList" oninput="toggleOtherAsset(this.value)" placeholder="ค้นหา..." class="w-full p-4 pr-12 bg-slate-50 border-none rounded-2xl text-sm font-bold">
+                                        <input type="text" id="assetInput" list="assetList" oninput="toggleOtherAsset(this.value)" placeholder="ค้นหา..." class="w-full p-3 pr-10 md:p-4 md:pr-12 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm font-bold">
                                         <button onclick="openScanner('assetInput')" class="absolute right-3 top-1/2 -translate-y-1/2 text-indigo-600"><i class="fas fa-qrcode"></i></button>
                                     </div>
                                     <datalist id="assetList"></datalist>
                                 </div>
                             </div>
-                            <div id="otherJobTypeWrapper" class="hidden"><input type="text" id="otherJobTypeInput" placeholder="ระบุประเภทงานใหม่..." class="w-full p-4 bg-white border-2 border-dashed border-indigo-100 rounded-2xl text-sm font-medium"></div>
-                            <div id="otherAssetWrapper" class="hidden"><input type="text" id="otherAssetInput" placeholder="ระบุชื่อโมล/เครื่องใหม่..." class="w-full p-4 bg-white border-2 border-dashed border-indigo-100 rounded-2xl text-sm font-medium"></div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div><label class="text-[11px] font-bold text-slate-400 uppercase ml-1">ความเร่งด่วน</label><select id="priorityInput" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-black"><option value="low">🟢 ต่ำ</option><option value="medium" selected>🟡 กลาง</option><option value="high">🔴 สูง</option></select></div>
-                                <div><label class="text-[11px] font-bold text-slate-400 uppercase ml-1">ผู้รับผิดชอบ</label><select id="deptInput" onchange="toggleDeptOther(this.value)" class="w-full p-4 mt-1 bg-indigo-50 border-none rounded-2xl text-sm font-extrabold text-indigo-700"><option value="">-- เลือก --</option><option value="Sarin">Sarin</option><option value="WEN">WEN</option><option value="TP/MDS">TP/MDS</option><option value="PE">PE</option><option value="Other">ระบุเอง</option></select></div>
+                            <div id="otherJobTypeWrapper" class="hidden"><input type="text" id="otherJobTypeInput" placeholder="ระบุประเภทงาน..." class="w-full p-3 bg-white border-2 border-dashed border-indigo-100 rounded-xl text-sm"></div>
+                            <div id="otherAssetWrapper" class="hidden"><input type="text" id="otherAssetInput" placeholder="ระบุชื่อโมล/เครื่อง..." class="w-full p-3 bg-white border-2 border-dashed border-indigo-100 rounded-xl text-sm"></div>
+                            <div class="grid grid-cols-2 gap-3 md:gap-4">
+                                <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">ความเร่งด่วน</label><select id="priorityInput" class="w-full p-3 md:p-4 mt-1 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm font-black"><option value="low">🟢 ต่ำ</option><option value="medium" selected>🟡 กลาง</option><option value="high">🔴 สูง</option></select></div>
+                                <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">ผู้รับผิดชอบ</label><select id="deptInput" onchange="toggleDeptOther(this.value)" class="w-full p-3 md:p-4 mt-1 bg-indigo-50 border-none rounded-xl md:rounded-2xl text-sm font-extrabold text-indigo-700"><option value="Sarin">Sarin</option><option value="WEN">WEN</option><option value="TP/MDS">TP/MDS</option><option value="PE">PE</option><option value="Other">ระบุเอง</option></select></div>
                             </div>
-                            <div id="otherDeptWrapper" class="hidden"><input type="text" id="otherDeptInput" placeholder="ระบุชื่อแผนก/ผู้รับผิดชอบ..." class="w-full p-4 bg-slate-50 border-none rounded-2xl text-sm"></div>
-                            <div class="flex gap-4">
-                                <div class="flex-1"><label class="text-[11px] font-bold text-slate-400 uppercase ml-1">เริ่ม</label><input type="date" id="startInput" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-medium"></div>
-                                <div class="flex-1"><label class="text-[11px] font-bold text-slate-400 uppercase ml-1">กำหนดเสร็จ</label><input type="date" id="endInput" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-bold text-rose-500"></div>
+                            <div class="flex gap-3 md:gap-4">
+                                <div class="flex-1"><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">เริ่ม</label><input type="date" id="startInput" class="w-full p-3 md:p-4 mt-1 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm font-medium"></div>
+                                <div class="flex-1"><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">กำหนดเสร็จ</label><input type="date" id="endInput" class="w-full p-3 md:p-4 mt-1 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm font-bold text-rose-500"></div>
                             </div>
-                            <div class="flex items-center justify-between py-2">
-                                <div class="flex-1"><label class="text-[11px] font-bold text-slate-400 uppercase ml-1">แนบรูป</label><input type="file" id="fileIn" multiple accept="image/*" onchange="handleImg(this, 'preIn', 'in')" class="hidden"><label for="fileIn" class="flex items-center gap-2 mt-1 w-fit px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-600 transition-colors"><i class="fas fa-image"></i> เลือกรูป</label></div>
+                            <div class="flex items-center justify-between py-1">
+                                <div class="flex-1"><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">แนบรูป</label><input type="file" id="fileIn" multiple accept="image/*" onchange="handleImg(this, 'preIn', 'in')" class="hidden"><label for="fileIn" class="flex items-center gap-2 mt-1 w-fit px-4 py-2 bg-slate-100 rounded-xl cursor-pointer text-[10px] font-bold text-slate-600 transition-colors"><i class="fas fa-image"></i> เลือกรูป</label></div>
                                 <div id="preIn" class="flex gap-2 overflow-x-auto max-w-[60%] py-1"></div>
                             </div>
-                            <button onclick="save()" id="saveBtn" class="w-full bg-indigo-600 text-white py-5 rounded-2xl font-black uppercase text-sm shadow-xl flex justify-center items-center gap-3 active:scale-95 transition-all"><i class="fas fa-save"></i> บันทึกข้อมูล <div class="loader" id="saveLd"></div></button>
+                            <button onclick="save()" id="saveBtn" class="w-full bg-indigo-600 text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase text-sm shadow-xl flex justify-center items-center gap-3 active:scale-95 transition-all"><i class="fas fa-save"></i> บันทึกข้อมูล <div class="loader" id="saveLd"></div></button>
                         </div>
                     </details>
                 </div>
-                <div id="listActive" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                
+                <div class="flex items-center justify-between px-2 py-1 mb-2">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Jobs</p>
+                    <select id="sortActive" onchange="render()" class="bg-transparent border-none text-[10px] font-black text-indigo-600 outline-none uppercase cursor-pointer">
+                        <option value="deadline">📅 เรียงตามกำหนด</option>
+                        <option value="priority">🚩 เรียงตามความสำคัญ</option>
+                    </select>
+                </div>
+
+                <div id="listActive" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"></div>
             </div>
 
             <!-- 2. DASHBOARD SECTION -->
             <div id="dashboardSection" class="hidden space-y-8 animate-fadeIn">
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="premium-card p-6 border-l-8 border-indigo-500"><p class="text-[10px] font-bold text-slate-400 uppercase">งานทั้งหมด</p><p id="dashTotal" class="text-3xl font-black text-slate-800">0</p></div>
-                    <div class="premium-card p-6 border-l-8 border-amber-500"><p class="text-[10px] font-bold text-slate-400 uppercase">รอดำเนินการ</p><p id="dashPending" class="text-3xl font-black text-slate-800">0</p></div>
-                    <div class="premium-card p-6 border-l-8 border-emerald-500"><p class="text-[10px] font-bold text-slate-400 uppercase">อัตราสำเร็จ</p><p id="dashSuccessRate" class="text-3xl font-black text-slate-800">0%</p></div>
-                    <div class="premium-card p-6 border-l-8 border-rose-500"><p class="text-[10px] font-bold text-slate-400 uppercase">เกินกำหนด</p><p id="dashOverdue" class="text-3xl font-black text-slate-800">0</p></div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    <div class="premium-card p-5 md:p-6 border-l-8 border-indigo-500"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">งานทั้งหมด</p><p id="dashTotal" class="text-2xl md:text-4xl font-black text-slate-800">0</p></div>
+                    <div class="premium-card p-5 md:p-6 border-l-8 border-amber-500"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">รอดำเนินการ</p><p id="dashPending" class="text-2xl md:text-4xl font-black text-slate-800">0</p></div>
+                    <div class="premium-card p-5 md:p-6 border-l-8 border-emerald-500"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">อัตราสำเร็จ</p><p id="dashSuccessRate" class="text-2xl md:text-4xl font-black text-slate-800">0%</p></div>
+                    <div class="premium-card p-5 md:p-6 border-l-8 border-rose-500"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">เกินกำหนด</p><p id="dashOverdue" class="text-2xl md:text-4xl font-black text-slate-800">0</p></div>
                 </div>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="lg:col-span-1 premium-card p-8"><h3 class="text-base font-extrabold mb-6 uppercase italic"><i class="fas fa-exclamation-triangle text-rose-500"></i> Top 5 Problem</h3><div id="topAssetsList" class="space-y-4"></div><div class="mt-8 pt-6 border-t border-slate-100"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Lead Time เฉลี่ย (วัน)</p><p id="avgLeadTime" class="text-4xl font-black text-indigo-600">0.0</p></div></div>
-                    <div class="lg:col-span-2 premium-card p-8 relative">
-                        <div class="flex justify-between items-center mb-6"><h3 class="text-base font-extrabold flex items-center gap-2 italic uppercase text-slate-800"><i class="fas fa-chart-pie text-indigo-500"></i> Job Type Distribution</h3><span class="text-[10px] font-black text-slate-400 animate-pulse uppercase">คลิกบนกราฟเพื่อดูรายการ</span></div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+                    <div class="lg:col-span-1 premium-card p-6 md:p-8"><h3 class="text-base font-extrabold mb-4 uppercase italic"><i class="fas fa-exclamation-triangle text-rose-500"></i> Top 5 Problem</h3><div id="topAssetsList" class="space-y-3"></div><div class="mt-6 pt-4 border-t"><p class="text-[10px] font-bold text-slate-400 uppercase">Lead Time เฉลี่ย (วัน)</p><p id="avgLeadTime" class="text-3xl md:text-4xl font-black text-indigo-600">0.0</p></div></div>
+                    <div class="lg:col-span-2 premium-card p-6 md:p-8 relative">
+                        <div class="flex justify-between items-center mb-4 md:mb-6"><h3 class="text-base font-extrabold uppercase italic text-slate-800"><i class="fas fa-chart-pie text-indigo-500"></i> Job Types</h3><span class="text-[9px] font-black text-slate-400 animate-pulse uppercase">คลิกดูรายการ</span></div>
                         <div class="relative h-64 md:h-80"><canvas id="jobTypeChart"></canvas></div>
                     </div>
                 </div>
@@ -156,23 +180,25 @@
 
             <!-- 3. HISTORY SECTION -->
             <div id="historySection" class="hidden space-y-6 animate-fadeIn">
-                <div id="listHistory" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6"></div>
+                <div id="listHistory" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6"></div>
             </div>
         </main>
     </div>
 
     <!-- MODALS -->
-    <div id="editModal" class="modal"><div class="modal-content"><h2 class="text-2xl font-black text-slate-800 mb-6 italic flex items-center gap-2"><i class="fas fa-edit text-indigo-500"></i> EDIT JOB</h2><div class="space-y-5"><input type="hidden" id="edId"><div><label class="text-[11px] font-bold text-slate-400 uppercase ml-1">อาการเสีย</label><input type="text" id="edTask" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-semibold"></div><div><label class="text-[11px] font-bold text-slate-400 uppercase ml-1">ความสำคัญ</label><select id="edPriority" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-black"><option value="low">🟢 งานทั่วไป</option><option value="medium">🟡 เร่งด่วน</option><option value="high">🔴 ด่วนที่สุด</option></select></div><div class="grid grid-cols-2 gap-4"><div><label class="text-[11px] font-bold text-slate-400 uppercase ml-1">วันเริ่มงาน</label><input type="date" id="edStart" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-black"></div><div><label class="text-[11px] font-bold text-slate-400 uppercase ml-1">กำหนดเสร็จใหม่</label><input type="date" id="edEnd" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-black text-rose-500"></div></div><div class="py-2"><label class="text-[11px] font-bold text-slate-400 uppercase ml-1">แนบรูปเพิ่ม</label><input type="file" id="fileEd" multiple accept="image/*" onchange="handleImg(this, 'preEd', 'ed')" class="hidden"><label for="fileEd" class="flex items-center gap-2 mt-1 w-fit px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-600 transition-colors"><i class="fas fa-image"></i> เลือกรูปเพิ่ม</label><div id="preEd" class="flex gap-2 mt-3 overflow-x-auto py-1"></div></div><textarea id="edReason" rows="2" placeholder="ระบุเหตุผลการแก้ไข..." class="w-full p-4 bg-slate-50 border-none rounded-2xl text-sm italic font-medium"></textarea><div class="flex gap-3 pt-4"><button onclick="closeM('editModal')" class="flex-1 py-4 text-slate-400 font-bold text-xs uppercase">ยกเลิก</button><button onclick="update()" id="upBtn" class="flex-[2] bg-slate-900 text-white py-4 rounded-2xl font-black text-xs shadow-xl transition-all">อัปเดตข้อมูล</button></div></div></div></div>
+    <div id="editModal" class="modal"><div class="modal-content"><h2 class="text-xl md:text-2xl font-black text-slate-800 mb-6 italic flex items-center gap-2"><i class="fas fa-edit text-indigo-500"></i> EDIT JOB</h2><div class="space-y-4 md:space-y-5"><input type="hidden" id="edId"><div><label class="text-[11px] font-bold text-slate-400 uppercase">อาการเสีย</label><input type="text" id="edTask" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-semibold"></div><div><label class="text-[11px] font-bold text-slate-400 uppercase">ความสำคัญ</label><select id="edPriority" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-black"><option value="low">🟢 งานทั่วไป</option><option value="medium">🟡 เร่งด่วน</option><option value="high">🔴 ด่วนที่สุด</option></select></div><div class="grid grid-cols-2 gap-4"><div><label class="text-[11px] font-bold text-slate-400 uppercase">วันเริ่มงาน</label><input type="date" id="edStart" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-black"></div><div><label class="text-[11px] font-bold text-slate-400 uppercase">กำหนดเสร็จใหม่</label><input type="date" id="edEnd" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-black text-rose-500"></div></div><div class="py-1"><label class="text-[11px] font-bold text-slate-400 uppercase">แนบรูปเพิ่ม</label><input type="file" id="fileEd" multiple accept="image/*" onchange="handleImg(this, 'preEd', 'ed')" class="hidden"><label for="fileEd" class="flex items-center gap-2 mt-1 w-fit px-4 py-2 bg-slate-100 rounded-xl cursor-pointer text-[10px] font-bold text-slate-600 transition-colors"><i class="fas fa-image"></i> เลือกรูป</label><div id="preEd" class="flex gap-2 mt-2 overflow-x-auto py-1"></div></div><textarea id="edReason" rows="2" placeholder="ระบุเหตุผลการแก้ไข..." class="w-full p-4 bg-slate-50 border-none rounded-2xl text-sm italic font-medium"></textarea><div class="flex gap-3 pt-4"><button onclick="closeM('editModal')" class="flex-1 py-4 text-slate-400 font-bold text-xs uppercase">ยกเลิก</button><button onclick="update()" id="upBtn" class="flex-[2] bg-slate-900 text-white py-4 rounded-2xl font-black text-xs shadow-xl">อัปเดต</button></div></div></div></div>
     
-    <div id="detailModal" class="modal"><div class="modal-content !max-w-2xl overflow-y-auto max-h-[85vh]"><div class="flex justify-between items-center mb-6"><h2 id="detailTitle" class="text-xl md:text-2xl font-black text-slate-800 italic uppercase">Job Details</h2><button onclick="closeM('detailModal')" class="text-slate-400"><i class="fas fa-times text-xl"></i></button></div><div id="detailBody" class="space-y-6"></div></div></div>
+    <div id="compModal" class="modal"><div class="modal-content text-center"><div class="w-16 h-16 md:w-20 md:h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl md:text-3xl shadow-inner animate-bounce"><i class="fas fa-check-double"></i></div><h2 class="text-xl md:text-2xl font-extrabold mb-1 uppercase">Job Finished</h2><p class="text-slate-400 text-xs mb-8 font-medium italic">Upload completion proof</p><input type="file" id="fileOut" multiple accept="image/*" onchange="handleImg(this, 'preOut', 'out')" class="hidden"><label for="fileOut" class="inline-flex items-center gap-2 px-6 py-3 bg-slate-100 hover:bg-slate-200 rounded-2xl cursor-pointer text-[11px] font-black text-slate-600 mb-6 border border-slate-200"><i class="fas fa-camera"></i> เลือกรูปงานเสร็จ</label><div id="preOut" class="flex flex-wrap gap-2 mb-8 justify-center"></div><div class="flex gap-4"><button onclick="closeM('compModal')" class="flex-1 py-4 bg-slate-100 rounded-2xl text-xs font-black text-slate-400 uppercase">ยกเลิก</button><button onclick="complete()" id="cpBtn" class="flex-[2] py-4 bg-emerald-600 text-white rounded-2xl text-xs font-black shadow-lg">ปิดงาน</button></div></div></div>
 
-    <div id="categoryModal" class="modal"><div class="modal-content !max-w-3xl overflow-hidden flex flex-col max-h-[80vh]"><div class="flex justify-between items-center mb-4 border-b pb-4"><div><h2 id="categoryTitle" class="text-xl md:text-2xl font-black text-slate-800 italic uppercase leading-none">Job Type Detail</h2><p id="categorySubtitle" class="text-[10px] font-bold text-slate-400 uppercase mt-2"></p></div><button onclick="closeM('categoryModal')" class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl text-slate-400"><i class="fas fa-times"></i></button></div><div id="categoryBody" class="overflow-y-auto space-y-4 pr-2 scrollbar-hide"></div></div></div>
+    <div id="delModal" class="modal"><div class="modal-content text-center p-8"><div class="w-16 h-16 md:w-20 md:h-20 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl md:text-3xl"><i class="fas fa-trash-alt"></i></div><h2 class="text-xl md:text-2xl font-extrabold mb-2 uppercase">ลบรายการ?</h2><div class="flex gap-4"><button onclick="closeM('delModal')" class="flex-1 py-4 bg-slate-100 rounded-2xl text-xs font-black text-slate-500 uppercase">ยกเลิก</button><button onclick="confirmDel()" id="delBtn" class="flex-1 py-4 bg-rose-600 text-white rounded-2xl text-xs font-black shadow-lg">ลบ</button></div></div></div>
 
-    <div id="compModal" class="modal"><div class="modal-content text-center"><div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl shadow-inner animate-bounce"><i class="fas fa-check-double"></i></div><h2 class="text-2xl font-extrabold mb-1 uppercase">Job Finished</h2><p class="text-slate-400 text-xs mb-8 font-medium italic">Upload proof of completion</p><input type="file" id="fileOut" multiple accept="image/*" onchange="handleImg(this, 'preOut', 'out')" class="hidden"><label for="fileOut" class="inline-flex items-center gap-2 px-6 py-3 bg-slate-100 hover:bg-slate-200 rounded-2xl cursor-pointer text-xs font-black text-slate-600 mb-6 border border-slate-200"><i class="fas fa-camera"></i> เลือกรูปงานเสร็จ</label><div id="preOut" class="flex flex-wrap gap-2 mb-8 justify-center"></div><div class="flex gap-4"><button onclick="closeM('compModal')" class="flex-1 py-4 bg-slate-100 rounded-2xl text-xs font-black text-slate-400 uppercase">ยกเลิก</button><button onclick="complete()" id="cpBtn" class="flex-[2] py-4 bg-emerald-600 text-white rounded-2xl text-xs font-black shadow-lg">ปิดงาน</button></div></div></div>
+    <div id="scannerModal" class="modal"><div class="modal-content text-center overflow-hidden !p-0"><div class="p-4 md:p-6"><h2 class="text-lg md:text-xl font-black mb-4 uppercase italic text-indigo-600"><i class="fas fa-qrcode"></i> QR SCANNER</h2><div id="reader"></div><button onclick="closeScanner()" class="w-full py-3 md:py-4 bg-slate-100 rounded-xl text-[11px] font-black text-slate-500 uppercase mt-4">ปิดหน้าต่าง</button></div></div></div>
 
-    <div id="delModal" class="modal"><div class="modal-content text-center p-8"><div class="w-20 h-20 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl"><i class="fas fa-trash-alt"></i></div><h2 class="text-2xl font-extrabold mb-2 uppercase">ลบรายการ?</h2><div class="flex gap-4"><button onclick="closeM('delModal')" class="flex-1 py-4 bg-slate-100 rounded-2xl text-xs font-black text-slate-500 uppercase">ยกเลิก</button><button onclick="confirmDel()" id="delBtn" class="flex-1 py-4 bg-rose-600 text-white rounded-2xl text-xs font-black shadow-lg">ลบ</button></div></div></div>
+    <!-- Detail Modal -->
+    <div id="detailModal" class="modal"><div class="modal-content !max-w-2xl overflow-y-auto max-h-[90vh]"><div class="flex justify-between items-center mb-6"><h2 id="detailTitle" class="text-xl md:text-2xl font-black text-slate-800 italic uppercase">Job Details</h2><button onclick="closeM('detailModal')" class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl text-slate-400"><i class="fas fa-times"></i></button></div><div id="detailBody" class="space-y-6"></div></div></div>
 
-    <div id="scannerModal" class="modal"><div class="modal-content text-center overflow-hidden !p-0"><div class="p-6"><h2 class="text-xl font-black mb-4 uppercase italic text-indigo-600"><i class="fas fa-qrcode"></i> QR SCANNER</h2><div id="reader"></div><button onclick="closeScanner()" class="w-full py-4 bg-slate-100 rounded-2xl text-xs font-black text-slate-500 uppercase mt-4">ปิดหน้าต่าง</button></div></div></div>
+    <!-- Category Detail Modal -->
+    <div id="categoryModal" class="modal"><div class="modal-content !max-w-3xl overflow-hidden flex flex-col max-h-[85vh]"><div class="flex justify-between items-center mb-4 border-b pb-4"><div><h2 id="categoryTitle" class="text-xl md:text-2xl font-black text-slate-800 italic uppercase leading-none">Category</h2><p id="categorySubtitle" class="text-[10px] font-bold text-slate-400 uppercase mt-2"></p></div><button onclick="closeM('categoryModal')" class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl text-slate-400"><i class="fas fa-times"></i></button></div><div id="categoryBody" class="overflow-y-auto space-y-3 pr-2 scrollbar-hide"></div></div></div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyGAStB7T57jXPkahAsMQUP9BdyQPrj2f_xkEqidGsKK15rfJSOXUqO0RD98ND4l_d4-w/exec";
@@ -181,7 +207,7 @@
         function formatThaiDate(s) { if (!s || s === "-" || s === "") return "-"; try { const d = new Date(s); return isNaN(d.getTime()) ? s : `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()+543}`; } catch(e) { return s; } }
         function showToast(m) { const x = document.getElementById('toast'); if(x) { document.getElementById('toastMsg').innerText = m; x.classList.remove('hidden'); setTimeout(() => x.classList.add('hidden'), 3500); } }
         function closeM(id) { const el = document.getElementById(id); if(el) el.style.display = 'none'; }
-        window.handleImgError = (imgEl) => { if(imgEl && imgEl.parentElement) imgEl.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-slate-100 rounded-xl"><i class="fas fa-image text-slate-300 text-xl"></i></div>'; };
+        window.handleImgError = (imgEl) => { if(imgEl && imgEl.parentElement) imgEl.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-slate-100 rounded-xl"><i class="fas fa-image text-slate-300 text-lg"></i></div>'; };
 
         async function fetchData() { 
             try { 
@@ -189,26 +215,15 @@
                 const data = await res.json(); 
                 tasks = data.tasks || []; masterAssets = data.assets || []; 
                 const al = document.getElementById('assetList'); if(al) al.innerHTML = masterAssets.map(a => `<option value="${a.fullText}">`).join('');
-                render(); 
+                updateFilters(); render(); 
             } catch (e) { showToast("โหลดข้อมูลล้มเหลว"); } 
         }
 
         window.update = async () => { 
             const btn = document.getElementById('upBtn'); if(!btn) return; btn.disabled = true;
-            const payload = {
-                action: "update",
-                id: document.getElementById('edId').value,
-                task: document.getElementById('edTask').value,
-                startDate: document.getElementById('edStart').value,
-                deadline: document.getElementById('edEnd').value,
-                priority: document.getElementById('edPriority').value,
-                reason: document.getElementById('edReason').value
-            };
             try { 
-                const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) }); 
-                const result = await res.json(); 
-                if(result.status === "success") { showToast("อัปเดตสำเร็จ!"); closeM('editModal'); fetchData(); } 
-                else { throw new Error(); }
+                const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "update", id: document.getElementById('edId').value, task: document.getElementById('edTask').value, startDate: document.getElementById('edStart').value, deadline: document.getElementById('edEnd').value, priority: document.getElementById('edPriority').value, reason: document.getElementById('edReason').value }) }); 
+                const result = await res.json(); if(result.status === "success") { showToast("อัปเดตสำเร็จ!"); closeM('editModal'); fetchData(); } else { throw new Error(); }
             } catch (e) { showToast("อัปเดตล้มเหลว"); } finally { btn.disabled = false; } 
         };
 
@@ -216,9 +231,8 @@
             currentTab = mode; 
             document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active', 'text-indigo-600', 'font-bold'); b.classList.add('text-slate-400'); });
             document.getElementById('tab' + mode.charAt(0).toUpperCase() + mode.slice(1))?.classList.add('active');
-            ['activeSection', 'dashboardSection', 'historySection', 'searchWrapper'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+            ['activeSection', 'dashboardSection', 'historySection'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
             document.getElementById(mode + 'Section')?.classList.remove('hidden');
-            if(mode !== 'dashboard') document.getElementById('searchWrapper')?.classList.remove('hidden');
             render(); 
         };
 
@@ -227,43 +241,57 @@
             const isOver = !isDone && t.deadline < today;
             const p = String(t.priority || "medium").toLowerCase(); const prioClass = p === 'high' ? 'priority-high' : p === 'medium' ? 'priority-medium' : 'priority-low';
             const prioEmoji = p === 'high' ? '🔴' : p === 'medium' ? '🟡' : '🟢'; 
-            
             const rawImgs = (t.imageUrl ? String(t.imageUrl).split(',') : []).concat(t.finishImageUrl ? String(t.finishImageUrl).split(',') : []).map(u => u.trim()).filter(u => u && u.startsWith('http'));
-            const imgsHtml = rawImgs.map(u => `<div class="shrink-0 w-10 h-10 bg-slate-50 rounded-lg border overflow-hidden shadow-sm cursor-pointer" onclick="window.open('${u}')"><img src="${u}" class="w-full h-full object-cover" onerror="handleImgError(this)"></div>`).join('');
+            const imgsHtml = rawImgs.map(u => `<div class="shrink-0 w-8 h-8 md:w-10 md:h-10 bg-slate-50 rounded-lg border overflow-hidden cursor-pointer" onclick="window.open('${u}')"><img src="${u}" class="w-full h-full object-cover" onerror="handleImgError(this)"></div>`).join('');
 
             if (currentTab === 'history') {
-                return `<div class="premium-card p-6 border-l-8 border-emerald-500 cursor-pointer animate-fadeIn" onclick="openDetail('${t.id}')">
-                    <div class="flex justify-between items-start mb-4"><div><span class="status-pill bg-emerald-50 text-emerald-700">COMPLETED</span></div><span class="text-[10px] font-black text-slate-400">Done: ${formatThaiDate(t.deadline)}</span></div>
-                    <h3 class="text-base font-extrabold text-slate-800 leading-tight mb-2 italic">${prioEmoji} ${t.task}</h3>
-                    <p class="text-xs font-black text-indigo-600 uppercase mb-3">${t.asset}</p>
+                return `<div class="premium-card p-5 md:p-6 border-l-8 border-emerald-500 cursor-pointer animate-fadeIn" onclick="openDetail('${t.id}')">
+                    <div class="flex justify-between items-start mb-3"><div><span class="status-pill bg-emerald-50 text-emerald-700">COMPLETED</span></div><span class="text-[9px] font-black text-slate-400 uppercase">Done: ${formatThaiDate(t.deadline)}</span></div>
+                    <h3 class="text-sm md:text-lg font-extrabold text-slate-800 leading-tight mb-2 italic">${prioEmoji} ${t.task}</h3>
+                    <p class="text-[10px] md:text-xs font-black text-indigo-600 uppercase mb-3">${t.asset}</p>
                     <div class="flex gap-2 pb-2 overflow-hidden">${imgsHtml}</div>
-                    <div class="mt-4 pt-4 border-t flex justify-between items-center"><span class="text-[10px] font-bold text-slate-400 uppercase italic underline text-indigo-500">View History Detail</span><button onclick="window.openDel('${t.id}'); event.stopPropagation();" class="text-slate-300 hover:text-rose-500 transition-colors px-2"><i class="fas fa-trash-alt text-xs"></i></button></div>
+                    <div class="mt-3 pt-3 border-t flex justify-between items-center"><span class="text-[9px] font-bold text-slate-400 uppercase italic underline text-indigo-500">View Detail</span><button onclick="window.openDel('${t.id}'); event.stopPropagation();" class="text-slate-300 hover:text-rose-500 transition-colors p-1"><i class="fas fa-trash-alt text-[11px]"></i></button></div>
                 </div>`;
             }
 
-            return `<div class="premium-card p-5 ${prioClass} flex flex-col h-full animate-fadeIn"><div class="flex-1 min-w-0"><div class="flex justify-between mb-3"><span class="status-pill bg-slate-100">${t.type}</span>${isOver?'<span class="status-pill bg-rose-600 text-white animate-pulse">LATE</span>':''}</div><h3 class="text-base font-extrabold text-slate-800 italic truncate" title="${t.task}">${prioEmoji} ${t.task}</h3><p class="text-xs font-black text-indigo-600 mb-4">${t.asset}</p><div class="mb-4 text-[9px] font-black text-slate-400">START: ${formatThaiDate(t.startDate)} | DEADLINE: ${formatThaiDate(t.deadline)}</div><div class="flex gap-2 pb-2 overflow-x-auto scrollbar-hide">${imgsHtml}</div></div><div class="flex justify-end gap-2 mt-4 pt-4 border-t"><button onclick="openDetail('${t.id}')" title="Detail" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-all"><i class="fas fa-eye text-slate-400"></i></button><button onclick="window.openComp('${t.id}')" title="Complete" class="w-10 h-10 bg-emerald-500 text-white rounded-xl shadow-md flex items-center justify-center hover:bg-emerald-600 transition-all"><i class="fas fa-check"></i></button><button onclick="window.openEdit('${t.id}')" title="Edit" class="w-10 h-10 bg-slate-900 text-white rounded-xl shadow-md flex items-center justify-center hover:bg-black transition-all"><i class="fas fa-pen text-[11px]"></i></button><button onclick="window.openDel('${t.id}')" title="Delete" class="w-10 h-10 bg-white border text-slate-300 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all"><i class="fas fa-trash-alt text-[11px]"></i></button></div></div>`;
+            return `<div class="premium-card p-4 md:p-5 ${prioClass} flex flex-col h-full animate-fadeIn"><div class="flex-1 min-w-0"><div class="flex justify-between mb-2"><span class="status-pill bg-slate-100">${t.type}</span>${isOver?'<span class="status-pill bg-rose-600 text-white animate-pulse">LATE</span>':''}</div><h3 class="text-sm md:text-base font-extrabold text-slate-800 italic truncate" title="${t.task}">${prioEmoji} ${t.task}</h3><p class="text-[10px] md:text-xs font-black text-indigo-600 mb-3">${t.asset}</p><div class="mb-3 text-[8px] md:text-[9px] font-black text-slate-400 uppercase">S: ${formatThaiDate(t.startDate)} | D: ${formatThaiDate(t.deadline)}</div><div class="flex gap-2 pb-2 overflow-x-auto scrollbar-hide">${imgsHtml}</div></div><div class="flex justify-end gap-2 mt-3 pt-3 border-t"><button onclick="openDetail('${t.id}')" class="w-8 h-8 md:w-10 md:h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-all"><i class="fas fa-eye text-slate-400 text-xs"></i></button><button onclick="window.openComp('${t.id}')" class="w-8 h-8 md:w-10 md:h-10 bg-emerald-500 text-white rounded-xl shadow-md flex items-center justify-center hover:bg-emerald-600 transition-all"><i class="fas fa-check text-xs"></i></button><button onclick="window.openEdit('${t.id}')" class="w-8 h-8 md:w-10 md:h-10 bg-slate-900 text-white rounded-xl shadow-md flex items-center justify-center hover:bg-black transition-all"><i class="fas fa-pen text-[10px]"></i></button><button onclick="window.openDel('${t.id}')" class="w-8 h-8 md:w-10 md:h-10 bg-white border text-slate-300 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all"><i class="fas fa-trash-alt text-[10px]"></i></button></div></div>`;
         };
 
         function render() { 
             const s = document.getElementById('searchInput')?.value.toLowerCase() || ""; 
+            const fm = document.getElementById('filterMonth')?.value || ""; 
+            const fa = document.getElementById('filterAsset')?.value || "";
             const today = new Date().toLocaleDateString('en-CA');
+
+            const filterFunc = t => {
+                const matchSearch = (t.task||"").toLowerCase().includes(s) || (t.asset||"").toLowerCase().includes(s);
+                const matchMonth = !fm || (t.deadline && String(t.deadline).startsWith(fm));
+                const matchAsset = !fa || t.asset === fa;
+                return matchSearch && matchMonth && matchAsset;
+            };
+
             if(currentTab === 'dashboard') {
-                const pend = tasks.filter(t => t.status === 'pending');
                 const comp = tasks.filter(t => t.status === 'completed');
-                const over = tasks.filter(t => t.status === 'pending' && t.deadline < today);
-                if(document.getElementById('dashTotal')) document.getElementById('dashTotal').innerText = tasks.length;
-                if(document.getElementById('dashPending')) document.getElementById('dashPending').innerText = pend.length;
-                if(document.getElementById('dashSuccessRate')) document.getElementById('dashSuccessRate').innerText = tasks.length ? Math.round((comp.length / tasks.length) * 100) + '%' : '0%';
-                if(document.getElementById('dashOverdue')) document.getElementById('dashOverdue').innerText = over.length;
+                document.getElementById('dashTotal').innerText = tasks.length;
+                document.getElementById('dashPending').innerText = tasks.filter(t => t.status === 'pending').length;
+                document.getElementById('dashSuccessRate').innerText = tasks.length ? Math.round((comp.length / tasks.length) * 100) + '%' : '0%';
+                document.getElementById('dashOverdue').innerText = tasks.filter(t => t.status === 'pending' && t.deadline < today).length;
                 updateCharts(tasks);
             }
             if(currentTab === 'active') {
+                const sortMode = document.getElementById('sortActive')?.value || 'deadline';
+                const priorityWeight = { high: 0, medium: 1, low: 2 };
+                let activeTasks = tasks.filter(t => t.status === 'pending' && filterFunc(t));
+                activeTasks.sort((a, b) => {
+                    if (sortMode === 'deadline') return (a.deadline || '9999') > (b.deadline || '9999') ? 1 : -1;
+                    return priorityWeight[a.priority || 'medium'] - priorityWeight[b.priority || 'medium'];
+                });
                 const la = document.getElementById('listActive');
-                if(la) la.innerHTML = tasks.filter(t => t.status === 'pending' && ((t.task||"").toLowerCase().includes(s) || (t.asset||"").toLowerCase().includes(s))).map(makeItem).join('') || '<p class="col-span-full text-center py-20 text-slate-300 font-bold uppercase">No Active Jobs</p>';
+                if(la) la.innerHTML = activeTasks.map(makeItem).join('') || '<p class="col-span-full text-center py-20 text-slate-300 font-bold uppercase text-xs">No active jobs found</p>';
             }
             if(currentTab === 'history') {
                 const lh = document.getElementById('listHistory');
-                if(lh) lh.innerHTML = tasks.filter(t => t.status === 'completed' && ((t.task||"").toLowerCase().includes(s) || (t.asset||"").toLowerCase().includes(s))).reverse().map(makeItem).join('') || '<p class="col-span-full text-center py-20 text-slate-300 font-bold uppercase">No Records</p>';
+                if(lh) lh.innerHTML = tasks.filter(t => t.status === 'completed' && filterFunc(t)).reverse().map(makeItem).join('') || '<p class="col-span-full text-center py-20 text-slate-300 font-bold uppercase text-xs">No records found</p>';
             }
         }
 
@@ -274,13 +302,13 @@
                 if (jobChart) jobChart.destroy();
                 jobChart = new Chart(typeCtx.getContext('2d'), { 
                     type: 'doughnut', data: { labels: Object.keys(types), datasets: [{ data: Object.values(types), backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#a855f7'], borderWidth: 0 }] }, 
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } }, onClick: (e, active) => { if(active.length > 0) showJobTypeDetails(jobChart.data.labels[active[0].index]); } } 
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 8, font: { size: 10 } } } }, onClick: (e, active) => { if(active.length > 0) showJobTypeDetails(jobChart.data.labels[active[0].index]); } } 
                 });
             }
             const assetCounts = {}; data.forEach(t => { if (t.asset) assetCounts[t.asset] = (assetCounts[t.asset] || 0) + 1; });
             const topAssets = Object.entries(assetCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
             const tal = document.getElementById('topAssetsList');
-            if(tal) tal.innerHTML = topAssets.map(([name, count], i) => `<div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl"><div class="flex items-center gap-3"><span class="w-6 h-6 flex items-center justify-center bg-white text-[10px] font-black rounded-lg shadow-sm">${i+1}</span><span class="text-xs font-bold text-slate-700 truncate max-w-[150px]">${name}</span></div><span class="text-[10px] font-black px-2 py-1 bg-indigo-100 text-indigo-600 rounded-lg">${count} ซ่อม</span></div>`).join('');
+            if(tal) tal.innerHTML = topAssets.map(([name, count], i) => `<div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl"><div class="flex items-center gap-3"><span class="w-6 h-6 flex items-center justify-center bg-white text-[10px] font-black rounded-lg shadow-sm">${i+1}</span><span class="text-[11px] font-bold text-slate-700 truncate max-w-[120px]">${name}</span></div><span class="text-[9px] font-black px-2 py-1 bg-indigo-100 text-indigo-600 rounded-lg">${count} ซ่อม</span></div>`).join('');
             const completed = data.filter(t => t.status === 'completed' && t.startDate && t.deadline);
             let totalDays = 0; completed.forEach(t => { const diff = Math.ceil((new Date(t.deadline) - new Date(t.startDate)) / (1000 * 60 * 60 * 24)); if (diff >= 0) totalDays += diff; });
             const alt = document.getElementById('avgLeadTime'); if(alt) alt.innerText = completed.length ? (totalDays / completed.length).toFixed(1) : "0.0";
@@ -290,7 +318,7 @@
             const filtered = tasks.filter(t => t.type === typeLabel);
             const ct = document.getElementById('categoryTitle'); const cs = document.getElementById('categorySubtitle'); const cb = document.getElementById('categoryBody');
             if(ct) ct.innerText = typeLabel; if(cs) cs.innerText = `Total: ${filtered.length} items`;
-            if(cb) cb.innerHTML = filtered.reverse().map(t => `<div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center cursor-pointer" onclick="openDetail('${t.id}')"><div class="min-w-0"><span class="text-[9px] font-black px-2 py-0.5 ${t.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'} rounded-full uppercase">${t.status}</span><h5 class="text-sm font-extrabold text-slate-800 italic truncate leading-tight">${t.task}</h5><p class="text-[10px] font-black text-indigo-500 uppercase">${t.asset}</p></div><i class="fas fa-chevron-right text-slate-300"></i></div>`).join('');
+            if(cb) cb.innerHTML = filtered.reverse().map(t => `<div class="p-3 md:p-4 bg-slate-50 rounded-2xl flex justify-between items-center cursor-pointer hover:bg-white transition-all" onclick="openDetail('${t.id}')"><div class="min-w-0"><span class="text-[8px] font-black px-2 py-0.5 ${t.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'} rounded-full uppercase">${t.status}</span><h5 class="text-xs md:text-sm font-extrabold text-slate-800 italic truncate mt-1">${t.task}</h5><p class="text-[9px] font-black text-indigo-500 uppercase">${t.asset}</p></div><i class="fas fa-chevron-right text-slate-300 text-xs"></i></div>`).join('');
             const cm = document.getElementById('categoryModal'); if(cm) cm.style.display = 'block';
         };
 
@@ -300,14 +328,13 @@
             const p = String(t.priority || "medium").toLowerCase(); const prioEmoji = p === 'high' ? '🔴' : p === 'medium' ? '🟡' : '🟢';
             const dt = document.getElementById('detailTitle'); const db = document.getElementById('detailBody');
             if(dt) dt.innerText = t.asset || 'Job Detail';
-            if(db) db.innerHTML = `<div class="space-y-6"><div><span class="status-pill bg-indigo-100 text-indigo-600">${t.type}</span><h4 class="text-xl font-bold mt-2 italic">${prioEmoji} ${t.task}</h4></div><div class="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-2xl"><div><p class="text-[10px] text-slate-400 uppercase">Start Date</p><p class="text-sm font-bold">${formatThaiDate(t.startDate)}</p></div><div><p class="text-[10px] text-slate-400 uppercase">Finish/Deadline</p><p class="text-sm font-bold">${formatThaiDate(t.deadline)}</p></div></div><p class="text-xs text-slate-600 italic leading-relaxed"><b>Note/Reason:</b> ${t.reason || '-'}</p><div><p class="text-[10px] font-black text-slate-400 uppercase mb-3">Images</p><div class="grid grid-cols-3 gap-2">${rawImgs.map(u => `<img src="${u}" class="w-full aspect-square object-cover rounded-xl border-2 border-white shadow-sm cursor-pointer" onclick="window.open('${u}')" onerror="handleImgError(this)">`).join('')}</div></div></div>`;
+            if(db) db.innerHTML = `<div class="space-y-6"><div><span class="status-pill bg-indigo-100 text-indigo-600">${t.type}</span><h4 class="text-lg md:text-xl font-bold mt-2 italic">${prioEmoji} ${t.task}</h4></div><div class="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-2xl"><div><p class="text-[9px] text-slate-400 uppercase">Start Date</p><p class="text-xs md:text-sm font-bold">${formatThaiDate(t.startDate)}</p></div><div><p class="text-[9px] text-slate-400 uppercase">Finish Date</p><p class="text-xs md:text-sm font-bold">${formatThaiDate(t.deadline)}</p></div></div><p class="text-xs text-slate-600 italic leading-relaxed"><b>Note/Reason:</b> ${t.reason || '-'}</p><div><p class="text-[10px] font-black text-slate-400 uppercase mb-3">Images (${rawImgs.length})</p><div class="grid grid-cols-3 gap-2">${rawImgs.map(u => `<img src="${u}" class="w-full aspect-square object-cover rounded-xl border-2 border-white shadow-sm cursor-pointer" onclick="window.open('${u}')" onerror="handleImgError(this)">`).join('')}</div></div></div>`;
             const dm = document.getElementById('detailModal'); if(dm) dm.style.display = 'block';
         };
 
         window.openEdit = id => { 
             const t = tasks.find(x => x.id === id); if(!t) return; 
-            document.getElementById('edId').value = t.id; 
-            document.getElementById('edTask').value = t.task; 
+            document.getElementById('edId').value = t.id; document.getElementById('edTask').value = t.task; 
             if (t.startDate) document.getElementById('edStart').value = new Date(t.startDate).toISOString().split('T')[0];
             if (t.deadline) document.getElementById('edEnd').value = new Date(t.deadline).toISOString().split('T')[0];
             document.getElementById('edPriority').value = String(t.priority || 'medium').toLowerCase(); 
@@ -320,30 +347,33 @@
             const t = document.getElementById('taskInput')?.value; const s = document.getElementById('startInput')?.value; const e = document.getElementById('endInput')?.value;
             if(!t || !s || !e) return alert("กรุณาระบุข้อมูลให้ครบถ้วน"); 
             const btn = document.getElementById('saveBtn'); btn.disabled = true; document.getElementById('saveLd').style.display = 'block';
-            let type = document.getElementById('typeInput')?.value; if(type === "Other") type = document.getElementById('otherJobTypeInput')?.value;
-            let asset = document.getElementById('assetInput')?.value; if(asset === "อื่นๆ (ระบุเอง)") asset = document.getElementById('otherAssetInput')?.value;
-            let dept = document.getElementById('deptInput')?.value; if(dept === "Other") dept = document.getElementById('otherDeptInput')?.value;
-            try { await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "add", task: t, type: type, asset: asset, startDate: s, deadline: e, images: inImgs, vendor: dept, priority: document.getElementById('priorityInput').value, reason: document.getElementById('reasonInput').value }) }); location.reload(); } catch(ex) { showToast("ล้มเหลว"); btn.disabled = false; } 
+            try { await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "add", task: t, type: document.getElementById('typeInput').value, asset: document.getElementById('assetInput').value, startDate: s, deadline: e, images: inImgs, vendor: document.getElementById('deptInput').value, priority: document.getElementById('priorityInput').value, reason: document.getElementById('reasonInput').value }) }); location.reload(); } catch(ex) { showToast("ล้มเหลว"); btn.disabled = false; } 
         };
 
         async function handleImg(input, preId, type) {
             const pre = document.getElementById(preId); if(!pre) return; pre.innerHTML = '';
             let target = (type === 'in') ? inImgs : (type === 'out') ? outImgs : edImgs; target.length = 0;
-            if (input.files) { for (let f of Array.from(input.files)) { const r = new FileReader(); r.readAsDataURL(f); r.onload = (e) => { const img = new Image(); img.src = e.target.result; img.onload = () => { const can = document.createElement('canvas'); const ctx = can.getContext('2d'); let w = img.width, h = img.height, MAX = 1200; if(w > MAX || h > MAX) { if (w > h) { h = (MAX/w)*h; w = MAX; } else { w = (MAX/h)*w; h = MAX; } } can.width = w; can.height = h; ctx.drawImage(img, 0, 0, w, h); const b64 = can.toDataURL('image/jpeg', 0.85); target.push(b64); const i = document.createElement('img'); i.src = b64; i.className = "w-10 h-10 object-cover rounded-lg border"; pre.appendChild(i); }; }; } }
+            if (input.files) { for (let f of Array.from(input.files)) { const r = new FileReader(); r.readAsDataURL(f); r.onload = (e) => { const img = new Image(); img.src = e.target.result; img.onload = () => { const can = document.createElement('canvas'); const ctx = can.getContext('2d'); let w = img.width, h = img.height, MAX = 1200; if(w > MAX || h > MAX) { if (w > h) { h = (MAX/w)*h; w = MAX; } else { w = (MAX/h)*w; h = MAX; } } can.width = w; can.height = h; ctx.drawImage(img, 0, 0, w, h); const b64 = can.toDataURL('image/jpeg', 0.85); target.push(b64); const i = document.createElement('img'); i.src = b64; i.className = "w-8 h-8 md:w-10 md:h-10 object-cover rounded-lg border"; pre.appendChild(i); }; }; } }
         }
 
         window.openDel = id => { targetDelId = id; document.getElementById('delModal').style.display = 'block'; };
         window.openComp = id => { curId = id; outImgs = []; const po = document.getElementById('preOut'); if(po) po.innerHTML = ''; document.getElementById('compModal').style.display = 'block'; };
+        window.confirmDel = async () => { const btn = document.getElementById('delBtn'); if(!btn) return; btn.disabled = true; try { await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", id: targetDelId }) }); showToast("ลบสำเร็จ"); fetchData(); closeM('delModal'); } catch(e) { showToast("ลบไม่สำเร็จ"); } finally { btn.disabled = false; targetDelId = ""; } };
         window.toggleJobTypeOther = (v) => { document.getElementById('otherJobTypeWrapper')?.classList.toggle('hidden', v !== "Other"); };
         window.toggleOtherAsset = (v) => { document.getElementById('otherAssetWrapper')?.classList.toggle('hidden', v !== "อื่นๆ (ระบุเอง)"); };
         window.toggleDeptOther = (v) => { document.getElementById('otherDeptWrapper')?.classList.toggle('hidden', v !== "Other"); };
         window.openScanner = (inputId) => { const sm = document.getElementById('scannerModal'); if(sm) sm.style.display = 'block'; if (!html5QrCode) html5QrCode = new Html5Qrcode("reader"); html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (decodedText) => { document.getElementById(inputId).value = decodedText; showToast("สแกนสำเร็จ"); closeScanner(); }).catch(err => { showToast("กล้องขัดข้อง"); closeScanner(); }); };
         window.closeScanner = () => { if (html5QrCode && html5QrCode.isScanning) { html5QrCode.stop().then(() => closeM('scannerModal')); } else { closeM('scannerModal'); } };
-        function updateFilters() { /* Logic for monthly filter if needed */ }
+        function updateFilters() { 
+            const fA = document.getElementById('filterAsset'); const fM = document.getElementById('filterMonth'); 
+            if(!fA || !fM) return; 
+            const molds = [...new Set(tasks.map(t => t.asset))].sort(); fA.innerHTML = '<option value="">ทั้งหมด</option>' + molds.map(a => `<option value="${a}">${a}</option>`).join(''); 
+            const mons = [...new Set(tasks.filter(t => t.deadline).map(t => String(t.deadline).substring(0, 7)))].filter(m => m && m != "-").sort().reverse(); fM.innerHTML = '<option value="">ทั้งหมด</option>' + mons.map(m => `<option value="${m}">${m}</option>`).join(''); 
+        }
         window.resetFilters = () => { if(document.getElementById('filterMonth')) document.getElementById('filterMonth').value = ""; if(document.getElementById('filterAsset')) document.getElementById('filterAsset').value = ""; render(); };
         function exportToCSV() { if(tasks.length === 0) return showToast("ไม่มีข้อมูล"); let csv = "\uFEFFID,Task,Asset,Type,StartDate,Deadline,Status,Technician,Priority,Reason\n"; tasks.forEach(t => { csv += `"${t.id}","${t.task}","${t.asset}","${t.type}","${t.startDate}","${t.deadline}","${t.status}","${t.vendor}","${t.priority || 'medium'}","${t.reason || ''}"\n`; }); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.setAttribute("download", `repair_report_${new Date().toLocaleDateString()}.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link); showToast("ส่งออกสำเร็จ"); }
         window.onload = () => { fetchData(); switchTab('active'); };
-        window.onclick = e => { if (e.target.className === 'modal') { ['editModal', 'detailModal', 'categoryModal', 'compModal', 'delModal'].forEach(closeM); } };
+        window.onclick = e => { if (e.target.className === 'modal') { ['editModal', 'detailModal', 'categoryModal', 'compModal', 'delModal', 'scannerModal'].forEach(id => closeM(id)); } };
     </script>
 </body>
 </html>
