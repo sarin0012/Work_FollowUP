@@ -24,7 +24,7 @@
         .tab-btn.active { color: var(--primary); font-weight: 700; }
         .tab-btn.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 20px; height: 4px; background: var(--primary); border-radius: 10px; }
 
-        /* Modal Hierarchy */
+        /* Modal Hierarchy Fix */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); animation: fadeIn 0.3s ease; }
         #detailModal { z-index: 4000; }
         #categoryModal { z-index: 2500; }
@@ -34,9 +34,9 @@
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         .status-pill { font-size: 0.6rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: 9999px; text-transform: uppercase; }
-        .priority-high { border-left: 5px solid var(--danger); }
-        .priority-medium { border-left: 5px solid var(--warning); }
-        .priority-low { border-left: 5px solid var(--accent); }
+        .priority-high { border-left: 6px solid var(--danger); }
+        .priority-medium { border-left: 6px solid var(--warning); }
+        .priority-low { border-left: 6px solid var(--accent); }
 
         .timeline-bar-bg { height: 5px; background: #e2e8f0; border-radius: 10px; position: relative; overflow: hidden; }
         .timeline-bar-fill { height: 100%; border-radius: 10px; transition: width 1s ease-out; }
@@ -59,8 +59,8 @@
                 <div>
                     <h1 class="text-3xl md:text-4xl font-extrabold tracking-tighter italic bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">Work Follow UP</h1>
                     <div class="flex items-center gap-2 mt-1">
-                        <span class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
-                        <p class="text-[10px] md:text-xs font-bold opacity-60 uppercase tracking-[0.3em]">Responsive v3.02 | Compact UI</p>
+                        <span class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]"></span>
+                        <p class="text-[10px] md:text-xs font-bold opacity-60 uppercase tracking-[0.3em]">Responsive v3.04 | Stable Pro</p>
                     </div>
                 </div>
                 <div class="flex gap-2">
@@ -77,25 +77,23 @@
         </nav>
 
         <main class="p-4 md:p-12 flex-1">
-            <!-- Global Search & Filter Container (COMPACT VERSION) -->
+            <!-- Global Search & Filter Container -->
             <div id="filterWrapper" class="mb-6 max-w-4xl mx-auto space-y-3">
-                <!-- Search Bar -->
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 pointer-events-none"><i class="fas fa-search text-xs md:text-sm"></i></div>
-                    <input type="text" id="searchInput" oninput="render()" placeholder="ค้นหาชื่องาน, โมล หรือรหัส..." class="w-full pl-10 md:pl-12 pr-4 py-3 md:py-4 bg-white border-none rounded-2xl text-xs md:text-sm outline-none shadow-sm focus:ring-4 focus:ring-indigo-500/10 font-medium">
+                    <input type="text" id="searchInput" oninput="render()" placeholder="ค้นหาชื่อโมล, อาการ หรือรหัส..." class="w-full pl-10 md:pl-12 pr-4 py-3 md:py-4 bg-white border-none rounded-2xl text-xs md:text-sm outline-none shadow-sm focus:ring-4 focus:ring-indigo-500/10 font-medium">
                 </div>
                 
-                <!-- Compact Filter Container -->
-                <div id="filterContainer" class="flex flex-row gap-2 md:gap-4 p-2 md:p-3 bg-white rounded-2xl md:rounded-3xl shadow-sm border border-slate-200">
+                <div id="filterContainer" class="flex flex-row gap-2 p-2 bg-white rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex-1 relative border-r border-slate-100 pr-2">
+                        <label class="text-[8px] font-black text-slate-400 absolute top-1 left-2 uppercase">เดือน</label>
+                        <select id="filterMonth" onchange="render()" class="w-full pt-4 pb-1 px-2 bg-transparent text-[11px] font-bold outline-none border-none cursor-pointer"><option value="">ทั้งหมด</option></select>
+                    </div>
                     <div class="flex-1 relative">
-                        <label class="text-[8px] md:text-[9px] font-black text-slate-400 absolute top-1 left-2 uppercase">เดือน</label>
-                        <select id="filterMonth" onchange="render()" class="w-full pt-4 md:pt-5 pb-1 px-2 bg-transparent text-[11px] md:text-sm font-bold outline-none border-none cursor-pointer"><option value="">ทั้งหมด</option></select>
+                        <label class="text-[8px] font-black text-slate-400 absolute top-1 left-2 uppercase">โมล</label>
+                        <select id="filterAsset" onchange="render()" class="w-full pt-4 pb-1 px-2 bg-transparent text-[11px] font-bold outline-none border-none cursor-pointer"><option value="">ทั้งหมด</option></select>
                     </div>
-                    <div class="flex-1 relative border-l border-slate-100 pl-2">
-                        <label class="text-[8px] md:text-[9px] font-black text-slate-400 absolute top-1 left-2 uppercase">โมล</label>
-                        <select id="filterAsset" onchange="render()" class="w-full pt-4 md:pt-5 pb-1 px-2 bg-transparent text-[11px] md:text-sm font-bold outline-none border-none cursor-pointer"><option value="">ทั้งหมด</option></select>
-                    </div>
-                    <button onclick="resetFilters()" class="px-3 md:px-8 py-1 md:py-3 bg-indigo-50 text-indigo-600 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase hover:bg-indigo-100 transition-all self-center">ล้าง</button>
+                    <button onclick="resetFilters()" class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-xl text-[9px] font-black uppercase hover:bg-indigo-100 transition-all self-center">ล้าง</button>
                 </div>
             </div>
 
@@ -112,6 +110,10 @@
                             <div class="pt-5">
                                 <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">อาการเสีย / ปัญหา</label>
                                 <input type="text" id="taskInput" placeholder="สิ่งที่ตรวจพบ..." class="w-full p-3 md:p-4 mt-1 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm focus:ring-4 focus:ring-indigo-100 font-medium">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">รายละเอียด / หมายเหตุ</label>
+                                <textarea id="reasonInput" rows="2" placeholder="ระบุเหตุผลหรือข้อมูลเพิ่มเติม..." class="w-full p-3 md:p-4 mt-1 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm italic font-medium"></textarea>
                             </div>
                             <div class="grid grid-cols-2 gap-3 md:gap-4">
                                 <div>
@@ -131,13 +133,14 @@
                                     <datalist id="assetList"></datalist>
                                 </div>
                             </div>
-                            <div id="otherJobTypeWrapper" class="hidden"><input type="text" id="otherJobTypeInput" placeholder="ระบุประเภทงาน..." class="w-full p-3 bg-white border-2 border-dashed border-indigo-100 rounded-xl text-sm"></div>
-                            <div id="otherAssetWrapper" class="hidden"><input type="text" id="otherAssetInput" placeholder="ระบุชื่อโมล/เครื่อง..." class="w-full p-3 bg-white border-2 border-dashed border-indigo-100 rounded-xl text-sm"></div>
+                            <div id="otherJobTypeWrapper" class="hidden"><input type="text" id="otherJobTypeInput" placeholder="ระบุประเภทงานใหม่..." class="w-full p-3 bg-white border-2 border-dashed border-indigo-100 rounded-xl text-sm font-medium"></div>
+                            <div id="otherAssetWrapper" class="hidden"><input type="text" id="otherAssetInput" placeholder="ระบุชื่อโมล/เครื่องใหม่..." class="w-full p-3 bg-white border-2 border-dashed border-indigo-100 rounded-xl text-sm font-medium"></div>
                             <div class="grid grid-cols-2 gap-3 md:gap-4">
                                 <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">ความเร่งด่วน</label><select id="priorityInput" class="w-full p-3 md:p-4 mt-1 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm font-black"><option value="low">🟢 ต่ำ</option><option value="medium" selected>🟡 กลาง</option><option value="high">🔴 สูง</option></select></div>
                                 <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">ผู้รับผิดชอบ</label><select id="deptInput" onchange="toggleDeptOther(this.value)" class="w-full p-3 md:p-4 mt-1 bg-indigo-50 border-none rounded-xl md:rounded-2xl text-sm font-extrabold text-indigo-700"><option value="Sarin">Sarin</option><option value="WEN">WEN</option><option value="TP/MDS">TP/MDS</option><option value="PE">PE</option><option value="Other">ระบุเอง</option></select></div>
                             </div>
-                            <div class="flex gap-3 md:gap-4">
+                            <div id="otherDeptWrapper" class="hidden"><input type="text" id="otherDeptInput" placeholder="ระบุชื่อแผนก/ผู้รับผิดชอบ..." class="w-full p-4 bg-slate-50 border-none rounded-2xl text-sm"></div>
+                            <div class="flex gap-4">
                                 <div class="flex-1"><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">เริ่ม</label><input type="date" id="startInput" class="w-full p-3 md:p-4 mt-1 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm font-medium"></div>
                                 <div class="flex-1"><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">กำหนดเสร็จ</label><input type="date" id="endInput" class="w-full p-3 md:p-4 mt-1 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm font-bold text-rose-500"></div>
                             </div>
@@ -150,14 +153,6 @@
                     </details>
                 </div>
                 
-                <div class="flex items-center justify-between px-2 py-1 mb-2">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Jobs</p>
-                    <select id="sortActive" onchange="render()" class="bg-transparent border-none text-[10px] font-black text-indigo-600 outline-none uppercase cursor-pointer">
-                        <option value="deadline">📅 เรียงตามกำหนด</option>
-                        <option value="priority">🚩 เรียงตามความสำคัญ</option>
-                    </select>
-                </div>
-
                 <div id="listActive" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"></div>
             </div>
 
@@ -170,7 +165,7 @@
                     <div class="premium-card p-5 md:p-6 border-l-8 border-rose-500"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">เกินกำหนด</p><p id="dashOverdue" class="text-2xl md:text-4xl font-black text-slate-800">0</p></div>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-                    <div class="lg:col-span-1 premium-card p-6 md:p-8"><h3 class="text-base font-extrabold mb-4 uppercase italic"><i class="fas fa-exclamation-triangle text-rose-500"></i> Top 5 Problem</h3><div id="topAssetsList" class="space-y-3"></div><div class="mt-6 pt-4 border-t"><p class="text-[10px] font-bold text-slate-400 uppercase">Lead Time เฉลี่ย (วัน)</p><p id="avgLeadTime" class="text-3xl md:text-4xl font-black text-indigo-600">0.0</p></div></div>
+                    <div class="lg:col-span-1 premium-card p-6 md:p-8"><h3 class="text-base font-extrabold mb-4 uppercase italic"><i class="fas fa-exclamation-triangle text-rose-500"></i> Top 5 Problematic</h3><div id="topAssetsList" class="space-y-3"></div><div class="mt-6 pt-4 border-t"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Lead Time เฉลี่ย (วัน)</p><p id="avgLeadTime" class="text-3xl md:text-4xl font-black text-indigo-600">0.0</p></div></div>
                     <div class="lg:col-span-2 premium-card p-6 md:p-8 relative">
                         <div class="flex justify-between items-center mb-4 md:mb-6"><h3 class="text-base font-extrabold uppercase italic text-slate-800"><i class="fas fa-chart-pie text-indigo-500"></i> Job Types</h3><span class="text-[9px] font-black text-slate-400 animate-pulse uppercase">คลิกดูรายการ</span></div>
                         <div class="relative h-64 md:h-80"><canvas id="jobTypeChart"></canvas></div>
@@ -185,28 +180,47 @@
         </main>
     </div>
 
-    <!-- MODALS -->
-    <div id="editModal" class="modal"><div class="modal-content"><h2 class="text-xl md:text-2xl font-black text-slate-800 mb-6 italic flex items-center gap-2"><i class="fas fa-edit text-indigo-500"></i> EDIT JOB</h2><div class="space-y-4 md:space-y-5"><input type="hidden" id="edId"><div><label class="text-[11px] font-bold text-slate-400 uppercase">อาการเสีย</label><input type="text" id="edTask" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-semibold"></div><div><label class="text-[11px] font-bold text-slate-400 uppercase">ความสำคัญ</label><select id="edPriority" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-black"><option value="low">🟢 งานทั่วไป</option><option value="medium">🟡 เร่งด่วน</option><option value="high">🔴 ด่วนที่สุด</option></select></div><div class="grid grid-cols-2 gap-4"><div><label class="text-[11px] font-bold text-slate-400 uppercase">วันเริ่มงาน</label><input type="date" id="edStart" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-black"></div><div><label class="text-[11px] font-bold text-slate-400 uppercase">กำหนดเสร็จใหม่</label><input type="date" id="edEnd" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-black text-rose-500"></div></div><div class="py-1"><label class="text-[11px] font-bold text-slate-400 uppercase">แนบรูปเพิ่ม</label><input type="file" id="fileEd" multiple accept="image/*" onchange="handleImg(this, 'preEd', 'ed')" class="hidden"><label for="fileEd" class="flex items-center gap-2 mt-1 w-fit px-4 py-2 bg-slate-100 rounded-xl cursor-pointer text-[10px] font-bold text-slate-600 transition-colors"><i class="fas fa-image"></i> เลือกรูป</label><div id="preEd" class="flex gap-2 mt-2 overflow-x-auto py-1"></div></div><textarea id="edReason" rows="2" placeholder="ระบุเหตุผลการแก้ไข..." class="w-full p-4 bg-slate-50 border-none rounded-2xl text-sm italic font-medium"></textarea><div class="flex gap-3 pt-4"><button onclick="closeM('editModal')" class="flex-1 py-4 text-slate-400 font-bold text-xs uppercase">ยกเลิก</button><button onclick="update()" id="upBtn" class="flex-[2] bg-slate-900 text-white py-4 rounded-2xl font-black text-xs shadow-xl">อัปเดต</button></div></div></div></div>
+    <!-- MODALS SECTION -->
+    <div id="editModal" class="modal"><div class="modal-content"><h2 class="text-xl md:text-2xl font-black text-slate-800 mb-6 italic flex items-center gap-2"><i class="fas fa-edit text-indigo-500"></i> EDIT JOB</h2><div class="space-y-4 md:space-y-5"><input type="hidden" id="edId"><div><label class="text-[11px] font-bold text-slate-400 uppercase">อาการเสีย</label><input type="text" id="edTask" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-semibold"></div><div class="grid grid-cols-2 gap-4"><div><label class="text-[11px] font-bold text-slate-400 uppercase">วันเริ่มงาน</label><input type="date" id="edStart" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-black"></div><div><label class="text-[11px] font-bold text-slate-400 uppercase">กำหนดเสร็จใหม่</label><input type="date" id="edEnd" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-black text-rose-500"></div></div><select id="edPriority" class="w-full p-4 bg-slate-50 rounded-2xl text-sm font-black"><option value="low">🟢 งานทั่วไป</option><option value="medium">🟡 เร่งด่วน</option><option value="high">🔴 ด่วนที่สุด</option></select><textarea id="edReason" rows="2" placeholder="ระบุเหตุผลการแก้ไข..." class="w-full p-4 bg-slate-50 border-none rounded-2xl text-sm italic font-medium"></textarea><div class="flex gap-3 pt-4"><button onclick="closeM('editModal')" class="flex-1 py-4 text-slate-400 font-bold text-xs uppercase">ยกเลิก</button><button onclick="window.completeUpdate()" id="upBtn" class="flex-[2] bg-slate-900 text-white py-4 rounded-2xl font-black text-xs shadow-xl transition-all">อัปเดต</button></div></div></div></div>
     
-    <div id="compModal" class="modal"><div class="modal-content text-center"><div class="w-16 h-16 md:w-20 md:h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl md:text-3xl shadow-inner animate-bounce"><i class="fas fa-check-double"></i></div><h2 class="text-xl md:text-2xl font-extrabold mb-1 uppercase">Job Finished</h2><p class="text-slate-400 text-xs mb-8 font-medium italic">Upload completion proof</p><input type="file" id="fileOut" multiple accept="image/*" onchange="handleImg(this, 'preOut', 'out')" class="hidden"><label for="fileOut" class="inline-flex items-center gap-2 px-6 py-3 bg-slate-100 hover:bg-slate-200 rounded-2xl cursor-pointer text-[11px] font-black text-slate-600 mb-6 border border-slate-200"><i class="fas fa-camera"></i> เลือกรูปงานเสร็จ</label><div id="preOut" class="flex flex-wrap gap-2 mb-8 justify-center"></div><div class="flex gap-4"><button onclick="closeM('compModal')" class="flex-1 py-4 bg-slate-100 rounded-2xl text-xs font-black text-slate-400 uppercase">ยกเลิก</button><button onclick="complete()" id="cpBtn" class="flex-[2] py-4 bg-emerald-600 text-white rounded-2xl text-xs font-black shadow-lg">ปิดงาน</button></div></div></div>
+    <div id="compModal" class="modal"><div class="modal-content text-center"><div class="w-16 h-16 md:w-20 md:h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl shadow-inner animate-bounce"><i class="fas fa-check-double"></i></div><h2 class="text-xl md:text-2xl font-extrabold mb-1 uppercase">Job Finished</h2><p class="text-slate-400 text-xs mb-8 font-medium italic">Upload proof of completion</p><input type="file" id="fileOut" multiple accept="image/*" onchange="handleImg(this, 'preOut', 'out')" class="hidden"><label for="fileOut" class="inline-flex items-center gap-2 px-6 py-3 bg-slate-100 hover:bg-slate-200 rounded-2xl cursor-pointer text-[11px] font-black text-slate-600 mb-6 border border-slate-200"><i class="fas fa-camera"></i> เลือกรูปงานเสร็จ</label><div id="preOut" class="flex flex-wrap gap-2 mb-8 justify-center"></div><div class="flex gap-4"><button onclick="closeM('compModal')" class="flex-1 py-4 bg-slate-100 rounded-2xl text-xs font-black text-slate-400 uppercase">ยกเลิก</button><button onclick="window.completeJobAction()" id="cpBtn" class="flex-[2] py-4 bg-emerald-600 text-white rounded-2xl text-xs font-black shadow-lg">ปิดงาน</button></div></div></div>
 
     <div id="delModal" class="modal"><div class="modal-content text-center p-8"><div class="w-16 h-16 md:w-20 md:h-20 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl md:text-3xl"><i class="fas fa-trash-alt"></i></div><h2 class="text-xl md:text-2xl font-extrabold mb-2 uppercase">ลบรายการ?</h2><div class="flex gap-4"><button onclick="closeM('delModal')" class="flex-1 py-4 bg-slate-100 rounded-2xl text-xs font-black text-slate-500 uppercase">ยกเลิก</button><button onclick="confirmDel()" id="delBtn" class="flex-1 py-4 bg-rose-600 text-white rounded-2xl text-xs font-black shadow-lg">ลบ</button></div></div></div>
 
-    <div id="scannerModal" class="modal"><div class="modal-content text-center overflow-hidden !p-0"><div class="p-4 md:p-6"><h2 class="text-lg md:text-xl font-black mb-4 uppercase italic text-indigo-600"><i class="fas fa-qrcode"></i> QR SCANNER</h2><div id="reader"></div><button onclick="closeScanner()" class="w-full py-3 md:py-4 bg-slate-100 rounded-xl text-[11px] font-black text-slate-500 uppercase mt-4">ปิดหน้าต่าง</button></div></div></div>
+    <div id="scannerModal" class="modal"><div class="modal-content text-center overflow-hidden !p-0"><div class="p-4 md:p-6"><h2 class="text-lg md:text-xl font-black mb-4 uppercase italic text-indigo-600"><i class="fas fa-qrcode"></i> QR SCANNER</h2><div id="reader"></div><button onclick="window.closeScanner()" class="w-full py-3 bg-slate-100 rounded-xl text-[11px] font-bold text-slate-500 uppercase mt-4">ปิดหน้าต่าง</button></div></div></div>
 
     <!-- Detail Modal -->
     <div id="detailModal" class="modal"><div class="modal-content !max-w-2xl overflow-y-auto max-h-[90vh]"><div class="flex justify-between items-center mb-6"><h2 id="detailTitle" class="text-xl md:text-2xl font-black text-slate-800 italic uppercase">Job Details</h2><button onclick="closeM('detailModal')" class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl text-slate-400"><i class="fas fa-times"></i></button></div><div id="detailBody" class="space-y-6"></div></div></div>
 
     <!-- Category Detail Modal -->
-    <div id="categoryModal" class="modal"><div class="modal-content !max-w-3xl overflow-hidden flex flex-col max-h-[85vh]"><div class="flex justify-between items-center mb-4 border-b pb-4"><div><h2 id="categoryTitle" class="text-xl md:text-2xl font-black text-slate-800 italic uppercase leading-none">Category</h2><p id="categorySubtitle" class="text-[10px] font-bold text-slate-400 uppercase mt-2"></p></div><button onclick="closeM('categoryModal')" class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl text-slate-400"><i class="fas fa-times"></i></button></div><div id="categoryBody" class="overflow-y-auto space-y-3 pr-2 scrollbar-hide"></div></div></div>
+    <div id="categoryModal" class="modal"><div class="modal-content !max-w-3xl overflow-hidden flex flex-col max-h-[85vh]"><div class="flex justify-between items-center mb-4 border-b pb-4"><div><h2 id="categoryTitle" class="text-xl md:text-2xl font-black text-slate-800 italic uppercase leading-none">Job Type Detail</h2><p id="categorySubtitle" class="text-[10px] font-bold text-slate-400 uppercase mt-2"></p></div><button onclick="closeM('categoryModal')" class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl text-slate-400"><i class="fas fa-times"></i></button></div><div id="categoryBody" class="overflow-y-auto space-y-3 pr-2 scrollbar-hide"></div></div></div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyGAStB7T57jXPkahAsMQUP9BdyQPrj2f_xkEqidGsKK15rfJSOXUqO0RD98ND4l_d4-w/exec";
-        let tasks = [], masterAssets = [], curId = "", currentTab = "active", targetDelId = "", jobChart = null, inImgs = [], outImgs = [], edImgs = [];
+        let tasks = [], masterAssets = [], curId = "", currentTab = "active", targetDelId = "", jobChart = null, html5QrCode = null, inImgs = [], outImgs = [], edImgs = [];
 
         function formatThaiDate(s) { if (!s || s === "-" || s === "") return "-"; try { const d = new Date(s); return isNaN(d.getTime()) ? s : `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()+543}`; } catch(e) { return s; } }
         function showToast(m) { const x = document.getElementById('toast'); if(x) { document.getElementById('toastMsg').innerText = m; x.classList.remove('hidden'); setTimeout(() => x.classList.add('hidden'), 3500); } }
-        function closeM(id) { const el = document.getElementById(id); if(el) el.style.display = 'none'; }
+        
+        function closeM(id) { 
+            const el = document.getElementById(id); 
+            if(el) el.style.display = 'none'; 
+        }
+
+        window.closeScanner = () => {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear();
+                    closeM('scannerModal');
+                }).catch(err => {
+                    console.error("QR Stop Failed", err);
+                    closeM('scannerModal');
+                });
+            } else {
+                closeM('scannerModal');
+            }
+        };
+
         window.handleImgError = (imgEl) => { if(imgEl && imgEl.parentElement) imgEl.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-slate-100 rounded-xl"><i class="fas fa-image text-slate-300 text-lg"></i></div>'; };
 
         async function fetchData() { 
@@ -219,20 +233,38 @@
             } catch (e) { showToast("โหลดข้อมูลล้มเหลว"); } 
         }
 
-        window.update = async () => { 
+        window.completeUpdate = async () => { 
             const btn = document.getElementById('upBtn'); if(!btn) return; btn.disabled = true;
+            const payload = {
+                action: "update",
+                id: document.getElementById('edId').value,
+                task: document.getElementById('edTask').value,
+                startDate: document.getElementById('edStart').value,
+                deadline: document.getElementById('edEnd').value,
+                priority: document.getElementById('edPriority').value,
+                reason: document.getElementById('edReason').value
+            };
             try { 
-                const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "update", id: document.getElementById('edId').value, task: document.getElementById('edTask').value, startDate: document.getElementById('edStart').value, deadline: document.getElementById('edEnd').value, priority: document.getElementById('edPriority').value, reason: document.getElementById('edReason').value }) }); 
+                const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) }); 
                 const result = await res.json(); if(result.status === "success") { showToast("อัปเดตสำเร็จ!"); closeM('editModal'); fetchData(); } else { throw new Error(); }
             } catch (e) { showToast("อัปเดตล้มเหลว"); } finally { btn.disabled = false; } 
+        };
+
+        window.completeJobAction = async () => { 
+            const btn = document.getElementById('cpBtn'); if(!btn) return; btn.disabled = true;
+            try { 
+                const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "complete", id: curId, images: outImgs }) }); 
+                const result = await res.json(); if(result.status === "success") { showToast("ปิดงานสำเร็จ!"); closeM('compModal'); fetchData(); } else { throw new Error(); }
+            } catch (e) { showToast("ล้มเหลว"); } finally { btn.disabled = false; } 
         };
 
         window.switchTab = mode => { 
             currentTab = mode; 
             document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active', 'text-indigo-600', 'font-bold'); b.classList.add('text-slate-400'); });
-            document.getElementById('tab' + mode.charAt(0).toUpperCase() + mode.slice(1))?.classList.add('active');
-            ['activeSection', 'dashboardSection', 'historySection'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+            const tabBtn = document.getElementById('tab' + mode.charAt(0).toUpperCase() + mode.slice(1)); if(tabBtn) tabBtn.classList.add('active');
+            ['activeSection', 'dashboardSection', 'historySection', 'filterWrapper'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
             document.getElementById(mode + 'Section')?.classList.remove('hidden');
+            if(mode !== 'dashboard' && document.getElementById('filterWrapper')) document.getElementById('filterWrapper').classList.remove('hidden');
             render(); 
         };
 
@@ -242,7 +274,7 @@
             const p = String(t.priority || "medium").toLowerCase(); const prioClass = p === 'high' ? 'priority-high' : p === 'medium' ? 'priority-medium' : 'priority-low';
             const prioEmoji = p === 'high' ? '🔴' : p === 'medium' ? '🟡' : '🟢'; 
             const rawImgs = (t.imageUrl ? String(t.imageUrl).split(',') : []).concat(t.finishImageUrl ? String(t.finishImageUrl).split(',') : []).map(u => u.trim()).filter(u => u && u.startsWith('http'));
-            const imgsHtml = rawImgs.map(u => `<div class="shrink-0 w-8 h-8 md:w-10 md:h-10 bg-slate-50 rounded-lg border overflow-hidden cursor-pointer" onclick="window.open('${u}')"><img src="${u}" class="w-full h-full object-cover" onerror="handleImgError(this)"></div>`).join('');
+            const imgsHtml = rawImgs.map(u => `<div class="shrink-0 w-8 h-8 rounded border overflow-hidden shadow-sm cursor-pointer" onclick="window.open('${u}')"><img src="${u}" class="w-full h-full object-cover" onerror="handleImgError(this)"></div>`).join('');
 
             if (currentTab === 'history') {
                 return `<div class="premium-card p-5 md:p-6 border-l-8 border-emerald-500 cursor-pointer animate-fadeIn" onclick="openDetail('${t.id}')">
@@ -254,11 +286,12 @@
                 </div>`;
             }
 
-            return `<div class="premium-card p-4 md:p-5 ${prioClass} flex flex-col h-full animate-fadeIn"><div class="flex-1 min-w-0"><div class="flex justify-between mb-2"><span class="status-pill bg-slate-100">${t.type}</span>${isOver?'<span class="status-pill bg-rose-600 text-white animate-pulse">LATE</span>':''}</div><h3 class="text-sm md:text-base font-extrabold text-slate-800 italic truncate" title="${t.task}">${prioEmoji} ${t.task}</h3><p class="text-[10px] md:text-xs font-black text-indigo-600 mb-3">${t.asset}</p><div class="mb-3 text-[8px] md:text-[9px] font-black text-slate-400 uppercase">S: ${formatThaiDate(t.startDate)} | D: ${formatThaiDate(t.deadline)}</div><div class="flex gap-2 pb-2 overflow-x-auto scrollbar-hide">${imgsHtml}</div></div><div class="flex justify-end gap-2 mt-3 pt-3 border-t"><button onclick="openDetail('${t.id}')" class="w-8 h-8 md:w-10 md:h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-all"><i class="fas fa-eye text-slate-400 text-xs"></i></button><button onclick="window.openComp('${t.id}')" class="w-8 h-8 md:w-10 md:h-10 bg-emerald-500 text-white rounded-xl shadow-md flex items-center justify-center hover:bg-emerald-600 transition-all"><i class="fas fa-check text-xs"></i></button><button onclick="window.openEdit('${t.id}')" class="w-8 h-8 md:w-10 md:h-10 bg-slate-900 text-white rounded-xl shadow-md flex items-center justify-center hover:bg-black transition-all"><i class="fas fa-pen text-[10px]"></i></button><button onclick="window.openDel('${t.id}')" class="w-8 h-8 md:w-10 md:h-10 bg-white border text-slate-300 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all"><i class="fas fa-trash-alt text-[10px]"></i></button></div></div>`;
+            return `<div class="premium-card p-4 md:p-5 ${prioClass} flex flex-col h-full animate-fadeIn"><div class="flex-1 min-w-0"><div class="flex justify-between mb-2"><span class="status-pill bg-slate-100">${t.type}</span>${isOver?'<span class="status-pill bg-rose-600 text-white animate-pulse">LATE</span>':''}</div><h3 class="text-sm md:text-base font-extrabold text-slate-800 italic truncate" title="${t.task}">${prioEmoji} ${t.task}</h3><p class="text-[10px] md:text-xs font-black text-indigo-600 mb-3">${t.asset}</p><div class="mb-3 text-[8px] md:text-[9px] font-black text-slate-400 uppercase">S: ${formatThaiDate(t.startDate)} | D: ${formatThaiDate(t.deadline)}</div><div class="flex gap-2 pb-2 overflow-x-auto scrollbar-hide">${imgsHtml}</div></div><div class="flex justify-end gap-2 mt-3 pt-3 border-t"><button onclick="openDetail('${t.id}')" title="Detail" class="w-8 h-8 md:w-10 md:h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-all"><i class="fas fa-eye text-slate-400 text-xs"></i></button><button onclick="window.openComp('${t.id}')" title="Complete" class="w-8 h-8 md:w-10 md:h-10 bg-emerald-500 text-white rounded-xl shadow-md flex items-center justify-center hover:bg-emerald-600 transition-all"><i class="fas fa-check text-xs"></i></button><button onclick="window.openEdit('${t.id}')" title="Edit" class="w-8 h-8 md:w-10 md:h-10 bg-slate-900 text-white rounded-xl shadow-md flex items-center justify-center hover:bg-black transition-all"><i class="fas fa-pen text-[10px]"></i></button><button onclick="window.openDel('${t.id}')" title="Delete" class="w-8 h-8 md:w-10 md:h-10 bg-white border text-slate-300 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all"><i class="fas fa-trash-alt text-[10px]"></i></button></div></div>`;
         };
 
         function render() { 
-            const s = document.getElementById('searchInput')?.value.toLowerCase() || ""; 
+            const searchInput = document.getElementById('searchInput'); if(!searchInput) return;
+            const s = searchInput.value.toLowerCase(); 
             const fm = document.getElementById('filterMonth')?.value || ""; 
             const fa = document.getElementById('filterAsset')?.value || "";
             const today = new Date().toLocaleDateString('en-CA');
@@ -272,10 +305,10 @@
 
             if(currentTab === 'dashboard') {
                 const comp = tasks.filter(t => t.status === 'completed');
-                document.getElementById('dashTotal').innerText = tasks.length;
-                document.getElementById('dashPending').innerText = tasks.filter(t => t.status === 'pending').length;
-                document.getElementById('dashSuccessRate').innerText = tasks.length ? Math.round((comp.length / tasks.length) * 100) + '%' : '0%';
-                document.getElementById('dashOverdue').innerText = tasks.filter(t => t.status === 'pending' && t.deadline < today).length;
+                const dashTotal = document.getElementById('dashTotal'); if(dashTotal) dashTotal.innerText = tasks.length;
+                const dashPending = document.getElementById('dashPending'); if(dashPending) dashPending.innerText = tasks.filter(t => t.status === 'pending').length;
+                const dashSuccessRate = document.getElementById('dashSuccessRate'); if(dashSuccessRate) dashSuccessRate.innerText = tasks.length ? Math.round((comp.length / tasks.length) * 100) + '%' : '0%';
+                const dashOverdue = document.getElementById('dashOverdue'); if(dashOverdue) dashOverdue.innerText = tasks.filter(t => t.status === 'pending' && t.deadline < today).length;
                 updateCharts(tasks);
             }
             if(currentTab === 'active') {
@@ -343,27 +376,49 @@
             document.getElementById('editModal').style.display = 'block'; 
         };
 
+        window.openComp = id => { curId = id; outImgs = []; const po = document.getElementById('preOut'); if(po) po.innerHTML = ''; document.getElementById('compModal').style.display = 'block'; };
+
         window.save = async () => { 
-            const t = document.getElementById('taskInput')?.value; const s = document.getElementById('startInput')?.value; const e = document.getElementById('endInput')?.value;
-            if(!t || !s || !e) return alert("กรุณาระบุข้อมูลให้ครบถ้วน"); 
+            const taskVal = document.getElementById('taskInput')?.value;
+            const startVal = document.getElementById('startInput')?.value;
+            const endVal = document.getElementById('endInput')?.value;
+            if(!taskVal || !startVal || !endVal) return alert("กรุณาระบุข้อมูลให้ครบถ้วน (อาการเสีย, วันที่เริ่ม, วันที่กำหนดเสร็จ)"); 
             const btn = document.getElementById('saveBtn'); btn.disabled = true; document.getElementById('saveLd').style.display = 'block';
-            try { await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "add", task: t, type: document.getElementById('typeInput').value, asset: document.getElementById('assetInput').value, startDate: s, deadline: e, images: inImgs, vendor: document.getElementById('deptInput').value, priority: document.getElementById('priorityInput').value, reason: document.getElementById('reasonInput').value }) }); location.reload(); } catch(ex) { showToast("ล้มเหลว"); btn.disabled = false; } 
+            
+            let typeVal = document.getElementById('typeInput')?.value; if(typeVal === "Other") typeVal = document.getElementById('otherJobTypeInput')?.value;
+            let assetVal = document.getElementById('assetInput')?.value; if(assetVal === "อื่นๆ (ระบุเอง)") assetVal = document.getElementById('otherAssetInput')?.value;
+            let deptVal = document.getElementById('deptInput')?.value; if(deptVal === "Other") deptVal = document.getElementById('otherDeptInput')?.value;
+
+            const payload = { action: "add", task: taskVal, type: typeVal, asset: assetVal, startDate: startVal, deadline: endVal, images: inImgs, vendor: deptVal, priority: document.getElementById('priorityInput')?.value, reason: document.getElementById('reasonInput')?.value };
+            try { 
+                const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) }); 
+                const result = await res.json();
+                if(result.status === "success") { showToast("บันทึกข้อมูลเรียบร้อย!"); location.reload(); } else { throw new Error(); }
+            } catch(ex) { showToast("ล้มเหลว กรุณาลองใหม่"); btn.disabled = false; document.getElementById('saveLd').style.display = 'none'; } 
         };
 
         async function handleImg(input, preId, type) {
             const pre = document.getElementById(preId); if(!pre) return; pre.innerHTML = '';
             let target = (type === 'in') ? inImgs : (type === 'out') ? outImgs : edImgs; target.length = 0;
-            if (input.files) { for (let f of Array.from(input.files)) { const r = new FileReader(); r.readAsDataURL(f); r.onload = (e) => { const img = new Image(); img.src = e.target.result; img.onload = () => { const can = document.createElement('canvas'); const ctx = can.getContext('2d'); let w = img.width, h = img.height, MAX = 1200; if(w > MAX || h > MAX) { if (w > h) { h = (MAX/w)*h; w = MAX; } else { w = (MAX/h)*w; h = MAX; } } can.width = w; can.height = h; ctx.drawImage(img, 0, 0, w, h); const b64 = can.toDataURL('image/jpeg', 0.85); target.push(b64); const i = document.createElement('img'); i.src = b64; i.className = "w-8 h-8 md:w-10 md:h-10 object-cover rounded-lg border"; pre.appendChild(i); }; }; } }
+            if (input.files) { for (let f of Array.from(input.files)) { const r = new FileReader(); r.readAsDataURL(f); r.onload = (e) => { target.push(e.target.result); pre.innerHTML += `<img src="${e.target.result}" class="w-8 h-8 object-cover rounded">`; }; } }
         }
 
         window.openDel = id => { targetDelId = id; document.getElementById('delModal').style.display = 'block'; };
-        window.openComp = id => { curId = id; outImgs = []; const po = document.getElementById('preOut'); if(po) po.innerHTML = ''; document.getElementById('compModal').style.display = 'block'; };
-        window.confirmDel = async () => { const btn = document.getElementById('delBtn'); if(!btn) return; btn.disabled = true; try { await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", id: targetDelId }) }); showToast("ลบสำเร็จ"); fetchData(); closeM('delModal'); } catch(e) { showToast("ลบไม่สำเร็จ"); } finally { btn.disabled = false; targetDelId = ""; } };
+        window.confirmDel = async () => { const btn = document.getElementById('delBtn'); if(!btn) return; btn.disabled = true; try { await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", id: targetDelId }) }); showToast("ลบสำเร็จ"); fetchData(); closeM('delModal'); } catch (e) { showToast("ลบไม่สำเร็จ"); } finally { btn.disabled = false; targetDelId = ""; } };
         window.toggleJobTypeOther = (v) => { document.getElementById('otherJobTypeWrapper')?.classList.toggle('hidden', v !== "Other"); };
         window.toggleOtherAsset = (v) => { document.getElementById('otherAssetWrapper')?.classList.toggle('hidden', v !== "อื่นๆ (ระบุเอง)"); };
         window.toggleDeptOther = (v) => { document.getElementById('otherDeptWrapper')?.classList.toggle('hidden', v !== "Other"); };
-        window.openScanner = (inputId) => { const sm = document.getElementById('scannerModal'); if(sm) sm.style.display = 'block'; if (!html5QrCode) html5QrCode = new Html5Qrcode("reader"); html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (decodedText) => { document.getElementById(inputId).value = decodedText; showToast("สแกนสำเร็จ"); closeScanner(); }).catch(err => { showToast("กล้องขัดข้อง"); closeScanner(); }); };
-        window.closeScanner = () => { if (html5QrCode && html5QrCode.isScanning) { html5QrCode.stop().then(() => closeM('scannerModal')); } else { closeM('scannerModal'); } };
+        
+        window.openScanner = (inputId) => { 
+            const sm = document.getElementById('scannerModal'); 
+            if(sm) sm.style.display = 'block'; 
+            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader"); 
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (decodedText) => { 
+                document.getElementById(inputId).value = decodedText; 
+                showToast("สแกนสำเร็จ"); closeScanner(); 
+            }).catch(err => { showToast("กล้องขัดข้อง"); closeScanner(); }); 
+        };
+
         function updateFilters() { 
             const fA = document.getElementById('filterAsset'); const fM = document.getElementById('filterMonth'); 
             if(!fA || !fM) return; 
