@@ -28,6 +28,7 @@
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); animation: fadeIn 0.3s ease; }
         #detailModal { z-index: 4000; }
         #categoryModal { z-index: 2500; }
+        #editModal, #compModal, #delModal { z-index: 4500; }
 
         .modal-content { background: white; margin: 5% auto; padding: 1.5rem; border-radius: 2rem; width: 92%; max-width: 600px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: slideUp 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -45,6 +46,9 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .animate-fadeIn { animation: fadeInAnim 0.5s ease-out forwards; }
         @keyframes fadeInAnim { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .category-card:active, .problematic-row:active { transform: scale(0.98); }
+        .summary-card:hover, .problematic-row:hover { border-color: var(--primary); background: #f5f7ff; }
     </style>
 </head>
 <body class="min-h-screen">
@@ -60,12 +64,12 @@
                     <h1 class="text-3xl md:text-4xl font-extrabold tracking-tighter italic bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">Work Follow UP</h1>
                     <div class="flex items-center gap-2 mt-1">
                         <span class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]"></span>
-                        <p class="text-[10px] md:text-xs font-bold opacity-60 uppercase tracking-[0.3em]">Responsive v3.04 | Stable Pro</p>
+                        <p class="text-[10px] font-bold opacity-60 uppercase tracking-[0.3em]">Responsive v3.07 | Insight Pro</p>
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="exportToCSV()" title="Export Excel" class="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center bg-white/5 rounded-2xl border border-white/10 shadow-lg"><i class="fas fa-file-export text-sm"></i></button>
-                    <button onclick="fetchData()" title="Refresh" class="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center bg-indigo-600 text-white rounded-2xl transition-all shadow-lg"><i class="fas fa-sync-alt text-sm"></i></button>
+                    <button onclick="exportToCSV()" title="Export Excel" class="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 shadow-lg"><i class="fas fa-file-export text-sm"></i></button>
+                    <button onclick="fetchData()" title="Refresh" class="w-11 h-11 md:w-14 md:h-14 flex items-center justify-center bg-indigo-600 text-white rounded-2xl transition-all shadow-lg"><i class="fas fa-sync-alt text-sm"></i></button>
                 </div>
             </div>
         </header>
@@ -77,7 +81,7 @@
         </nav>
 
         <main class="p-4 md:p-12 flex-1">
-            <!-- Global Search & Filter Container -->
+            <!-- Search & Filter Wrapper -->
             <div id="filterWrapper" class="mb-6 max-w-4xl mx-auto space-y-3">
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 pointer-events-none"><i class="fas fa-search text-xs md:text-sm"></i></div>
@@ -99,7 +103,6 @@
 
             <!-- 1. ACTIVE LIST SECTION -->
             <div id="activeSection" class="space-y-4">
-                <!-- Add Task Form -->
                 <div class="max-w-2xl mx-auto mb-6">
                     <details class="bg-indigo-600 rounded-2xl md:rounded-3xl shadow-lg overflow-hidden group border-none transition-all">
                         <summary class="p-4 md:p-6 cursor-pointer font-bold text-white flex justify-between items-center text-xs md:text-base list-none select-none">
@@ -133,13 +136,10 @@
                                     <datalist id="assetList"></datalist>
                                 </div>
                             </div>
-                            <div id="otherJobTypeWrapper" class="hidden"><input type="text" id="otherJobTypeInput" placeholder="ระบุประเภทงานใหม่..." class="w-full p-3 bg-white border-2 border-dashed border-indigo-100 rounded-xl text-sm font-medium"></div>
-                            <div id="otherAssetWrapper" class="hidden"><input type="text" id="otherAssetInput" placeholder="ระบุชื่อโมล/เครื่องใหม่..." class="w-full p-3 bg-white border-2 border-dashed border-indigo-100 rounded-xl text-sm font-medium"></div>
                             <div class="grid grid-cols-2 gap-3 md:gap-4">
                                 <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">ความเร่งด่วน</label><select id="priorityInput" class="w-full p-3 md:p-4 mt-1 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm font-black"><option value="low">🟢 ต่ำ</option><option value="medium" selected>🟡 กลาง</option><option value="high">🔴 สูง</option></select></div>
                                 <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">ผู้รับผิดชอบ</label><select id="deptInput" onchange="toggleDeptOther(this.value)" class="w-full p-3 md:p-4 mt-1 bg-indigo-50 border-none rounded-xl md:rounded-2xl text-sm font-extrabold text-indigo-700"><option value="Sarin">Sarin</option><option value="WEN">WEN</option><option value="TP/MDS">TP/MDS</option><option value="PE">PE</option><option value="Other">ระบุเอง</option></select></div>
                             </div>
-                            <div id="otherDeptWrapper" class="hidden"><input type="text" id="otherDeptInput" placeholder="ระบุชื่อแผนก/ผู้รับผิดชอบ..." class="w-full p-4 bg-slate-50 border-none rounded-2xl text-sm"></div>
                             <div class="flex gap-4">
                                 <div class="flex-1"><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">เริ่ม</label><input type="date" id="startInput" class="w-full p-3 md:p-4 mt-1 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm font-medium"></div>
                                 <div class="flex-1"><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">กำหนดเสร็จ</label><input type="date" id="endInput" class="w-full p-3 md:p-4 mt-1 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm font-bold text-rose-500"></div>
@@ -158,17 +158,49 @@
 
             <!-- 2. DASHBOARD SECTION -->
             <div id="dashboardSection" class="hidden space-y-8 animate-fadeIn">
+                <!-- Summary Row (Clickable Cards) -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                    <div class="premium-card p-5 md:p-6 border-l-8 border-indigo-500"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">งานทั้งหมด</p><p id="dashTotal" class="text-2xl md:text-4xl font-black text-slate-800">0</p></div>
-                    <div class="premium-card p-5 md:p-6 border-l-8 border-amber-500"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">รอดำเนินการ</p><p id="dashPending" class="text-2xl md:text-4xl font-black text-slate-800">0</p></div>
-                    <div class="premium-card p-5 md:p-6 border-l-8 border-emerald-500"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">อัตราสำเร็จ</p><p id="dashSuccessRate" class="text-2xl md:text-4xl font-black text-slate-800">0%</p></div>
-                    <div class="premium-card p-5 md:p-6 border-l-8 border-rose-500"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">เกินกำหนด</p><p id="dashOverdue" class="text-2xl md:text-4xl font-black text-slate-800">0</p></div>
+                    <div onclick="showStatusDetails('all')" class="premium-card p-5 md:p-6 border-l-8 border-indigo-500 cursor-pointer summary-card transition-all">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">งานทั้งหมด</p>
+                        <p id="dashTotal" class="text-2xl md:text-4xl font-black text-slate-800">0</p>
+                    </div>
+                    <div onclick="showStatusDetails('pending')" class="premium-card p-5 md:p-6 border-l-8 border-amber-500 cursor-pointer summary-card transition-all">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">รอดำเนินการ</p>
+                        <p id="dashPending" class="text-2xl md:text-4xl font-black text-slate-800">0</p>
+                    </div>
+                    <div onclick="showStatusDetails('completed')" class="premium-card p-5 md:p-6 border-l-8 border-emerald-500 cursor-pointer summary-card transition-all">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">เสร็จสิ้น</p>
+                        <p id="dashSuccessRate" class="text-2xl md:text-4xl font-black text-slate-800">0</p>
+                    </div>
+                    <div onclick="showStatusDetails('overdue')" class="premium-card p-5 md:p-6 border-l-8 border-rose-500 cursor-pointer summary-card transition-all">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">เกินกำหนด</p>
+                        <p id="dashOverdue" class="text-2xl md:text-4xl font-black text-slate-800">0</p>
+                    </div>
                 </div>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-                    <div class="lg:col-span-1 premium-card p-6 md:p-8"><h3 class="text-base font-extrabold mb-4 uppercase italic"><i class="fas fa-exclamation-triangle text-rose-500"></i> Top 5 Problematic</h3><div id="topAssetsList" class="space-y-3"></div><div class="mt-6 pt-4 border-t"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Lead Time เฉลี่ย (วัน)</p><p id="avgLeadTime" class="text-3xl md:text-4xl font-black text-indigo-600">0.0</p></div></div>
-                    <div class="lg:col-span-2 premium-card p-6 md:p-8 relative">
-                        <div class="flex justify-between items-center mb-4 md:mb-6"><h3 class="text-base font-extrabold uppercase italic text-slate-800"><i class="fas fa-chart-pie text-indigo-500"></i> Job Types</h3><span class="text-[9px] font-black text-slate-400 animate-pulse uppercase">คลิกดูรายการ</span></div>
-                        <div class="relative h-64 md:h-80"><canvas id="jobTypeChart"></canvas></div>
+
+                <!-- Insights Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Column 1 & 2: Job Category Grid (Left Side) -->
+                    <div class="lg:col-span-2">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-base font-extrabold uppercase italic text-slate-800 flex items-center gap-2">
+                                <i class="fas fa-layer-group text-indigo-500"></i> Job Type Categories
+                            </h3>
+                            <span class="text-[9px] font-black text-slate-400 uppercase">คลิกการ์ดเพื่อดูรายชื่อ</span>
+                        </div>
+                        <div id="jobCategoryGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+                    </div>
+
+                    <!-- Column 3: Top 5 List & Avg Lead Time (Right Side) -->
+                    <div class="premium-card p-8 flex flex-col">
+                        <h3 class="text-base font-extrabold mb-6 uppercase italic flex items-center gap-2">
+                            <i class="fas fa-exclamation-triangle text-rose-500"></i> Top 5 Problematic
+                        </h3>
+                        <div id="topAssetsList" class="space-y-3 flex-1"></div>
+                        <div class="mt-8 pt-6 border-t">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Lead Time เฉลี่ย (วัน)</p>
+                            <p id="avgLeadTime" class="text-4xl font-black text-indigo-600">0.0</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -192,8 +224,8 @@
     <!-- Detail Modal -->
     <div id="detailModal" class="modal"><div class="modal-content !max-w-2xl overflow-y-auto max-h-[90vh]"><div class="flex justify-between items-center mb-6"><h2 id="detailTitle" class="text-xl md:text-2xl font-black text-slate-800 italic uppercase">Job Details</h2><button onclick="closeM('detailModal')" class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl text-slate-400"><i class="fas fa-times"></i></button></div><div id="detailBody" class="space-y-6"></div></div></div>
 
-    <!-- Category Detail Modal -->
-    <div id="categoryModal" class="modal"><div class="modal-content !max-w-3xl overflow-hidden flex flex-col max-h-[85vh]"><div class="flex justify-between items-center mb-4 border-b pb-4"><div><h2 id="categoryTitle" class="text-xl md:text-2xl font-black text-slate-800 italic uppercase leading-none">Job Type Detail</h2><p id="categorySubtitle" class="text-[10px] font-bold text-slate-400 uppercase mt-2"></p></div><button onclick="closeM('categoryModal')" class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl text-slate-400"><i class="fas fa-times"></i></button></div><div id="categoryBody" class="overflow-y-auto space-y-3 pr-2 scrollbar-hide"></div></div></div>
+    <!-- Category/Status/Asset Detail Modal -->
+    <div id="categoryModal" class="modal"><div class="modal-content !max-w-4xl overflow-hidden flex flex-col max-h-[85vh]"><div class="flex justify-between items-center mb-4 border-b pb-4"><div><h2 id="categoryTitle" class="text-xl md:text-2xl font-black text-slate-800 italic uppercase leading-none">Job List</h2><p id="categorySubtitle" class="text-[10px] font-bold text-slate-400 uppercase mt-2"></p></div><button onclick="closeM('categoryModal')" class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl text-slate-400"><i class="fas fa-times"></i></button></div><div id="categoryBody" class="overflow-y-auto pr-2 scrollbar-hide grid grid-cols-1 md:grid-cols-2 gap-4"></div></div></div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyGAStB7T57jXPkahAsMQUP9BdyQPrj2f_xkEqidGsKK15rfJSOXUqO0RD98ND4l_d4-w/exec";
@@ -202,23 +234,12 @@
         function formatThaiDate(s) { if (!s || s === "-" || s === "") return "-"; try { const d = new Date(s); return isNaN(d.getTime()) ? s : `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()+543}`; } catch(e) { return s; } }
         function showToast(m) { const x = document.getElementById('toast'); if(x) { document.getElementById('toastMsg').innerText = m; x.classList.remove('hidden'); setTimeout(() => x.classList.add('hidden'), 3500); } }
         
-        function closeM(id) { 
-            const el = document.getElementById(id); 
-            if(el) el.style.display = 'none'; 
-        }
+        function closeM(id) { const el = document.getElementById(id); if(el) el.style.display = 'none'; }
 
         window.closeScanner = () => {
             if (html5QrCode && html5QrCode.isScanning) {
-                html5QrCode.stop().then(() => {
-                    html5QrCode.clear();
-                    closeM('scannerModal');
-                }).catch(err => {
-                    console.error("QR Stop Failed", err);
-                    closeM('scannerModal');
-                });
-            } else {
-                closeM('scannerModal');
-            }
+                html5QrCode.stop().then(() => { html5QrCode.clear(); closeM('scannerModal'); }).catch(err => { closeM('scannerModal'); });
+            } else { closeM('scannerModal'); }
         };
 
         window.handleImgError = (imgEl) => { if(imgEl && imgEl.parentElement) imgEl.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-slate-100 rounded-xl"><i class="fas fa-image text-slate-300 text-lg"></i></div>'; };
@@ -235,15 +256,7 @@
 
         window.completeUpdate = async () => { 
             const btn = document.getElementById('upBtn'); if(!btn) return; btn.disabled = true;
-            const payload = {
-                action: "update",
-                id: document.getElementById('edId').value,
-                task: document.getElementById('edTask').value,
-                startDate: document.getElementById('edStart').value,
-                deadline: document.getElementById('edEnd').value,
-                priority: document.getElementById('edPriority').value,
-                reason: document.getElementById('edReason').value
-            };
+            const payload = { action: "update", id: document.getElementById('edId').value, task: document.getElementById('edTask').value, startDate: document.getElementById('edStart').value, deadline: document.getElementById('edEnd').value, priority: document.getElementById('edPriority').value, reason: document.getElementById('edReason').value };
             try { 
                 const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) }); 
                 const result = await res.json(); if(result.status === "success") { showToast("อัปเดตสำเร็จ!"); closeM('editModal'); fetchData(); } else { throw new Error(); }
@@ -268,19 +281,22 @@
             render(); 
         };
 
-        const makeItem = t => {
-            const today = new Date().toLocaleDateString('en-CA'); const isDone = t.status === 'completed';
+        const makeItem = (t) => {
+            const today = new Date().toLocaleDateString('en-CA'); 
+            const isDone = t.status === 'completed';
             const isOver = !isDone && t.deadline < today;
-            const p = String(t.priority || "medium").toLowerCase(); const prioClass = p === 'high' ? 'priority-high' : p === 'medium' ? 'priority-medium' : 'priority-low';
+            const p = String(t.priority || "medium").toLowerCase(); 
+            const prioClass = p === 'high' ? 'priority-high' : p === 'medium' ? 'priority-medium' : 'priority-low';
             const prioEmoji = p === 'high' ? '🔴' : p === 'medium' ? '🟡' : '🟢'; 
+            
             const rawImgs = (t.imageUrl ? String(t.imageUrl).split(',') : []).concat(t.finishImageUrl ? String(t.finishImageUrl).split(',') : []).map(u => u.trim()).filter(u => u && u.startsWith('http'));
             const imgsHtml = rawImgs.map(u => `<div class="shrink-0 w-8 h-8 rounded border overflow-hidden shadow-sm cursor-pointer" onclick="window.open('${u}')"><img src="${u}" class="w-full h-full object-cover" onerror="handleImgError(this)"></div>`).join('');
 
-            if (currentTab === 'history') {
-                return `<div class="premium-card p-5 md:p-6 border-l-8 border-emerald-500 cursor-pointer animate-fadeIn" onclick="openDetail('${t.id}')">
+            if (isDone) {
+                return `<div class="premium-card p-5 border-l-8 border-emerald-500 cursor-pointer animate-fadeIn h-fit" onclick="openDetail('${t.id}')">
                     <div class="flex justify-between items-start mb-3"><div><span class="status-pill bg-emerald-50 text-emerald-700">COMPLETED</span></div><span class="text-[9px] font-black text-slate-400 uppercase">Done: ${formatThaiDate(t.deadline)}</span></div>
                     <h3 class="text-sm md:text-lg font-extrabold text-slate-800 leading-tight mb-2 italic">${prioEmoji} ${t.task}</h3>
-                    <p class="text-[10px] md:text-xs font-black text-indigo-600 uppercase mb-3">${t.asset}</p>
+                    <p class="text-[10px] font-black text-indigo-600 uppercase mb-3">${t.asset}</p>
                     <div class="flex gap-2 pb-2 overflow-hidden">${imgsHtml}</div>
                     <div class="mt-3 pt-3 border-t flex justify-between items-center"><span class="text-[9px] font-bold text-slate-400 uppercase italic underline text-indigo-500">View Detail</span><button onclick="window.openDel('${t.id}'); event.stopPropagation();" class="text-slate-300 hover:text-rose-500 transition-colors p-1"><i class="fas fa-trash-alt text-[11px]"></i></button></div>
                 </div>`;
@@ -304,54 +320,103 @@
             };
 
             if(currentTab === 'dashboard') {
+                const pend = tasks.filter(t => t.status === 'pending');
                 const comp = tasks.filter(t => t.status === 'completed');
+                const over = tasks.filter(t => t.status === 'pending' && t.deadline < today);
                 const dashTotal = document.getElementById('dashTotal'); if(dashTotal) dashTotal.innerText = tasks.length;
-                const dashPending = document.getElementById('dashPending'); if(dashPending) dashPending.innerText = tasks.filter(t => t.status === 'pending').length;
-                const dashSuccessRate = document.getElementById('dashSuccessRate'); if(dashSuccessRate) dashSuccessRate.innerText = tasks.length ? Math.round((comp.length / tasks.length) * 100) + '%' : '0%';
-                const dashOverdue = document.getElementById('dashOverdue'); if(dashOverdue) dashOverdue.innerText = tasks.filter(t => t.status === 'pending' && t.deadline < today).length;
-                updateCharts(tasks);
+                const dashPending = document.getElementById('dashPending'); if(dashPending) dashPending.innerText = pend.length;
+                const dashSuccessRate = document.getElementById('dashSuccessRate'); if(dashSuccessRate) dashSuccessRate.innerText = comp.length;
+                const dashOverdue = document.getElementById('dashOverdue'); if(dashOverdue) dashOverdue.innerText = over.length;
+                updateDashboardInsights(tasks);
             }
             if(currentTab === 'active') {
-                const sortMode = document.getElementById('sortActive')?.value || 'deadline';
-                const priorityWeight = { high: 0, medium: 1, low: 2 };
                 let activeTasks = tasks.filter(t => t.status === 'pending' && filterFunc(t));
-                activeTasks.sort((a, b) => {
-                    if (sortMode === 'deadline') return (a.deadline || '9999') > (b.deadline || '9999') ? 1 : -1;
-                    return priorityWeight[a.priority || 'medium'] - priorityWeight[b.priority || 'medium'];
-                });
+                activeTasks.sort((a, b) => (a.deadline || '9999') > (b.deadline || '9999') ? 1 : -1);
                 const la = document.getElementById('listActive');
-                if(la) la.innerHTML = activeTasks.map(makeItem).join('') || '<p class="col-span-full text-center py-20 text-slate-300 font-bold uppercase text-xs">No active jobs found</p>';
+                if(la) la.innerHTML = activeTasks.map(t => makeItem(t)).join('') || '<p class="col-span-full text-center py-20 text-slate-300 font-bold uppercase text-xs">No active jobs found</p>';
             }
             if(currentTab === 'history') {
                 const lh = document.getElementById('listHistory');
-                if(lh) lh.innerHTML = tasks.filter(t => t.status === 'completed' && filterFunc(t)).reverse().map(makeItem).join('') || '<p class="col-span-full text-center py-20 text-slate-300 font-bold uppercase text-xs">No records found</p>';
+                if(lh) lh.innerHTML = tasks.filter(t => t.status === 'completed' && filterFunc(t)).reverse().map(t => makeItem(t)).join('') || '<p class="col-span-full text-center py-20 text-slate-300 font-bold uppercase text-xs">No records found</p>';
             }
         }
 
-        function updateCharts(data) {
+        function updateDashboardInsights(data) {
+            // Category Cards
             const types = {}; data.forEach(t => { types[t.type] = (types[t.type] || 0) + 1; });
-            const typeCtx = document.getElementById('jobTypeChart');
-            if (typeCtx) {
-                if (jobChart) jobChart.destroy();
-                jobChart = new Chart(typeCtx.getContext('2d'), { 
-                    type: 'doughnut', data: { labels: Object.keys(types), datasets: [{ data: Object.values(types), backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#a855f7'], borderWidth: 0 }] }, 
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 8, font: { size: 10 } } } }, onClick: (e, active) => { if(active.length > 0) showJobTypeDetails(jobChart.data.labels[active[0].index]); } } 
-                });
+            const catGrid = document.getElementById('jobCategoryGrid');
+            if(catGrid) {
+                catGrid.innerHTML = Object.entries(types).map(([name, count]) => {
+                    return `<div class="premium-card p-5 cursor-pointer category-card hover:bg-indigo-50 border-b-4 border-indigo-200 transition-all flex flex-col items-center justify-center text-center shadow-sm" onclick="showJobTypeDetails('${name}')"><div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-3"><i class="fas fa-tools text-xs"></i></div><h4 class="text-[11px] font-black text-slate-800 uppercase leading-tight mb-1">${name}</h4><p class="text-xl font-black text-indigo-600">${count}</p><span class="text-[8px] font-bold text-slate-400 uppercase mt-1">Jobs</span></div>`;
+                }).join('') || '<p class="col-span-full text-center py-10 text-slate-300 font-bold uppercase text-xs">No Categories</p>';
             }
+
+            // Top Problematic Assets (Now Clickable)
             const assetCounts = {}; data.forEach(t => { if (t.asset) assetCounts[t.asset] = (assetCounts[t.asset] || 0) + 1; });
             const topAssets = Object.entries(assetCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
             const tal = document.getElementById('topAssetsList');
-            if(tal) tal.innerHTML = topAssets.map(([name, count], i) => `<div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl"><div class="flex items-center gap-3"><span class="w-6 h-6 flex items-center justify-center bg-white text-[10px] font-black rounded-lg shadow-sm">${i+1}</span><span class="text-[11px] font-bold text-slate-700 truncate max-w-[120px]">${name}</span></div><span class="text-[9px] font-black px-2 py-1 bg-indigo-100 text-indigo-600 rounded-lg">${count} ซ่อม</span></div>`).join('');
+            if(tal) {
+                tal.innerHTML = topAssets.map(([name, count], i) => `
+                    <div onclick="showAssetDetails('${name}')" class="flex items-center justify-between p-3 bg-slate-50 rounded-xl cursor-pointer problematic-row border border-transparent transition-all">
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 h-6 flex items-center justify-center bg-white text-[10px] font-black rounded-lg shadow-sm border">${i+1}</span>
+                            <span class="text-[11px] font-bold text-slate-700 truncate max-w-[120px]">${name}</span>
+                        </div>
+                        <span class="text-[9px] font-black px-2 py-1 bg-indigo-100 text-indigo-600 rounded-lg">${count} ซ่อม</span>
+                    </div>
+                `).join('') || '<p class="text-center py-4 text-slate-300 text-xs font-bold">No Data</p>';
+            }
+            
+            // Avg Lead Time
             const completed = data.filter(t => t.status === 'completed' && t.startDate && t.deadline);
             let totalDays = 0; completed.forEach(t => { const diff = Math.ceil((new Date(t.deadline) - new Date(t.startDate)) / (1000 * 60 * 60 * 24)); if (diff >= 0) totalDays += diff; });
             const alt = document.getElementById('avgLeadTime'); if(alt) alt.innerText = completed.length ? (totalDays / completed.length).toFixed(1) : "0.0";
         }
 
+        function buildSplitList(filtered) {
+            const pending = filtered.filter(t => t.status === 'pending');
+            const completed = filtered.filter(t => t.status === 'completed');
+            let html = "";
+            if (pending.length > 0) {
+                html += `<div class="col-span-full font-black text-indigo-600 border-b-2 border-indigo-100 pb-2 mt-2 uppercase text-[11px] flex items-center gap-2"><i class="fas fa-spinner fa-spin text-[10px]"></i> งานที่กำลังทำ (${pending.length})</div>`;
+                html += pending.map(t => makeItem(t)).join('');
+            }
+            if (completed.length > 0) {
+                html += `<div class="col-span-full font-black text-emerald-600 border-b-2 border-emerald-100 pb-2 mt-6 uppercase text-[11px] flex items-center gap-2"><i class="fas fa-check-circle text-[10px]"></i> งานที่เสร็จแล้ว (${completed.length})</div>`;
+                html += completed.map(t => makeItem(t)).join('');
+            }
+            return html || '<p class="col-span-full text-center py-10 text-slate-300 font-bold uppercase text-xs">No Records</p>';
+        }
+
+        window.showAssetDetails = (assetName) => {
+            const filtered = tasks.filter(t => t.asset === assetName);
+            const ct = document.getElementById('categoryTitle'); 
+            const cs = document.getElementById('categorySubtitle'); 
+            const cb = document.getElementById('categoryBody');
+            if(ct) ct.innerText = assetName;
+            if(cs) cs.innerText = `ประวัติงานซ่อมบำรุงทั้งหมดของโมล/เครื่องนี้ (${filtered.length} รายการ)`;
+            if(cb) cb.innerHTML = buildSplitList(filtered);
+            const cm = document.getElementById('categoryModal');
+            if(cm) cm.style.display = 'block';
+        };
+
+        window.showStatusDetails = (type) => {
+            let filtered = []; let title = ""; const today = new Date().toLocaleDateString('en-CA');
+            if (type === 'all') { filtered = tasks; title = "งานทั้งหมด"; } 
+            else if (type === 'pending') { filtered = tasks.filter(t => t.status === 'pending'); title = "งานรอดำเนินการ"; } 
+            else if (type === 'completed') { filtered = tasks.filter(t => t.status === 'completed'); title = "งานเสร็จสิ้น"; } 
+            else if (type === 'overdue') { filtered = tasks.filter(t => t.status === 'pending' && t.deadline < today); title = "งานเกินกำหนด"; }
+            const ct = document.getElementById('categoryTitle'); const cs = document.getElementById('categorySubtitle'); const cb = document.getElementById('categoryBody');
+            if(ct) ct.innerText = title; if(cs) cs.innerText = `พบทั้งหมด ${filtered.length} รายการ`;
+            if(cb) cb.innerHTML = buildSplitList(filtered);
+            const cm = document.getElementById('categoryModal'); if(cm) cm.style.display = 'block';
+        };
+
         window.showJobTypeDetails = (typeLabel) => {
             const filtered = tasks.filter(t => t.type === typeLabel);
             const ct = document.getElementById('categoryTitle'); const cs = document.getElementById('categorySubtitle'); const cb = document.getElementById('categoryBody');
-            if(ct) ct.innerText = typeLabel; if(cs) cs.innerText = `Total: ${filtered.length} items`;
-            if(cb) cb.innerHTML = filtered.reverse().map(t => `<div class="p-3 md:p-4 bg-slate-50 rounded-2xl flex justify-between items-center cursor-pointer hover:bg-white transition-all" onclick="openDetail('${t.id}')"><div class="min-w-0"><span class="text-[8px] font-black px-2 py-0.5 ${t.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'} rounded-full uppercase">${t.status}</span><h5 class="text-xs md:text-sm font-extrabold text-slate-800 italic truncate mt-1">${t.task}</h5><p class="text-[9px] font-black text-indigo-500 uppercase">${t.asset}</p></div><i class="fas fa-chevron-right text-slate-300 text-xs"></i></div>`).join('');
+            if(ct) ct.innerText = typeLabel; if(cs) cs.innerText = `จัดกลุ่มแยกสถานะสำหรับประเภท ${typeLabel}`;
+            if(cb) cb.innerHTML = buildSplitList(filtered);
             const cm = document.getElementById('categoryModal'); if(cm) cm.style.display = 'block';
         };
 
@@ -361,7 +426,7 @@
             const p = String(t.priority || "medium").toLowerCase(); const prioEmoji = p === 'high' ? '🔴' : p === 'medium' ? '🟡' : '🟢';
             const dt = document.getElementById('detailTitle'); const db = document.getElementById('detailBody');
             if(dt) dt.innerText = t.asset || 'Job Detail';
-            if(db) db.innerHTML = `<div class="space-y-6"><div><span class="status-pill bg-indigo-100 text-indigo-600">${t.type}</span><h4 class="text-lg md:text-xl font-bold mt-2 italic">${prioEmoji} ${t.task}</h4></div><div class="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-2xl"><div><p class="text-[9px] text-slate-400 uppercase">Start Date</p><p class="text-xs md:text-sm font-bold">${formatThaiDate(t.startDate)}</p></div><div><p class="text-[9px] text-slate-400 uppercase">Finish Date</p><p class="text-xs md:text-sm font-bold">${formatThaiDate(t.deadline)}</p></div></div><p class="text-xs text-slate-600 italic leading-relaxed"><b>Note/Reason:</b> ${t.reason || '-'}</p><div><p class="text-[10px] font-black text-slate-400 uppercase mb-3">Images (${rawImgs.length})</p><div class="grid grid-cols-3 gap-2">${rawImgs.map(u => `<img src="${u}" class="w-full aspect-square object-cover rounded-xl border-2 border-white shadow-sm cursor-pointer" onclick="window.open('${u}')" onerror="handleImgError(this)">`).join('')}</div></div></div>`;
+            if(db) db.innerHTML = `<div class="space-y-6"><div><span class="status-pill bg-indigo-100 text-indigo-600">${t.type}</span><h4 class="text-lg md:text-xl font-bold mt-2 italic">${prioEmoji} ${t.task}</h4></div><div class="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-2xl"><div><p class="text-[9px] text-slate-400 uppercase">Start Date</p><p class="text-xs md:text-sm font-bold">${formatThaiDate(t.startDate)}</p></div><div><p class="text-[9px] text-slate-400 uppercase">Deadline</p><p class="text-xs md:text-sm font-bold">${formatThaiDate(t.deadline)}</p></div></div><p class="text-xs text-slate-600 italic leading-relaxed"><b>Note:</b> ${t.reason || '-'}</p><div><p class="text-[10px] font-black text-slate-400 uppercase mb-3">Photos (${rawImgs.length})</p><div class="grid grid-cols-3 gap-2">${rawImgs.map(u => `<img src="${u}" class="w-full aspect-square object-cover rounded-xl border-2 border-white shadow-sm cursor-pointer" onclick="window.open('${u}')" onerror="handleImgError(this)">`).join('')}</div></div></div>`;
             const dm = document.getElementById('detailModal'); if(dm) dm.style.display = 'block';
         };
 
@@ -382,19 +447,9 @@
             const taskVal = document.getElementById('taskInput')?.value;
             const startVal = document.getElementById('startInput')?.value;
             const endVal = document.getElementById('endInput')?.value;
-            if(!taskVal || !startVal || !endVal) return alert("กรุณาระบุข้อมูลให้ครบถ้วน (อาการเสีย, วันที่เริ่ม, วันที่กำหนดเสร็จ)"); 
+            if(!taskVal || !startVal || !endVal) return alert("กรุณาระบุข้อมูลให้ครบถ้วน"); 
             const btn = document.getElementById('saveBtn'); btn.disabled = true; document.getElementById('saveLd').style.display = 'block';
-            
-            let typeVal = document.getElementById('typeInput')?.value; if(typeVal === "Other") typeVal = document.getElementById('otherJobTypeInput')?.value;
-            let assetVal = document.getElementById('assetInput')?.value; if(assetVal === "อื่นๆ (ระบุเอง)") assetVal = document.getElementById('otherAssetInput')?.value;
-            let deptVal = document.getElementById('deptInput')?.value; if(deptVal === "Other") deptVal = document.getElementById('otherDeptInput')?.value;
-
-            const payload = { action: "add", task: taskVal, type: typeVal, asset: assetVal, startDate: startVal, deadline: endVal, images: inImgs, vendor: deptVal, priority: document.getElementById('priorityInput')?.value, reason: document.getElementById('reasonInput')?.value };
-            try { 
-                const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) }); 
-                const result = await res.json();
-                if(result.status === "success") { showToast("บันทึกข้อมูลเรียบร้อย!"); location.reload(); } else { throw new Error(); }
-            } catch(ex) { showToast("ล้มเหลว กรุณาลองใหม่"); btn.disabled = false; document.getElementById('saveLd').style.display = 'none'; } 
+            try { await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "add", task: taskVal, type: document.getElementById('typeInput').value, asset: document.getElementById('assetInput').value, startDate: startVal, deadline: endVal, images: inImgs, vendor: document.getElementById('deptInput').value, priority: document.getElementById('priorityInput')?.value, reason: document.getElementById('reasonInput')?.value }) }); location.reload(); } catch(ex) { showToast("ล้มเหลว"); btn.disabled = false; document.getElementById('saveLd').style.display = 'none'; } 
         };
 
         async function handleImg(input, preId, type) {
@@ -410,13 +465,12 @@
         window.toggleDeptOther = (v) => { document.getElementById('otherDeptWrapper')?.classList.toggle('hidden', v !== "Other"); };
         
         window.openScanner = (inputId) => { 
-            const sm = document.getElementById('scannerModal'); 
-            if(sm) sm.style.display = 'block'; 
+            const sm = document.getElementById('scannerModal'); if(sm) sm.style.display = 'block'; 
             if (!html5QrCode) html5QrCode = new Html5Qrcode("reader"); 
             html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (decodedText) => { 
                 document.getElementById(inputId).value = decodedText; 
-                showToast("สแกนสำเร็จ"); closeScanner(); 
-            }).catch(err => { showToast("กล้องขัดข้อง"); closeScanner(); }); 
+                showToast("สแกนสำเร็จ"); window.closeScanner(); 
+            }).catch(err => { showToast("กล้องขัดข้อง"); window.closeScanner(); }); 
         };
 
         function updateFilters() { 
@@ -428,7 +482,7 @@
         window.resetFilters = () => { if(document.getElementById('filterMonth')) document.getElementById('filterMonth').value = ""; if(document.getElementById('filterAsset')) document.getElementById('filterAsset').value = ""; render(); };
         function exportToCSV() { if(tasks.length === 0) return showToast("ไม่มีข้อมูล"); let csv = "\uFEFFID,Task,Asset,Type,StartDate,Deadline,Status,Technician,Priority,Reason\n"; tasks.forEach(t => { csv += `"${t.id}","${t.task}","${t.asset}","${t.type}","${t.startDate}","${t.deadline}","${t.status}","${t.vendor}","${t.priority || 'medium'}","${t.reason || ''}"\n`; }); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.setAttribute("download", `repair_report_${new Date().toLocaleDateString()}.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link); showToast("ส่งออกสำเร็จ"); }
         window.onload = () => { fetchData(); switchTab('active'); };
-        window.onclick = e => { if (e.target.className === 'modal') { ['editModal', 'detailModal', 'categoryModal', 'compModal', 'delModal', 'scannerModal'].forEach(id => closeM(id)); } };
+        window.onclick = e => { if (e.target.className === 'modal') { ['editModal', 'detailModal', 'categoryModal', 'compModal', 'delModal', 'scannerModal'].forEach(closeM); } };
     </script>
 </body>
 </html>
