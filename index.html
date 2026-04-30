@@ -18,41 +18,52 @@
             --header-black: #020617; --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
         }
 
-        body { font-family: 'Plus Jakarta Sans', 'Kanit', sans-serif; background-color: var(--bg-slate); color: #1e293b; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Plus Jakarta Sans', 'Kanit', sans-serif; background-color: var(--bg-slate); color: #1e293b; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
         .premium-card { background: white; border-radius: 1.5rem; box-shadow: var(--card-shadow); border: 1px solid rgba(226, 232, 240, 0.8); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .tab-btn { position: relative; transition: all 0.3s; }
         .tab-btn.active { color: var(--primary); font-weight: 700; }
         .tab-btn.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 20px; height: 4px; background: var(--primary); border-radius: 10px; }
 
-        /* Modal Hierarchy Fix */
+        /* Modal Hierarchy */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); animation: fadeIn 0.3s ease; }
         #detailModal { z-index: 4000; }
         #categoryModal { z-index: 2500; }
         #editModal, #compModal, #delModal { z-index: 4500; }
+        #scannerModal { z-index: 5000; }
 
-        .modal-content { background: white; margin: 5% auto; padding: 1.5rem; border-radius: 2rem; width: 92%; max-width: 600px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: slideUp 0.4s ease; }
+        .modal-content { 
+            background: white; margin: 5% auto; padding: 1.5rem; border-radius: 2rem; width: 92%; max-width: 600px; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: slideUp 0.4s ease; 
+        }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        .status-pill { font-size: 0.6rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: 9999px; text-transform: uppercase; }
-        .priority-high { border-left: 6px solid var(--danger); }
-        .priority-medium { border-left: 6px solid var(--warning); }
-        .priority-low { border-left: 6px solid var(--accent); }
+        .status-pill { font-size: 0.55rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 9999px; text-transform: uppercase; white-space: nowrap; }
+        
+        /* Compact Table Styles */
+        .table-row-item { 
+            background: white; border-radius: 1rem; border: 1px solid #f1f5f9; display: flex; align-items: center; padding: 0.75rem 1rem; gap: 1rem; transition: all 0.2s; cursor: pointer;
+        }
+        .table-row-item:hover { background: #f8fafc; border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .row-num { min-width: 1.5rem; font-weight: 800; color: #cbd5e1; font-size: 0.9rem; font-style: italic; text-align: center; }
+        
+        .priority-indicator { width: 4px; height: 30px; border-radius: 4px; shrink: 0; }
+        .prio-high-bg { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+        .prio-medium-bg { background: var(--warning); }
+        .prio-low-bg { background: var(--accent); }
+        .prio-done-bg { background: #94a3b8; }
 
-        .timeline-bar-bg { height: 5px; background: #e2e8f0; border-radius: 10px; position: relative; overflow: hidden; }
-        .timeline-bar-fill { height: 100%; border-radius: 10px; transition: width 1s ease-out; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
         .loader { border: 2px solid #f3f3f3; border-top: 2px solid var(--primary); border-radius: 50%; width: 14px; height: 14px; animation: spin 1s linear infinite; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .animate-fadeIn { animation: fadeInAnim 0.5s ease-out forwards; }
-        @keyframes fadeInAnim { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        body.view-mode .action-only { display: none !important; }
+        body.view-mode #addTaskSection { display: none !important; }
 
-        .category-card:active, .problematic-row:active { transform: scale(0.98); }
-        .summary-card:hover, .problematic-row:hover { border-color: var(--primary); background: #f5f7ff; }
+        .ai-loading { animation: pulse-blue 1.5s infinite; }
+        @keyframes pulse-blue { 0% { background-color: #6366f1; } 50% { background-color: #a5b4fc; } 100% { background-color: #6366f1; } }
     </style>
 </head>
 <body class="min-h-screen">
-    <div id="toast" class="hidden fixed top-6 left-1/2 -translate-x-1/2 p-4 px-8 bg-slate-900 text-white rounded-2xl text-sm font-semibold z-[5000] shadow-2xl flex items-center gap-3">
+    <div id="toast" class="hidden fixed top-6 left-1/2 -translate-x-1/2 p-4 px-8 bg-slate-900 text-white rounded-2xl text-sm font-semibold z-[6000] shadow-2xl flex items-center gap-3">
         <i class="fas fa-info-circle text-indigo-400"></i><span id="toastMsg"></span>
     </div>
 
@@ -64,370 +75,293 @@
                     <h1 class="text-3xl md:text-4xl font-extrabold tracking-tighter italic bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">Work Follow UP</h1>
                     <div class="flex items-center gap-2 mt-1">
                         <span class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]"></span>
-                        <p class="text-[10px] font-bold opacity-60 uppercase tracking-[0.3em]">Responsive v3.07 | Insight Pro</p>
+                        <p class="text-[10px] font-bold opacity-60 uppercase tracking-[0.3em]" id="versionLabel">Responsive v3.26 | AI Backoff Fix</p>
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="exportToCSV()" title="Export Excel" class="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 shadow-lg"><i class="fas fa-file-export text-sm"></i></button>
-                    <button onclick="fetchData()" title="Refresh" class="w-11 h-11 md:w-14 md:h-14 flex items-center justify-center bg-indigo-600 text-white rounded-2xl transition-all shadow-lg"><i class="fas fa-sync-alt text-sm"></i></button>
+                    <button onclick="window.exportToCSV()" title="Export Excel" class="w-10 h-10 flex items-center justify-center bg-white/5 rounded-2xl border border-white/10 shadow-lg"><i class="fas fa-file-export text-xs"></i></button>
+                    <button onclick="window.fetchData()" title="Refresh Data" class="w-10 h-10 flex items-center justify-center bg-indigo-600 text-white rounded-2xl transition-all shadow-lg"><i class="fas fa-sync-alt text-xs"></i></button>
                 </div>
             </div>
         </header>
 
         <nav class="nav-blur sticky top-0 z-50 flex px-4 -mt-7 border-b border-slate-200 shadow-sm mx-4 md:mx-12 rounded-3xl premium-card overflow-hidden">
-            <button onclick="switchTab('active')" id="tabActive" class="flex-1 py-4 md:py-5 text-[11px] md:text-sm font-bold transition-all tab-btn active">งานในมือ</button>
-            <button onclick="switchTab('dashboard')" id="tabDashboard" class="flex-1 py-4 md:py-5 text-[11px] md:text-sm font-medium text-slate-400 transition-all tab-btn">สรุปงาน</button>
-            <button onclick="switchTab('history')" id="tabHistory" class="flex-1 py-4 md:py-5 text-[11px] md:text-sm font-medium text-slate-400 transition-all tab-btn">ประวัติซ่อม</button>
+            <button onclick="window.switchTab('active')" id="tabActive" class="flex-1 py-4 text-[11px] md:text-sm font-bold transition-all tab-btn active">งานในมือ</button>
+            <button onclick="window.switchTab('dashboard')" id="tabDashboard" class="flex-1 py-4 text-[11px] md:text-sm font-medium text-slate-400 transition-all tab-btn">สรุปงาน</button>
+            <button onclick="window.switchTab('history')" id="tabHistory" class="flex-1 py-4 text-[11px] md:text-sm font-medium text-slate-400 transition-all tab-btn">ประวัติซ่อม</button>
         </nav>
 
         <main class="p-4 md:p-12 flex-1">
-            <!-- Search & Filter Wrapper -->
             <div id="filterWrapper" class="mb-6 max-w-4xl mx-auto space-y-3">
                 <div class="relative group">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 pointer-events-none"><i class="fas fa-search text-xs md:text-sm"></i></div>
-                    <input type="text" id="searchInput" oninput="render()" placeholder="ค้นหาชื่อโมล, อาการ หรือรหัส..." class="w-full pl-10 md:pl-12 pr-4 py-3 md:py-4 bg-white border-none rounded-2xl text-xs md:text-sm outline-none shadow-sm focus:ring-4 focus:ring-indigo-500/10 font-medium">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 pointer-events-none"><i class="fas fa-search text-xs"></i></div>
+                    <input type="text" id="searchInput" oninput="window.render()" placeholder="ค้นหาชื่อโมล, อาการ..." class="w-full pl-10 pr-4 py-3 bg-white border-none rounded-2xl text-xs outline-none shadow-sm focus:ring-4 focus:ring-indigo-500/10 font-medium">
                 </div>
                 
                 <div id="filterContainer" class="flex flex-row gap-2 p-2 bg-white rounded-2xl shadow-sm border border-slate-200">
                     <div class="flex-1 relative border-r border-slate-100 pr-2">
                         <label class="text-[8px] font-black text-slate-400 absolute top-1 left-2 uppercase">เดือน</label>
-                        <select id="filterMonth" onchange="render()" class="w-full pt-4 pb-1 px-2 bg-transparent text-[11px] font-bold outline-none border-none cursor-pointer"><option value="">ทั้งหมด</option></select>
+                        <select id="filterMonth" onchange="window.render()" class="w-full pt-4 pb-1 px-2 bg-transparent text-[10px] font-bold outline-none border-none cursor-pointer"><option value="">ทั้งหมด</option></select>
                     </div>
                     <div class="flex-1 relative">
                         <label class="text-[8px] font-black text-slate-400 absolute top-1 left-2 uppercase">โมล</label>
-                        <select id="filterAsset" onchange="render()" class="w-full pt-4 pb-1 px-2 bg-transparent text-[11px] font-bold outline-none border-none cursor-pointer"><option value="">ทั้งหมด</option></select>
+                        <select id="filterAsset" onchange="window.render()" class="w-full pt-4 pb-1 px-2 bg-transparent text-[10px] font-bold outline-none border-none cursor-pointer"><option value="">ทั้งหมด</option></select>
                     </div>
-                    <button onclick="resetFilters()" class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-xl text-[9px] font-black uppercase hover:bg-indigo-100 transition-all self-center">ล้าง</button>
+                    <button onclick="window.resetFilters()" class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-xl text-[9px] font-black uppercase">ล้าง</button>
                 </div>
             </div>
 
             <!-- 1. ACTIVE LIST SECTION -->
-            <div id="activeSection" class="space-y-4">
-                <div class="max-w-2xl mx-auto mb-6">
-                    <details class="bg-indigo-600 rounded-2xl md:rounded-3xl shadow-lg overflow-hidden group border-none transition-all">
-                        <summary class="p-4 md:p-6 cursor-pointer font-bold text-white flex justify-between items-center text-xs md:text-base list-none select-none">
-                            <span class="flex items-center gap-3"><i class="fas fa-plus-circle text-lg"></i> บันทึกรายการใหม่</span>
+            <div id="activeSection" class="space-y-3">
+                <div id="addTaskSection" class="max-w-2xl mx-auto mb-6">
+                    <details class="bg-indigo-600 rounded-2xl shadow-lg overflow-hidden group border-none transition-all">
+                        <summary class="p-4 cursor-pointer font-bold text-white flex justify-between items-center text-xs md:text-sm list-none select-none">
+                            <span class="flex items-center gap-3"><i class="fas fa-plus-circle"></i> บันทึกรายการใหม่</span>
                             <i class="fas fa-chevron-right text-[10px] transition-transform group-open:rotate-90"></i>
                         </summary>
-                        <div class="p-5 pt-0 bg-white mx-1 mb-1 rounded-b-[1.5rem] md:rounded-b-[1.8rem] space-y-4">
-                            <div class="pt-5">
-                                <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">อาการเสีย / ปัญหา</label>
-                                <input type="text" id="taskInput" placeholder="สิ่งที่ตรวจพบ..." class="w-full p-3 md:p-4 mt-1 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm focus:ring-4 focus:ring-indigo-100 font-medium">
+                        <div class="p-5 pt-0 bg-white mx-1 mb-1 rounded-b-[1.5rem] space-y-4">
+                            <div class="pt-5 flex gap-3">
+                                <input type="file" id="aiFileIn" accept="image/*" class="hidden" onchange="window.runAIScan(this)">
+                                <label for="aiFileIn" id="aiBtn" class="flex-[2] flex items-center justify-center gap-3 py-4 bg-indigo-600 text-white rounded-2xl cursor-pointer text-sm font-black shadow-lg hover:bg-indigo-700 transition-all">
+                                    <i class="fas fa-robot text-lg"></i> 🤖 AI Scan
+                                </label>
+                                <button onclick="window.resetForm()" class="flex-1 flex items-center justify-center gap-2 py-4 bg-slate-100 text-slate-500 rounded-2xl text-xs font-bold hover:bg-slate-200 transition-all border border-slate-200">
+                                    <i class="fas fa-broom"></i> ล้างฟอร์ม
+                                </button>
                             </div>
+
                             <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">รายละเอียด / หมายเหตุ</label>
-                                <textarea id="reasonInput" rows="2" placeholder="ระบุเหตุผลหรือข้อมูลเพิ่มเติม..." class="w-full p-3 md:p-4 mt-1 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm italic font-medium"></textarea>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase">อาการเสีย / ปัญหา</label>
+                                <input type="text" id="taskInput" placeholder="ระบุสิ่งที่ตรวจพบ..." class="w-full p-3 bg-slate-50 border-none rounded-xl text-sm font-medium">
                             </div>
-                            <div class="grid grid-cols-2 gap-3 md:gap-4">
-                                <div>
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">ประเภทงาน</label>
-                                    <select id="typeInput" onchange="toggleJobTypeOther(this.value)" class="w-full p-3 md:p-4 mt-1 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm font-bold">
-                                        <optgroup label="Mold"><option value="Repair Mold">Repair Mold</option><option value="Spare part Mold">Spare part Mold</option><option value="Modify Mold">Modify Mold</option></optgroup>
-                                        <optgroup label="Machine"><option value="Repair machine">Repair machine</option></optgroup>
-                                        <option value="Other">ระบุเอง</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">โมล/เครื่อง</label>
-                                    <div class="relative mt-1">
-                                        <input type="text" id="assetInput" list="assetList" oninput="toggleOtherAsset(this.value)" placeholder="ค้นหา..." class="w-full p-3 pr-10 md:p-4 md:pr-12 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm font-bold">
-                                        <button onclick="openScanner('assetInput')" class="absolute right-3 top-1/2 -translate-y-1/2 text-indigo-600"><i class="fas fa-qrcode"></i></button>
-                                    </div>
-                                    <datalist id="assetList"></datalist>
-                                </div>
+                            <textarea id="reasonInput" rows="2" placeholder="รายละเอียดเพิ่มเติม..." class="w-full p-3 bg-slate-50 border-none rounded-xl text-sm italic font-medium"></textarea>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div><label class="text-[10px] font-bold text-slate-400 uppercase">ประเภทงาน</label><select id="typeInput" onchange="window.toggleJobTypeOther(this.value)" class="w-full p-3 bg-slate-50 border-none rounded-xl text-sm font-bold"><optgroup label="Mold"><option value="Repair Mold">Repair Mold</option><option value="Spare part Mold">Spare part Mold</option><option value="Modify Mold">Modify Mold</option></optgroup><optgroup label="Machine"><option value="Repair machine">Repair machine</option></optgroup><option value="Other">ระบุเอง</option></select></div>
+                                <div><label class="text-[10px] font-bold text-slate-400 uppercase">โมล/เครื่อง</label><div class="relative"><input type="text" id="assetInput" list="assetList" oninput="window.toggleOtherAsset(this.value)" placeholder="ค้นหา..." class="w-full p-3 pr-10 bg-slate-50 border-none rounded-xl text-sm font-bold"><button onclick="window.openScanner('assetInput')" class="absolute right-3 top-1/2 -translate-y-1/2 text-indigo-600"><i class="fas fa-qrcode"></i></button></div><datalist id="assetList"></datalist></div>
                             </div>
-                            <div class="grid grid-cols-2 gap-3 md:gap-4">
-                                <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">ความเร่งด่วน</label><select id="priorityInput" class="w-full p-3 md:p-4 mt-1 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm font-black"><option value="low">🟢 ต่ำ</option><option value="medium" selected>🟡 กลาง</option><option value="high">🔴 สูง</option></select></div>
-                                <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">ผู้รับผิดชอบ</label><select id="deptInput" onchange="toggleDeptOther(this.value)" class="w-full p-3 md:p-4 mt-1 bg-indigo-50 border-none rounded-xl md:rounded-2xl text-sm font-extrabold text-indigo-700"><option value="Sarin">Sarin</option><option value="WEN">WEN</option><option value="TP/MDS">TP/MDS</option><option value="PE">PE</option><option value="Other">ระบุเอง</option></select></div>
+                            <div id="otherJobTypeWrapper" class="hidden"><input type="text" id="otherJobTypeInput" placeholder="ระบุประเภทงานใหม่..." class="w-full p-3 bg-white border-2 border-dashed border-indigo-100 rounded-xl text-sm font-medium"></div>
+                            <div id="otherAssetWrapper" class="hidden"><input type="text" id="otherAssetInput" placeholder="ระบุชื่อใหม่..." class="w-full p-3 bg-white border-2 border-dashed border-indigo-100 rounded-xl text-sm font-medium"></div>
+                            
+                            <div class="grid grid-cols-2 gap-3">
+                                <div><label class="text-[10px] font-bold text-slate-400 uppercase">ความเร่งด่วน</label><select id="priorityInput" class="w-full p-3 bg-slate-50 border-none rounded-xl text-sm font-black"><option value="low">🟢 ต่ำ</option><option value="medium" selected>🟡 กลาง</option><option value="high">🔴 สูง</option></select></div>
+                                <div><label class="text-[10px] font-bold text-slate-400 uppercase">ผู้รับผิดชอบ</label><select id="deptInput" onchange="window.toggleDeptOther(this.value)" class="w-full p-3 bg-indigo-50 border-none rounded-xl text-sm font-extrabold text-indigo-700"><option value="">-- เลือก --</option><option value="Sarin">Sarin</option><option value="WEN">WEN</option><option value="TP/MDS">TP/MDS</option><option value="PE">PE</option><option value="Other">ระบุเอง</option></select></div>
                             </div>
+                            <div id="otherDeptWrapper" class="hidden"><input type="text" id="otherDeptInput" placeholder="ชื่อแผนก/ผู้รับผิดชอบ..." class="w-full p-3 bg-white border-2 border-dashed border-indigo-100 rounded-xl text-sm font-medium"></div>
                             <div class="flex gap-4">
-                                <div class="flex-1"><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">เริ่ม</label><input type="date" id="startInput" class="w-full p-3 md:p-4 mt-1 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm font-medium"></div>
-                                <div class="flex-1"><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">กำหนดเสร็จ</label><input type="date" id="endInput" class="w-full p-3 md:p-4 mt-1 bg-slate-50 border-none rounded-xl md:rounded-2xl text-sm font-bold text-rose-500"></div>
+                                <div class="flex-1"><label class="text-[10px] font-bold text-slate-400 uppercase">เริ่ม</label><input type="date" id="startInput" class="w-full p-3 bg-slate-50 border-none rounded-xl text-sm font-medium"></div>
+                                <div class="flex-1"><label class="text-[10px] font-bold text-slate-400 uppercase">กำหนดเสร็จ</label><input type="date" id="endInput" class="w-full p-3 bg-slate-50 border-none rounded-xl text-sm font-bold text-rose-500"></div>
                             </div>
-                            <div class="flex items-center justify-between py-1">
-                                <div class="flex-1"><label class="text-[10px] font-bold text-slate-400 uppercase ml-1">แนบรูป</label><input type="file" id="fileIn" multiple accept="image/*" onchange="handleImg(this, 'preIn', 'in')" class="hidden"><label for="fileIn" class="flex items-center gap-2 mt-1 w-fit px-4 py-2 bg-slate-100 rounded-xl cursor-pointer text-[10px] font-bold text-slate-600 transition-colors"><i class="fas fa-image"></i> เลือกรูป</label></div>
-                                <div id="preIn" class="flex gap-2 overflow-x-auto max-w-[60%] py-1"></div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1"><label class="text-[10px] font-bold text-slate-400 uppercase">แนบรูป</label><input type="file" id="fileIn" multiple accept="image/*" onchange="window.handleImg(this, 'preIn', 'in')" class="hidden"><label for="fileIn" class="flex items-center gap-2 mt-1 w-fit px-4 py-2 bg-slate-100 rounded-xl cursor-pointer text-[10px] font-bold text-slate-600"><i class="fas fa-image"></i> เลือกรูป</label></div>
+                                <div id="preIn" class="flex gap-2 overflow-x-auto max-w-[60%] py-1 font-bold text-[10px]"></div>
                             </div>
-                            <button onclick="save()" id="saveBtn" class="w-full bg-indigo-600 text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase text-sm shadow-xl flex justify-center items-center gap-3 active:scale-95 transition-all"><i class="fas fa-save"></i> บันทึกข้อมูล <div class="loader" id="saveLd"></div></button>
+                            <button onclick="window.save()" id="saveBtn" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase text-sm shadow-xl flex justify-center items-center gap-3">บันทึกข้อมูล <div class="loader" id="saveLd"></div></button>
                         </div>
                     </details>
                 </div>
                 
-                <div id="listActive" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"></div>
+                <div id="listActive" class="flex flex-col gap-2 max-w-4xl mx-auto"></div>
             </div>
 
             <!-- 2. DASHBOARD SECTION -->
             <div id="dashboardSection" class="hidden space-y-8 animate-fadeIn">
-                <!-- Summary Row (Clickable Cards) -->
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                    <div onclick="showStatusDetails('all')" class="premium-card p-5 md:p-6 border-l-8 border-indigo-500 cursor-pointer summary-card transition-all">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">งานทั้งหมด</p>
-                        <p id="dashTotal" class="text-2xl md:text-4xl font-black text-slate-800">0</p>
-                    </div>
-                    <div onclick="showStatusDetails('pending')" class="premium-card p-5 md:p-6 border-l-8 border-amber-500 cursor-pointer summary-card transition-all">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">รอดำเนินการ</p>
-                        <p id="dashPending" class="text-2xl md:text-4xl font-black text-slate-800">0</p>
-                    </div>
-                    <div onclick="showStatusDetails('completed')" class="premium-card p-5 md:p-6 border-l-8 border-emerald-500 cursor-pointer summary-card transition-all">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">เสร็จสิ้น</p>
-                        <p id="dashSuccessRate" class="text-2xl md:text-4xl font-black text-slate-800">0</p>
-                    </div>
-                    <div onclick="showStatusDetails('overdue')" class="premium-card p-5 md:p-6 border-l-8 border-rose-500 cursor-pointer summary-card transition-all">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">เกินกำหนด</p>
-                        <p id="dashOverdue" class="text-2xl md:text-4xl font-black text-slate-800">0</p>
-                    </div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div onclick="window.showStatusDetails('all')" class="premium-card p-5 border-l-8 border-indigo-500 cursor-pointer summary-card transition-all text-center"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">งานทั้งหมด</p><p id="dashTotal" class="text-3xl font-black text-slate-800">0</p></div>
+                    <div onclick="window.showStatusDetails('pending')" class="premium-card p-5 border-l-8 border-amber-500 cursor-pointer summary-card transition-all text-center"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">รอดำเนินการ</p><p id="dashPending" class="text-3xl font-black text-slate-800">0</p></div>
+                    <div onclick="window.showStatusDetails('completed')" class="premium-card p-5 border-l-8 border-slate-400 cursor-pointer summary-card transition-all text-center"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">เสร็จสิ้น</p><p id="dashSuccessRate" class="text-3xl font-black text-slate-800">0</p></div>
+                    <div onclick="window.showStatusDetails('overdue')" class="premium-card p-5 border-l-8 border-rose-500 cursor-pointer summary-card transition-all text-center"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">เกินกำหนด</p><p id="dashOverdue" class="text-3xl font-black text-slate-800">0</p></div>
                 </div>
-
-                <!-- Insights Section -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Column 1 & 2: Job Category Grid (Left Side) -->
                     <div class="lg:col-span-2">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-base font-extrabold uppercase italic text-slate-800 flex items-center gap-2">
-                                <i class="fas fa-layer-group text-indigo-500"></i> Job Type Categories
-                            </h3>
-                            <span class="text-[9px] font-black text-slate-400 uppercase">คลิกการ์ดเพื่อดูรายชื่อ</span>
-                        </div>
+                        <h3 class="text-base font-extrabold uppercase italic text-slate-800 flex items-center gap-2 mb-6"><i class="fas fa-layer-group text-indigo-500"></i> Job Categories</h3>
                         <div id="jobCategoryGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
                     </div>
-
-                    <!-- Column 3: Top 5 List & Avg Lead Time (Right Side) -->
-                    <div class="premium-card p-8 flex flex-col">
-                        <h3 class="text-base font-extrabold mb-6 uppercase italic flex items-center gap-2">
-                            <i class="fas fa-exclamation-triangle text-rose-500"></i> Top 5 Problematic
-                        </h3>
-                        <div id="topAssetsList" class="space-y-3 flex-1"></div>
-                        <div class="mt-8 pt-6 border-t">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Lead Time เฉลี่ย (วัน)</p>
-                            <p id="avgLeadTime" class="text-4xl font-black text-indigo-600">0.0</p>
-                        </div>
+                    <div class="premium-card p-6 flex flex-col">
+                        <h3 class="text-sm font-extrabold mb-6 uppercase italic flex items-center gap-2 text-rose-500"><i class="fas fa-exclamation-triangle"></i> Top 5 Problematic</h3>
+                        <div id="topAssetsList" class="flex flex-col gap-2 flex-1"></div>
+                        <div class="mt-6 pt-4 border-t"><p class="text-[9px] font-black text-slate-400 uppercase mb-1">Lead Time เฉลี่ย (วัน)</p><p id="avgLeadTime" class="text-3xl font-black text-indigo-600">0.0</p></div>
                     </div>
                 </div>
             </div>
 
             <!-- 3. HISTORY SECTION -->
-            <div id="historySection" class="hidden space-y-6 animate-fadeIn">
-                <div id="listHistory" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6"></div>
-            </div>
+            <div id="historySection" class="hidden space-y-6 animate-fadeIn"><div id="listHistory" class="flex flex-col gap-2 max-w-4xl mx-auto"></div></div>
         </main>
     </div>
 
-    <!-- MODALS SECTION -->
-    <div id="editModal" class="modal"><div class="modal-content"><h2 class="text-xl md:text-2xl font-black text-slate-800 mb-6 italic flex items-center gap-2"><i class="fas fa-edit text-indigo-500"></i> EDIT JOB</h2><div class="space-y-4 md:space-y-5"><input type="hidden" id="edId"><div><label class="text-[11px] font-bold text-slate-400 uppercase">อาการเสีย</label><input type="text" id="edTask" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-semibold"></div><div class="grid grid-cols-2 gap-4"><div><label class="text-[11px] font-bold text-slate-400 uppercase">วันเริ่มงาน</label><input type="date" id="edStart" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-black"></div><div><label class="text-[11px] font-bold text-slate-400 uppercase">กำหนดเสร็จใหม่</label><input type="date" id="edEnd" class="w-full p-4 mt-1 bg-slate-50 border-none rounded-2xl text-sm font-black text-rose-500"></div></div><select id="edPriority" class="w-full p-4 bg-slate-50 rounded-2xl text-sm font-black"><option value="low">🟢 งานทั่วไป</option><option value="medium">🟡 เร่งด่วน</option><option value="high">🔴 ด่วนที่สุด</option></select><textarea id="edReason" rows="2" placeholder="ระบุเหตุผลการแก้ไข..." class="w-full p-4 bg-slate-50 border-none rounded-2xl text-sm italic font-medium"></textarea><div class="flex gap-3 pt-4"><button onclick="closeM('editModal')" class="flex-1 py-4 text-slate-400 font-bold text-xs uppercase">ยกเลิก</button><button onclick="window.completeUpdate()" id="upBtn" class="flex-[2] bg-slate-900 text-white py-4 rounded-2xl font-black text-xs shadow-xl transition-all">อัปเดต</button></div></div></div></div>
-    
-    <div id="compModal" class="modal"><div class="modal-content text-center"><div class="w-16 h-16 md:w-20 md:h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl shadow-inner animate-bounce"><i class="fas fa-check-double"></i></div><h2 class="text-xl md:text-2xl font-extrabold mb-1 uppercase">Job Finished</h2><p class="text-slate-400 text-xs mb-8 font-medium italic">Upload proof of completion</p><input type="file" id="fileOut" multiple accept="image/*" onchange="handleImg(this, 'preOut', 'out')" class="hidden"><label for="fileOut" class="inline-flex items-center gap-2 px-6 py-3 bg-slate-100 hover:bg-slate-200 rounded-2xl cursor-pointer text-[11px] font-black text-slate-600 mb-6 border border-slate-200"><i class="fas fa-camera"></i> เลือกรูปงานเสร็จ</label><div id="preOut" class="flex flex-wrap gap-2 mb-8 justify-center"></div><div class="flex gap-4"><button onclick="closeM('compModal')" class="flex-1 py-4 bg-slate-100 rounded-2xl text-xs font-black text-slate-400 uppercase">ยกเลิก</button><button onclick="window.completeJobAction()" id="cpBtn" class="flex-[2] py-4 bg-emerald-600 text-white rounded-2xl text-xs font-black shadow-lg">ปิดงาน</button></div></div></div>
-
-    <div id="delModal" class="modal"><div class="modal-content text-center p-8"><div class="w-16 h-16 md:w-20 md:h-20 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl md:text-3xl"><i class="fas fa-trash-alt"></i></div><h2 class="text-xl md:text-2xl font-extrabold mb-2 uppercase">ลบรายการ?</h2><div class="flex gap-4"><button onclick="closeM('delModal')" class="flex-1 py-4 bg-slate-100 rounded-2xl text-xs font-black text-slate-500 uppercase">ยกเลิก</button><button onclick="confirmDel()" id="delBtn" class="flex-1 py-4 bg-rose-600 text-white rounded-2xl text-xs font-black shadow-lg">ลบ</button></div></div></div>
-
+    <!-- MODALS -->
+    <div id="editModal" class="modal"><div class="modal-content"><h2 class="text-xl md:text-2xl font-black text-slate-800 mb-6 italic flex items-center gap-2 uppercase"><i class="fas fa-edit text-indigo-500"></i> Edit Job</h2><div class="space-y-4"><input type="hidden" id="edId"><input type="text" id="edTask" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-sm font-semibold" placeholder="อาการเสีย"><div class="grid grid-cols-2 gap-4"><input type="date" id="edStart" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-sm font-black"><input type="date" id="edEnd" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-sm font-black text-rose-500"></div><select id="edPriority" class="w-full p-4 bg-slate-50 rounded-2xl text-sm font-black"><option value="low">🟢 งานทั่วไป</option><option value="medium">🟡 เร่งด่วน</option><option value="high">🔴 ด่วนที่สุด</option></select><div class="py-1"><input type="file" id="fileEd" multiple accept="image/*" onchange="window.handleImg(this, 'preEd', 'ed')" class="hidden"><label for="fileEd" class="flex items-center gap-2 mt-1 w-fit px-4 py-2 bg-slate-100 rounded-xl cursor-pointer text-[10px] font-bold text-slate-600"><i class="fas fa-image"></i> เลือกรูปใหม่</label><div id="preEd" class="flex gap-2 mt-2 overflow-x-auto"></div></div><textarea id="edReason" rows="2" placeholder="ระบุเหตุผล..." class="w-full p-4 bg-slate-50 border-none rounded-2xl text-sm italic font-medium"></textarea><div class="flex gap-3 pt-4"><button onclick="window.closeM('editModal')" class="flex-1 py-4 text-slate-400 font-bold text-xs uppercase">ยกเลิก</button><button onclick="window.completeUpdate()" id="upBtn" class="flex-[2] bg-slate-900 text-white py-4 rounded-2xl font-black text-xs shadow-xl transition-all">อัปเดต</button></div></div></div></div>
+    <div id="compModal" class="modal"><div class="modal-content text-center"><div class="w-16 h-16 md:w-20 md:h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl shadow-inner animate-bounce"><i class="fas fa-check-double"></i></div><h2 class="text-xl md:text-2xl font-extrabold mb-1 uppercase">Job Finished</h2><input type="file" id="fileOut" multiple accept="image/*" onchange="window.handleImg(this, 'preOut', 'out')" class="hidden"><label for="fileOut" class="inline-flex items-center gap-2 px-6 py-3 bg-slate-100 hover:bg-slate-200 rounded-2xl cursor-pointer text-[11px] font-black text-slate-600 mb-6 border">เลือกรูปงานเสร็จ</label><div id="preOut" class="flex flex-wrap gap-2 mb-8 justify-center"></div><div class="flex gap-4"><button onclick="window.closeM('compModal')" class="flex-1 py-4 bg-slate-100 rounded-2xl text-xs font-black text-slate-400 uppercase">ยกเลิก</button><button onclick="window.completeJobAction()" id="cpBtn" class="flex-[2] py-4 bg-emerald-600 text-white rounded-2xl text-xs font-black shadow-lg">ปิดงาน</button></div></div></div>
+    <div id="delModal" class="modal"><div class="modal-content text-center p-8"><div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl md:text-3xl"><i class="fas fa-trash-alt"></i></div><h2 class="text-xl md:text-2xl font-extrabold mb-2 uppercase">ลบรายการ?</h2><div class="flex gap-4"><button onclick="window.closeM('delModal')" class="flex-1 py-4 bg-slate-100 rounded-2xl text-xs font-black text-slate-500 uppercase">ยกเลิก</button><button onclick="window.confirmDel()" id="delBtn" class="flex-1 py-4 bg-rose-600 text-white rounded-2xl text-xs font-black shadow-lg">ลบ</button></div></div></div>
     <div id="scannerModal" class="modal"><div class="modal-content text-center overflow-hidden !p-0"><div class="p-4 md:p-6"><h2 class="text-lg md:text-xl font-black mb-4 uppercase italic text-indigo-600"><i class="fas fa-qrcode"></i> QR SCANNER</h2><div id="reader"></div><button onclick="window.closeScanner()" class="w-full py-3 bg-slate-100 rounded-xl text-[11px] font-bold text-slate-500 uppercase mt-4">ปิดหน้าต่าง</button></div></div></div>
-
-    <!-- Detail Modal -->
-    <div id="detailModal" class="modal"><div class="modal-content !max-w-2xl overflow-y-auto max-h-[90vh]"><div class="flex justify-between items-center mb-6"><h2 id="detailTitle" class="text-xl md:text-2xl font-black text-slate-800 italic uppercase">Job Details</h2><button onclick="closeM('detailModal')" class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl text-slate-400"><i class="fas fa-times"></i></button></div><div id="detailBody" class="space-y-6"></div></div></div>
-
-    <!-- Category/Status/Asset Detail Modal -->
-    <div id="categoryModal" class="modal"><div class="modal-content !max-w-4xl overflow-hidden flex flex-col max-h-[85vh]"><div class="flex justify-between items-center mb-4 border-b pb-4"><div><h2 id="categoryTitle" class="text-xl md:text-2xl font-black text-slate-800 italic uppercase leading-none">Job List</h2><p id="categorySubtitle" class="text-[10px] font-bold text-slate-400 uppercase mt-2"></p></div><button onclick="closeM('categoryModal')" class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl text-slate-400"><i class="fas fa-times"></i></button></div><div id="categoryBody" class="overflow-y-auto pr-2 scrollbar-hide grid grid-cols-1 md:grid-cols-2 gap-4"></div></div></div>
+    <div id="detailModal" class="modal"><div class="modal-content !max-w-2xl"><div class="flex justify-between items-center mb-6"><h2 id="detailTitle" class="text-xl md:text-2xl font-black italic uppercase">Job Details</h2><button onclick="window.closeM('detailModal')" class="text-slate-400"><i class="fas fa-times"></i></button></div><div id="detailBody" class="space-y-6"></div></div></div>
+    <div id="categoryModal" class="modal"><div class="modal-content !max-w-4xl"><div class="flex justify-between items-center mb-4 border-b pb-4"><div><h2 id="categoryTitle" class="text-xl font-black italic uppercase">Job List</h2><p id="categorySubtitle" class="text-[10px] font-bold text-slate-400 uppercase mt-2"></p></div><button onclick="window.closeM('categoryModal')" class="text-slate-400"><i class="fas fa-times"></i></button></div><div id="categoryBody" class="flex flex-col gap-2"></div></div></div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyGAStB7T57jXPkahAsMQUP9BdyQPrj2f_xkEqidGsKK15rfJSOXUqO0RD98ND4l_d4-w/exec";
-        let tasks = [], masterAssets = [], curId = "", currentTab = "active", targetDelId = "", jobChart = null, html5QrCode = null, inImgs = [], outImgs = [], edImgs = [];
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx22bXXlnz7BWgvaxVLljL1Mzl_ADbjL-YlP2pdbupEsSPw2O_QE6nguzrJo6hGIM89Ow/exec";
+        const apiKey = ""; 
+        let tasks = [], masterAssets = [], curId = "", currentTab = "active", targetDelId = "", html5QrCode = null, inImgs = [], outImgs = [], edImgs = [];
+        let isViewOnly = (new URLSearchParams(window.location.search)).get('view') === 'true';
 
-        function formatThaiDate(s) { if (!s || s === "-" || s === "") return "-"; try { const d = new Date(s); return isNaN(d.getTime()) ? s : `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()+543}`; } catch(e) { return s; } }
-        function showToast(m) { const x = document.getElementById('toast'); if(x) { document.getElementById('toastMsg').innerText = m; x.classList.remove('hidden'); setTimeout(() => x.classList.add('hidden'), 3500); } }
-        
-        function closeM(id) { const el = document.getElementById(id); if(el) el.style.display = 'none'; }
+        // Pre-bind functions to window for global access
+        window.formatThaiDate = (s) => { if (!s || s === "-" || s === "") return "-"; try { const d = new Date(s); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()+543}`; } catch(e) { return s; } };
+        window.showToast = (m) => { const x = document.getElementById('toast'); if(x) { document.getElementById('toastMsg').innerText = m; x.classList.remove('hidden'); setTimeout(() => x.classList.add('hidden'), 3500); } };
+        window.closeM = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
+        window.handleImgError = (imgEl) => { if(imgEl && imgEl.parentElement) { imgEl.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-slate-100 rounded-lg"><i class="fas fa-image text-slate-300 text-[10px]"></i></div>'; } };
+        window.closeScanner = () => { if (html5QrCode && html5QrCode.isScanning) { html5QrCode.stop().then(() => { html5QrCode.clear(); window.closeM('scannerModal'); }).catch(() => window.closeM('scannerModal')); } else { window.closeM('scannerModal'); } };
 
-        window.closeScanner = () => {
-            if (html5QrCode && html5QrCode.isScanning) {
-                html5QrCode.stop().then(() => { html5QrCode.clear(); closeM('scannerModal'); }).catch(err => { closeM('scannerModal'); });
-            } else { closeM('scannerModal'); }
-        };
-
-        window.handleImgError = (imgEl) => { if(imgEl && imgEl.parentElement) imgEl.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-slate-100 rounded-xl"><i class="fas fa-image text-slate-300 text-lg"></i></div>'; };
-
-        async function fetchData() { 
-            try { 
-                const res = await fetch(SCRIPT_URL + "?t=" + new Date().getTime()); 
-                const data = await res.json(); 
-                tasks = data.tasks || []; masterAssets = data.assets || []; 
-                const al = document.getElementById('assetList'); if(al) al.innerHTML = masterAssets.map(a => `<option value="${a.fullText}">`).join('');
-                updateFilters(); render(); 
-            } catch (e) { showToast("โหลดข้อมูลล้มเหลว"); } 
-        }
-
-        window.completeUpdate = async () => { 
-            const btn = document.getElementById('upBtn'); if(!btn) return; btn.disabled = true;
-            const payload = { action: "update", id: document.getElementById('edId').value, task: document.getElementById('edTask').value, startDate: document.getElementById('edStart').value, deadline: document.getElementById('edEnd').value, priority: document.getElementById('edPriority').value, reason: document.getElementById('edReason').value };
-            try { 
-                const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) }); 
-                const result = await res.json(); if(result.status === "success") { showToast("อัปเดตสำเร็จ!"); closeM('editModal'); fetchData(); } else { throw new Error(); }
-            } catch (e) { showToast("อัปเดตล้มเหลว"); } finally { btn.disabled = false; } 
-        };
-
-        window.completeJobAction = async () => { 
-            const btn = document.getElementById('cpBtn'); if(!btn) return; btn.disabled = true;
-            try { 
-                const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "complete", id: curId, images: outImgs }) }); 
-                const result = await res.json(); if(result.status === "success") { showToast("ปิดงานสำเร็จ!"); closeM('compModal'); fetchData(); } else { throw new Error(); }
-            } catch (e) { showToast("ล้มเหลว"); } finally { btn.disabled = false; } 
+        window.resetForm = () => {
+            const inputs = ['taskInput', 'reasonInput', 'assetInput', 'otherJobTypeInput', 'otherAssetInput', 'otherDeptInput', 'startInput', 'endInput'];
+            inputs.forEach(id => { const el = document.getElementById(id); if(el) el.value = ""; });
+            document.getElementById('typeInput').selectedIndex = 0;
+            document.getElementById('priorityInput').value = "medium";
+            document.getElementById('deptInput').selectedIndex = 0;
+            document.getElementById('preIn').innerHTML = "";
+            inImgs = [];
+            window.toggleJobTypeOther(""); window.toggleOtherAsset(""); window.toggleDeptOther("");
+            window.showToast("🧹 ล้างข้อมูลฟอร์มแล้ว");
         };
 
         window.switchTab = mode => { 
             currentTab = mode; 
             document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active', 'text-indigo-600', 'font-bold'); b.classList.add('text-slate-400'); });
-            const tabBtn = document.getElementById('tab' + mode.charAt(0).toUpperCase() + mode.slice(1)); if(tabBtn) tabBtn.classList.add('active');
+            const activeBtn = document.getElementById('tab' + mode.charAt(0).toUpperCase() + mode.slice(1));
+            if(activeBtn) activeBtn.classList.add('active');
             ['activeSection', 'dashboardSection', 'historySection', 'filterWrapper'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
-            document.getElementById(mode + 'Section')?.classList.remove('hidden');
-            if(mode !== 'dashboard' && document.getElementById('filterWrapper')) document.getElementById('filterWrapper').classList.remove('hidden');
-            render(); 
+            document.getElementById(mode + 'Section')?.classList.remove('hidden'); 
+            if(mode !== 'dashboard') document.getElementById('filterWrapper').classList.remove('hidden');
+            window.render(); 
         };
 
-        const makeItem = (t) => {
-            const today = new Date().toLocaleDateString('en-CA'); 
-            const isDone = t.status === 'completed';
-            const isOver = !isDone && t.deadline < today;
-            const p = String(t.priority || "medium").toLowerCase(); 
-            const prioClass = p === 'high' ? 'priority-high' : p === 'medium' ? 'priority-medium' : 'priority-low';
-            const prioEmoji = p === 'high' ? '🔴' : p === 'medium' ? '🟡' : '🟢'; 
-            
-            const rawImgs = (t.imageUrl ? String(t.imageUrl).split(',') : []).concat(t.finishImageUrl ? String(t.finishImageUrl).split(',') : []).map(u => u.trim()).filter(u => u && u.startsWith('http'));
-            const imgsHtml = rawImgs.map(u => `<div class="shrink-0 w-8 h-8 rounded border overflow-hidden shadow-sm cursor-pointer" onclick="window.open('${u}')"><img src="${u}" class="w-full h-full object-cover" onerror="handleImgError(this)"></div>`).join('');
-
-            if (isDone) {
-                return `<div class="premium-card p-5 border-l-8 border-emerald-500 cursor-pointer animate-fadeIn h-fit" onclick="openDetail('${t.id}')">
-                    <div class="flex justify-between items-start mb-3"><div><span class="status-pill bg-emerald-50 text-emerald-700">COMPLETED</span></div><span class="text-[9px] font-black text-slate-400 uppercase">Done: ${formatThaiDate(t.deadline)}</span></div>
-                    <h3 class="text-sm md:text-lg font-extrabold text-slate-800 leading-tight mb-2 italic">${prioEmoji} ${t.task}</h3>
-                    <p class="text-[10px] font-black text-indigo-600 uppercase mb-3">${t.asset}</p>
-                    <div class="flex gap-2 pb-2 overflow-hidden">${imgsHtml}</div>
-                    <div class="mt-3 pt-3 border-t flex justify-between items-center"><span class="text-[9px] font-bold text-slate-400 uppercase italic underline text-indigo-500">View Detail</span><button onclick="window.openDel('${t.id}'); event.stopPropagation();" class="text-slate-300 hover:text-rose-500 transition-colors p-1"><i class="fas fa-trash-alt text-[11px]"></i></button></div>
-                </div>`;
+        window.runAIScan = async (input) => {
+            if (!input.files || !input.files[0]) return;
+            const label = document.getElementById('aiBtn');
+            const originalText = label.innerHTML;
+            label.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Reading...';
+            label.classList.add('ai-loading');
+            try {
+                const file = input.files[0];
+                const mimeType = file.type || "image/jpeg";
+                const base64Data = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result.split(',')[1]);
+                    reader.readAsDataURL(file);
+                });
+                
+                const systemPrompt = "Extract maintenance details from the image and return ONLY strictly valid JSON. Format: { \"task\": \"อาการเสีย\", \"type\": \"Repair Mold, Spare part Mold, Modify Mold, Repair machine\", \"asset\": \"รหัสโมล\", \"vendor\": \"ผู้รับผิดชอบ\", \"startDate\": \"YYYY-MM-DD\", \"deadline\": \"YYYY-MM-DD\" }";
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                
+                let success = false;
+                let result;
+                const delays = [1000, 2000, 4000, 8000, 16000];
+                
+                for (let i = 0; i <= delays.length; i++) {
+                    try {
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                contents: [{ role: "user", parts: [{ text: "Extract details and output JSON." }, { inlineData: { mimeType: mimeType, data: base64Data } }] }],
+                                systemInstruction: { parts: [{ text: systemPrompt }] },
+                                generationConfig: { responseMimeType: "application/json" }
+                            })
+                        });
+                        
+                        if (response.ok) {
+                            result = await response.json();
+                            success = true;
+                            break;
+                        } else {
+                            if (i === delays.length) {
+                                const errRes = await response.json().catch(()=>({}));
+                                throw new Error(errRes.error?.message || `API Error ${response.status}`);
+                            }
+                        }
+                    } catch (err) {
+                        if (i === delays.length) throw err;
+                    }
+                    if (i < delays.length) await new Promise(r => setTimeout(r, delays[i]));
+                }
+                
+                let text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!text) throw new Error("No text response");
+                
+                text = text.replace(/```json/ig, '').replace(/```/g, '').trim();
+                const startIdx = text.indexOf('{');
+                const endIdx = text.lastIndexOf('}');
+                if (startIdx !== -1 && endIdx !== -1) text = text.substring(startIdx, endIdx + 1);
+                
+                const data = JSON.parse(text);
+                
+                if(data.task) document.getElementById('taskInput').value = data.task;
+                if(data.type) { document.getElementById('typeInput').value = data.type; window.toggleJobTypeOther(data.type); }
+                if(data.asset) document.getElementById('assetInput').value = data.asset;
+                if(data.vendor) { document.getElementById('deptInput').value = data.vendor; window.toggleDeptOther(data.vendor); }
+                if(data.startDate) document.getElementById('startInput').value = data.startDate;
+                if(data.deadline) document.getElementById('endInput').value = data.deadline;
+                window.showToast("🤖 AI กรอกข้อมูลสำเร็จ!");
+            } catch (e) { 
+                console.error("AI Error:", e);
+                window.showToast("❌ AI อ่านพลาด กรุณาลองใหม่"); 
+            } finally { 
+                label.innerHTML = originalText; 
+                label.classList.remove('ai-loading'); 
+                input.value = ""; 
             }
-
-            return `<div class="premium-card p-4 md:p-5 ${prioClass} flex flex-col h-full animate-fadeIn"><div class="flex-1 min-w-0"><div class="flex justify-between mb-2"><span class="status-pill bg-slate-100">${t.type}</span>${isOver?'<span class="status-pill bg-rose-600 text-white animate-pulse">LATE</span>':''}</div><h3 class="text-sm md:text-base font-extrabold text-slate-800 italic truncate" title="${t.task}">${prioEmoji} ${t.task}</h3><p class="text-[10px] md:text-xs font-black text-indigo-600 mb-3">${t.asset}</p><div class="mb-3 text-[8px] md:text-[9px] font-black text-slate-400 uppercase">S: ${formatThaiDate(t.startDate)} | D: ${formatThaiDate(t.deadline)}</div><div class="flex gap-2 pb-2 overflow-x-auto scrollbar-hide">${imgsHtml}</div></div><div class="flex justify-end gap-2 mt-3 pt-3 border-t"><button onclick="openDetail('${t.id}')" title="Detail" class="w-8 h-8 md:w-10 md:h-10 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-all"><i class="fas fa-eye text-slate-400 text-xs"></i></button><button onclick="window.openComp('${t.id}')" title="Complete" class="w-8 h-8 md:w-10 md:h-10 bg-emerald-500 text-white rounded-xl shadow-md flex items-center justify-center hover:bg-emerald-600 transition-all"><i class="fas fa-check text-xs"></i></button><button onclick="window.openEdit('${t.id}')" title="Edit" class="w-8 h-8 md:w-10 md:h-10 bg-slate-900 text-white rounded-xl shadow-md flex items-center justify-center hover:bg-black transition-all"><i class="fas fa-pen text-[10px]"></i></button><button onclick="window.openDel('${t.id}')" title="Delete" class="w-8 h-8 md:w-10 md:h-10 bg-white border text-slate-300 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all"><i class="fas fa-trash-alt text-[10px]"></i></button></div></div>`;
         };
 
-        function render() { 
-            const searchInput = document.getElementById('searchInput'); if(!searchInput) return;
-            const s = searchInput.value.toLowerCase(); 
-            const fm = document.getElementById('filterMonth')?.value || ""; 
-            const fa = document.getElementById('filterAsset')?.value || "";
-            const today = new Date().toLocaleDateString('en-CA');
-
-            const filterFunc = t => {
-                const matchSearch = (t.task||"").toLowerCase().includes(s) || (t.asset||"").toLowerCase().includes(s);
-                const matchMonth = !fm || (t.deadline && String(t.deadline).startsWith(fm));
-                const matchAsset = !fa || t.asset === fa;
-                return matchSearch && matchMonth && matchAsset;
-            };
-
-            if(currentTab === 'dashboard') {
-                const pend = tasks.filter(t => t.status === 'pending');
-                const comp = tasks.filter(t => t.status === 'completed');
-                const over = tasks.filter(t => t.status === 'pending' && t.deadline < today);
-                const dashTotal = document.getElementById('dashTotal'); if(dashTotal) dashTotal.innerText = tasks.length;
-                const dashPending = document.getElementById('dashPending'); if(dashPending) dashPending.innerText = pend.length;
-                const dashSuccessRate = document.getElementById('dashSuccessRate'); if(dashSuccessRate) dashSuccessRate.innerText = comp.length;
-                const dashOverdue = document.getElementById('dashOverdue'); if(dashOverdue) dashOverdue.innerText = over.length;
-                updateDashboardInsights(tasks);
-            }
-            if(currentTab === 'active') {
-                let activeTasks = tasks.filter(t => t.status === 'pending' && filterFunc(t));
-                activeTasks.sort((a, b) => (a.deadline || '9999') > (b.deadline || '9999') ? 1 : -1);
-                const la = document.getElementById('listActive');
-                if(la) la.innerHTML = activeTasks.map(t => makeItem(t)).join('') || '<p class="col-span-full text-center py-20 text-slate-300 font-bold uppercase text-xs">No active jobs found</p>';
-            }
-            if(currentTab === 'history') {
-                const lh = document.getElementById('listHistory');
-                if(lh) lh.innerHTML = tasks.filter(t => t.status === 'completed' && filterFunc(t)).reverse().map(t => makeItem(t)).join('') || '<p class="col-span-full text-center py-20 text-slate-300 font-bold uppercase text-xs">No records found</p>';
-            }
-        }
-
-        function updateDashboardInsights(data) {
-            // Category Cards
-            const types = {}; data.forEach(t => { types[t.type] = (types[t.type] || 0) + 1; });
-            const catGrid = document.getElementById('jobCategoryGrid');
-            if(catGrid) {
-                catGrid.innerHTML = Object.entries(types).map(([name, count]) => {
-                    return `<div class="premium-card p-5 cursor-pointer category-card hover:bg-indigo-50 border-b-4 border-indigo-200 transition-all flex flex-col items-center justify-center text-center shadow-sm" onclick="showJobTypeDetails('${name}')"><div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-3"><i class="fas fa-tools text-xs"></i></div><h4 class="text-[11px] font-black text-slate-800 uppercase leading-tight mb-1">${name}</h4><p class="text-xl font-black text-indigo-600">${count}</p><span class="text-[8px] font-bold text-slate-400 uppercase mt-1">Jobs</span></div>`;
-                }).join('') || '<p class="col-span-full text-center py-10 text-slate-300 font-bold uppercase text-xs">No Categories</p>';
-            }
-
-            // Top Problematic Assets (Now Clickable)
-            const assetCounts = {}; data.forEach(t => { if (t.asset) assetCounts[t.asset] = (assetCounts[t.asset] || 0) + 1; });
-            const topAssets = Object.entries(assetCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
-            const tal = document.getElementById('topAssetsList');
-            if(tal) {
-                tal.innerHTML = topAssets.map(([name, count], i) => `
-                    <div onclick="showAssetDetails('${name}')" class="flex items-center justify-between p-3 bg-slate-50 rounded-xl cursor-pointer problematic-row border border-transparent transition-all">
-                        <div class="flex items-center gap-3">
-                            <span class="w-6 h-6 flex items-center justify-center bg-white text-[10px] font-black rounded-lg shadow-sm border">${i+1}</span>
-                            <span class="text-[11px] font-bold text-slate-700 truncate max-w-[120px]">${name}</span>
-                        </div>
-                        <span class="text-[9px] font-black px-2 py-1 bg-indigo-100 text-indigo-600 rounded-lg">${count} ซ่อม</span>
-                    </div>
-                `).join('') || '<p class="text-center py-4 text-slate-300 text-xs font-bold">No Data</p>';
-            }
-            
-            // Avg Lead Time
-            const completed = data.filter(t => t.status === 'completed' && t.startDate && t.deadline);
-            let totalDays = 0; completed.forEach(t => { const diff = Math.ceil((new Date(t.deadline) - new Date(t.startDate)) / (1000 * 60 * 60 * 24)); if (diff >= 0) totalDays += diff; });
-            const alt = document.getElementById('avgLeadTime'); if(alt) alt.innerText = completed.length ? (totalDays / completed.length).toFixed(1) : "0.0";
-        }
-
-        function buildSplitList(filtered) {
-            const pending = filtered.filter(t => t.status === 'pending');
-            const completed = filtered.filter(t => t.status === 'completed');
-            let html = "";
-            if (pending.length > 0) {
-                html += `<div class="col-span-full font-black text-indigo-600 border-b-2 border-indigo-100 pb-2 mt-2 uppercase text-[11px] flex items-center gap-2"><i class="fas fa-spinner fa-spin text-[10px]"></i> งานที่กำลังทำ (${pending.length})</div>`;
-                html += pending.map(t => makeItem(t)).join('');
-            }
-            if (completed.length > 0) {
-                html += `<div class="col-span-full font-black text-emerald-600 border-b-2 border-emerald-100 pb-2 mt-6 uppercase text-[11px] flex items-center gap-2"><i class="fas fa-check-circle text-[10px]"></i> งานที่เสร็จแล้ว (${completed.length})</div>`;
-                html += completed.map(t => makeItem(t)).join('');
-            }
-            return html || '<p class="col-span-full text-center py-10 text-slate-300 font-bold uppercase text-xs">No Records</p>';
-        }
-
-        window.showAssetDetails = (assetName) => {
-            const filtered = tasks.filter(t => t.asset === assetName);
-            const ct = document.getElementById('categoryTitle'); 
-            const cs = document.getElementById('categorySubtitle'); 
-            const cb = document.getElementById('categoryBody');
-            if(ct) ct.innerText = assetName;
-            if(cs) cs.innerText = `ประวัติงานซ่อมบำรุงทั้งหมดของโมล/เครื่องนี้ (${filtered.length} รายการ)`;
-            if(cb) cb.innerHTML = buildSplitList(filtered);
-            const cm = document.getElementById('categoryModal');
-            if(cm) cm.style.display = 'block';
+        window.fetchData = async () => { 
+            try { 
+                const res = await fetch(SCRIPT_URL + "?t=" + new Date().getTime()); const data = await res.json(); 
+                tasks = data.tasks || []; masterAssets = data.assets || []; 
+                const al = document.getElementById('assetList'); if(al) al.innerHTML = masterAssets.map(a => `<option value="${a.fullText}">`).join('');
+                window.updateFilters(); window.render(); 
+            } catch (e) { window.showToast("โหลดข้อมูลล้มเหลว"); } 
         };
 
-        window.showStatusDetails = (type) => {
-            let filtered = []; let title = ""; const today = new Date().toLocaleDateString('en-CA');
-            if (type === 'all') { filtered = tasks; title = "งานทั้งหมด"; } 
-            else if (type === 'pending') { filtered = tasks.filter(t => t.status === 'pending'); title = "งานรอดำเนินการ"; } 
-            else if (type === 'completed') { filtered = tasks.filter(t => t.status === 'completed'); title = "งานเสร็จสิ้น"; } 
-            else if (type === 'overdue') { filtered = tasks.filter(t => t.status === 'pending' && t.deadline < today); title = "งานเกินกำหนด"; }
-            const ct = document.getElementById('categoryTitle'); const cs = document.getElementById('categorySubtitle'); const cb = document.getElementById('categoryBody');
-            if(ct) ct.innerText = title; if(cs) cs.innerText = `พบทั้งหมด ${filtered.length} รายการ`;
-            if(cb) cb.innerHTML = buildSplitList(filtered);
-            const cm = document.getElementById('categoryModal'); if(cm) cm.style.display = 'block';
+        window.save = async () => { 
+            const tIn = document.getElementById('taskInput')?.value; const sIn = document.getElementById('startInput')?.value; const eIn = document.getElementById('endInput')?.value;
+            if(!tIn || !sIn || !eIn) return alert("ข้อมูลไม่ครบถ้วน"); 
+            const btn = document.getElementById('saveBtn'); btn.disabled = true; document.getElementById('saveLd').style.display = 'block';
+            let fT = document.getElementById('typeInput').value; if(fT === "Other") fT = document.getElementById('otherJobTypeInput').value;
+            let fA = document.getElementById('assetInput').value; if(fA === "อื่นๆ (ระบุเอง)") fA = document.getElementById('otherAssetInput').value;
+            let dept = document.getElementById('deptInput').value; if(dept === "Other") dept = document.getElementById('otherDeptInput').value;
+            try { 
+                const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "add", task: tIn, type: fT, asset: fA, startDate: sIn, deadline: eIn, images: inImgs, vendor: dept, priority: document.getElementById('priorityInput')?.value, reason: document.getElementById('reasonInput')?.value }) }); 
+                const result = await res.json();
+                if(result.status === "success") { window.showToast("✅ บันทึกสำเร็จ!"); window.resetForm(); window.fetchData(); const openPanel = document.querySelector('details[open]'); if(openPanel) openPanel.removeAttribute('open'); } else { throw new Error(); }
+            } catch(ex) { window.showToast("❌ บันทึกล้มเหลว"); } finally { btn.disabled = false; document.getElementById('saveLd').style.display = 'none'; }
         };
 
-        window.showJobTypeDetails = (typeLabel) => {
-            const filtered = tasks.filter(t => t.type === typeLabel);
-            const ct = document.getElementById('categoryTitle'); const cs = document.getElementById('categorySubtitle'); const cb = document.getElementById('categoryBody');
-            if(ct) ct.innerText = typeLabel; if(cs) cs.innerText = `จัดกลุ่มแยกสถานะสำหรับประเภท ${typeLabel}`;
-            if(cb) cb.innerHTML = buildSplitList(filtered);
-            const cm = document.getElementById('categoryModal'); if(cm) cm.style.display = 'block';
+        window.handleImg = async (input, preId, type) => {
+            const pre = document.getElementById(preId); if(!pre) return; pre.innerHTML = '...'; let target = (type === 'in') ? inImgs : (type === 'out') ? outImgs : edImgs; target.length = 0;
+            if (input.files) { 
+                for (let f of Array.from(input.files)) { 
+                    const r = new FileReader(); r.readAsDataURL(f); r.onload = (e) => { 
+                        const img = new Image(); img.src = e.target.result; img.onload = () => {
+                            const can = document.createElement('canvas'); const ctx = can.getContext('2d'); let w = img.width, h = img.height, MAX = 1200;
+                            if(w > MAX || h > MAX) { if (w > h) { h = (MAX/w)*h; w = MAX; } else { w = (MAX/h)*w; h = MAX; } }
+                            can.width = w; can.height = h; ctx.drawImage(img, 0, 0, w, h); const b64 = can.toDataURL('image/jpeg', 0.8);
+                            target.push(b64); if(pre.innerText === '...') pre.innerHTML = ''; pre.innerHTML += `<img src="${b64}" class="w-7 h-7 object-cover rounded border">`;
+                        };
+                    };
+                } 
+            }
         };
+
+        window.confirmDel = async () => { const btn = document.getElementById('delBtn'); btn.disabled = true; try { await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", id: targetDelId }) }); window.showToast("ลบสำเร็จ"); window.fetchData(); window.closeM('delModal'); } catch (e) { window.showToast("ลบไม่สำเร็จ"); } finally { btn.disabled = false; } };
+        window.toggleJobTypeOther = (v) => { document.getElementById('otherJobTypeWrapper')?.classList.toggle('hidden', v !== "Other"); };
+        window.toggleOtherAsset = (v) => { document.getElementById('otherAssetWrapper')?.classList.toggle('hidden', v !== "อื่นๆ (ระบุเอง)"); };
+        window.toggleDeptOther = (v) => { document.getElementById('otherDeptWrapper')?.classList.toggle('hidden', v !== "Other"); };
+        window.openScanner = (inputId) => { const sm = document.getElementById('scannerModal'); if(sm) sm.style.display = 'block'; if (!html5QrCode) html5QrCode = new Html5Qrcode("reader"); html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (decodedText) => { document.getElementById(inputId).value = decodedText; window.showToast("สแกนสำเร็จ"); window.closeScanner(); }).catch(err => { window.showToast("กล้องขัดข้อง"); window.closeScanner(); }); };
 
         window.openDetail = (id) => {
             const t = tasks.find(x => x.id === id); if (!t) return;
             const rawImgs = (t.imageUrl ? String(t.imageUrl).split(',') : []).concat(t.finishImageUrl ? String(t.finishImageUrl).split(',') : []).map(u => u.trim()).filter(u => u && u.startsWith('http'));
-            const p = String(t.priority || "medium").toLowerCase(); const prioEmoji = p === 'high' ? '🔴' : p === 'medium' ? '🟡' : '🟢';
-            const dt = document.getElementById('detailTitle'); const db = document.getElementById('detailBody');
-            if(dt) dt.innerText = t.asset || 'Job Detail';
-            if(db) db.innerHTML = `<div class="space-y-6"><div><span class="status-pill bg-indigo-100 text-indigo-600">${t.type}</span><h4 class="text-lg md:text-xl font-bold mt-2 italic">${prioEmoji} ${t.task}</h4></div><div class="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-2xl"><div><p class="text-[9px] text-slate-400 uppercase">Start Date</p><p class="text-xs md:text-sm font-bold">${formatThaiDate(t.startDate)}</p></div><div><p class="text-[9px] text-slate-400 uppercase">Deadline</p><p class="text-xs md:text-sm font-bold">${formatThaiDate(t.deadline)}</p></div></div><p class="text-xs text-slate-600 italic leading-relaxed"><b>Note:</b> ${t.reason || '-'}</p><div><p class="text-[10px] font-black text-slate-400 uppercase mb-3">Photos (${rawImgs.length})</p><div class="grid grid-cols-3 gap-2">${rawImgs.map(u => `<img src="${u}" class="w-full aspect-square object-cover rounded-xl border-2 border-white shadow-sm cursor-pointer" onclick="window.open('${u}')" onerror="handleImgError(this)">`).join('')}</div></div></div>`;
-            const dm = document.getElementById('detailModal'); if(dm) dm.style.display = 'block';
+            const p = String(t.priority || "medium").toLowerCase(); const prioEmoji = t.status === 'completed' ? '✅' : (p === 'high' ? '🔴' : p === 'medium' ? '🟡' : '🟢');
+            const db = document.getElementById('detailBody');
+            db.innerHTML = `<div class="space-y-6"><div><span class="status-pill ${t.status === 'completed' ? 'bg-slate-100 text-slate-600' : 'bg-indigo-100 text-indigo-600'}">${t.type}</span><h4 class="text-lg md:text-xl font-bold mt-2 italic">${prioEmoji} ${t.task}</h4></div><div class="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-2xl"><div><p class="text-[9px] text-slate-400 uppercase">Start Date</p><p class="text-xs font-bold">${window.formatThaiDate(t.startDate)}</p></div><div><p class="text-[9px] text-slate-400 uppercase">Deadline</p><p class="text-xs font-bold">${window.formatThaiDate(t.deadline)}</p></div></div><p class="text-xs text-slate-600 italic leading-relaxed"><b>Note:</b> ${t.reason || '-'}</p><div><p class="text-[10px] font-black text-slate-400 uppercase mb-3">Photos (${rawImgs.length})</p><div class="grid grid-cols-2 gap-4">${rawImgs.map(u => `<a href="${u}" target="_blank" class="block w-full"><img src="${u}" class="w-full aspect-square rounded-xl border border-slate-200 cursor-pointer hover:opacity-80 transition-opacity" onerror="window.handleImgError(this)"></a>`).join('')}</div></div></div>`;
+            document.getElementById('detailModal').style.display = 'block';
         };
 
         window.openEdit = id => { 
@@ -436,53 +370,79 @@
             if (t.startDate) document.getElementById('edStart').value = new Date(t.startDate).toISOString().split('T')[0];
             if (t.deadline) document.getElementById('edEnd').value = new Date(t.deadline).toISOString().split('T')[0];
             document.getElementById('edPriority').value = String(t.priority || 'medium').toLowerCase(); 
-            document.getElementById('edReason').value = t.reason || ""; 
-            const pe = document.getElementById('preEd'); if(pe) pe.innerHTML = '';
+            document.getElementById('edReason').value = t.reason || ""; edImgs = []; document.getElementById('preEd').innerHTML = '';
             document.getElementById('editModal').style.display = 'block'; 
         };
 
-        window.openComp = id => { curId = id; outImgs = []; const po = document.getElementById('preOut'); if(po) po.innerHTML = ''; document.getElementById('compModal').style.display = 'block'; };
-
-        window.save = async () => { 
-            const taskVal = document.getElementById('taskInput')?.value;
-            const startVal = document.getElementById('startInput')?.value;
-            const endVal = document.getElementById('endInput')?.value;
-            if(!taskVal || !startVal || !endVal) return alert("กรุณาระบุข้อมูลให้ครบถ้วน"); 
-            const btn = document.getElementById('saveBtn'); btn.disabled = true; document.getElementById('saveLd').style.display = 'block';
-            try { await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "add", task: taskVal, type: document.getElementById('typeInput').value, asset: document.getElementById('assetInput').value, startDate: startVal, deadline: endVal, images: inImgs, vendor: document.getElementById('deptInput').value, priority: document.getElementById('priorityInput')?.value, reason: document.getElementById('reasonInput')?.value }) }); location.reload(); } catch(ex) { showToast("ล้มเหลว"); btn.disabled = false; document.getElementById('saveLd').style.display = 'none'; } 
-        };
-
-        async function handleImg(input, preId, type) {
-            const pre = document.getElementById(preId); if(!pre) return; pre.innerHTML = '';
-            let target = (type === 'in') ? inImgs : (type === 'out') ? outImgs : edImgs; target.length = 0;
-            if (input.files) { for (let f of Array.from(input.files)) { const r = new FileReader(); r.readAsDataURL(f); r.onload = (e) => { target.push(e.target.result); pre.innerHTML += `<img src="${e.target.result}" class="w-8 h-8 object-cover rounded">`; }; } }
-        }
-
+        window.openComp = id => { curId = id; outImgs = []; document.getElementById('preOut').innerHTML = ''; document.getElementById('compModal').style.display = 'block'; };
         window.openDel = id => { targetDelId = id; document.getElementById('delModal').style.display = 'block'; };
-        window.confirmDel = async () => { const btn = document.getElementById('delBtn'); if(!btn) return; btn.disabled = true; try { await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", id: targetDelId }) }); showToast("ลบสำเร็จ"); fetchData(); closeM('delModal'); } catch (e) { showToast("ลบไม่สำเร็จ"); } finally { btn.disabled = false; targetDelId = ""; } };
-        window.toggleJobTypeOther = (v) => { document.getElementById('otherJobTypeWrapper')?.classList.toggle('hidden', v !== "Other"); };
-        window.toggleOtherAsset = (v) => { document.getElementById('otherAssetWrapper')?.classList.toggle('hidden', v !== "อื่นๆ (ระบุเอง)"); };
-        window.toggleDeptOther = (v) => { document.getElementById('otherDeptWrapper')?.classList.toggle('hidden', v !== "Other"); };
         
-        window.openScanner = (inputId) => { 
-            const sm = document.getElementById('scannerModal'); if(sm) sm.style.display = 'block'; 
-            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader"); 
-            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (decodedText) => { 
-                document.getElementById(inputId).value = decodedText; 
-                showToast("สแกนสำเร็จ"); window.closeScanner(); 
-            }).catch(err => { showToast("กล้องขัดข้อง"); window.closeScanner(); }); 
+        window.completeUpdate = async () => { 
+            const btn = document.getElementById('upBtn'); btn.disabled = true;
+            const payload = { action: "update", id: document.getElementById('edId').value, task: document.getElementById('edTask').value, startDate: document.getElementById('edStart').value, deadline: document.getElementById('edEnd').value, priority: document.getElementById('edPriority').value, reason: document.getElementById('edReason').value, images: edImgs };
+            try { await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) }); window.showToast("อัปเดตสำเร็จ!"); window.closeM('editModal'); window.fetchData(); } catch (e) { window.showToast("อัปเดตล้มเหลว"); } finally { btn.disabled = false; } 
         };
 
-        function updateFilters() { 
-            const fA = document.getElementById('filterAsset'); const fM = document.getElementById('filterMonth'); 
-            if(!fA || !fM) return; 
-            const molds = [...new Set(tasks.map(t => t.asset))].sort(); fA.innerHTML = '<option value="">ทั้งหมด</option>' + molds.map(a => `<option value="${a}">${a}</option>`).join(''); 
-            const mons = [...new Set(tasks.filter(t => t.deadline).map(t => String(t.deadline).substring(0, 7)))].filter(m => m && m != "-").sort().reverse(); fM.innerHTML = '<option value="">ทั้งหมด</option>' + mons.map(m => `<option value="${m}">${m}</option>`).join(''); 
+        window.completeJobAction = async () => { 
+            const btn = document.getElementById('cpBtn'); btn.disabled = true;
+            try { await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "complete", id: curId, images: outImgs }) }); window.showToast("ปิดงานสำเร็จ!"); window.closeM('compModal'); window.fetchData(); } catch (e) { window.showToast("ล้มเหลว"); } finally { btn.disabled = false; } 
+        };
+
+        window.makeItem = (t, index) => {
+            const today = new Date().toLocaleDateString('en-CA'); const isDone = t.status === 'completed'; const isOver = !isDone && t.deadline < today;
+            const p = String(t.priority || "medium").toLowerCase(); 
+            const prioColorClass = isDone ? 'prio-done-bg' : (p === 'high' ? 'prio-high-bg' : p === 'medium' ? 'prio-medium-bg' : 'prio-low-bg');
+            const rawImgs = (t.imageUrl ? String(t.imageUrl).split(',') : []).concat(t.finishImageUrl ? String(t.finishImageUrl).split(',') : []).map(u => u.trim()).filter(u => u && u.startsWith('http'));
+            return `<div class="table-row-item shadow-sm" onclick="window.openDetail('${t.id}')"><div class="row-num">${index + 1}</div><div class="priority-indicator ${prioColorClass}"></div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-0.5"><h3 class="text-sm font-extrabold truncate italic text-slate-800">${t.task}</h3>${isOver ? '<span class="status-pill bg-rose-600 text-white animate-pulse">LATE</span>' : ''}</div><div class="flex items-center gap-3"><span class="text-[10px] font-black text-indigo-600 uppercase truncate max-w-[150px]">${t.asset}</span><span class="text-[9px] font-bold text-slate-400 uppercase">D: ${window.formatThaiDate(t.deadline)}</span></div></div><div class="hidden md:flex gap-1">${rawImgs.slice(0, 3).map(u => `<div class="shrink-0 w-6 h-6 rounded overflow-hidden border border-slate-100"><img src="${u}" class="w-full h-full object-cover"></div>`).join('')}</div><div class="flex items-center gap-1 action-only" onclick="event.stopPropagation()"><button onclick="window.openDetail('${t.id}')" class="w-7 h-7 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400"><i class="fas fa-eye text-[10px]"></i></button>${!isDone ? `<button onclick="window.openComp('${t.id}')" class="w-7 h-7 bg-emerald-500 rounded-lg flex items-center justify-center text-white shadow-sm"><i class="fas fa-check text-[10px]"></i></button><button onclick="window.openEdit('${t.id}')" class="w-7 h-7 bg-slate-900 rounded-lg flex items-center justify-center text-white shadow-sm"><i class="fas fa-pen text-[10px]"></i></button>` : ''}<button onclick="window.openDel('${t.id}')" class="w-7 h-7 bg-white border rounded-lg flex items-center justify-center text-slate-300 hover:bg-danger hover:text-white transition-all"><i class="fas fa-trash-alt text-[10px]"></i></button></div></div>`;
+        };
+
+        window.render = () => { 
+            const s = document.getElementById('searchInput')?.value.toLowerCase() || ""; const fm = document.getElementById('filterMonth')?.value || ""; const fa = document.getElementById('filterAsset')?.value || ""; const today = new Date().toLocaleDateString('en-CA');
+            const filterFunc = t => { const matchSearch = (t.task||"").toLowerCase().includes(s) || (t.asset||"").toLowerCase().includes(s); const matchMonth = !fm || (t.deadline && String(t.deadline).startsWith(fm)); const matchAsset = !fa || t.asset === fa; return matchSearch && matchMonth && matchAsset; };
+            if(currentTab === 'dashboard') { 
+                const pend = tasks.filter(t => t.status === 'pending'); const comp = tasks.filter(t => t.status === 'completed'); const over = tasks.filter(t => t.status === 'pending' && t.deadline < today);
+                if(document.getElementById('dashTotal')) document.getElementById('dashTotal').innerText = tasks.length;
+                if(document.getElementById('dashPending')) document.getElementById('dashPending').innerText = pend.length;
+                if(document.getElementById('dashSuccessRate')) document.getElementById('dashSuccessRate').innerText = comp.length;
+                if(document.getElementById('dashOverdue')) document.getElementById('dashOverdue').innerText = over.length;
+                window.updateDashboardInsights(tasks); 
+            }
+            if(currentTab === 'active') { let activeTasks = tasks.filter(t => t.status === 'pending' && filterFunc(t)); activeTasks.sort((a, b) => (a.deadline || '9999') > (b.deadline || '9999') ? 1 : -1); const la = document.getElementById('listActive'); la.innerHTML = activeTasks.map((t, i) => window.makeItem(t, i)).join('') || '<p class="text-center py-20 text-slate-300 font-bold uppercase text-[10px]">No active jobs found</p>'; }
+            if(currentTab === 'history') { let historyTasks = tasks.filter(t => t.status === 'completed' && filterFunc(t)).reverse(); const lh = document.getElementById('listHistory'); if(lh) lh.innerHTML = historyTasks.map((t, i) => window.makeItem(t, i)).join('') || '<p class="text-center py-20 text-slate-300 font-bold uppercase text-[10px]">No records found</p>'; }
+        };
+
+        window.updateDashboardInsights = (data) => {
+            const types = {}; data.forEach(t => { if (!types[t.type]) types[t.type] = { total: 0, pending: 0, completed: 0 }; types[t.type].total++; if (t.status === 'completed') types[t.type].completed++; else types[t.type].pending++; });
+            const catGrid = document.getElementById('jobCategoryGrid'); if(catGrid) { catGrid.innerHTML = Object.entries(types).map(([name, stats]) => `<div class="premium-card p-4 cursor-pointer category-card hover:bg-indigo-50 border-b-4 border-indigo-200 transition-all flex flex-col items-center justify-center text-center shadow-sm" onclick="window.showJobTypeDetails('${name.replace(/'/g, "\\'")}')"><div class="w-9 h-9 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-2"><i class="fas fa-tools text-xs"></i></div><h4 class="text-[9px] font-black text-slate-800 uppercase leading-tight mb-2">${name}</h4><p class="text-lg font-black text-indigo-600 mb-1">${stats.total}</p><div class="flex justify-between w-full px-1 pt-2 border-t border-slate-50 gap-1"><div class="text-[7px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full">ค้าง: ${stats.pending}</div><div class="text-[7px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">เสร็จ: ${stats.completed}</div></div></div>`).join('') || '<p class="col-span-full text-center py-10 text-slate-300 font-bold uppercase text-xs">No Categories</p>'; }
+            const assetCounts = {}; data.forEach(t => { if (t.asset) assetCounts[t.asset] = (assetCounts[t.asset] || 0) + 1; });
+            const topAssets = Object.entries(assetCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            const tal = document.getElementById('topAssetsList'); 
+            if(tal) { 
+                tal.innerHTML = topAssets.map(([name, count], i) => `<div class="table-row-item !rounded-xl !p-2 !gap-2" onclick="window.showAssetDetails('${name.replace(/'/g, "\\'")}')"><div class="row-num !min-w-[1.2rem] !text-[0.7rem]">${i + 1}</div><div class="flex-1 min-w-0"><h4 class="text-[10px] font-extrabold truncate text-slate-700">${name}</h4></div><div class="status-pill bg-indigo-50 text-indigo-600 border border-indigo-100">${count} งาน</div></div>`).join('') || '<p class="text-center py-4 text-slate-300 text-[10px]">No Data</p>'; 
+            }
+            const completed = data.filter(t => t.status === 'completed' && t.startDate && t.deadline); let totalDays = 0; completed.forEach(t => { const diff = Math.ceil((new Date(t.deadline) - new Date(t.startDate)) / (1000 * 60 * 60 * 24)); if (diff >= 0) totalDays += diff; });
+            const alt = document.getElementById('avgLeadTime'); if(alt) alt.innerText = completed.length ? (totalDays / completed.length).toFixed(1) : "0.0";
         }
-        window.resetFilters = () => { if(document.getElementById('filterMonth')) document.getElementById('filterMonth').value = ""; if(document.getElementById('filterAsset')) document.getElementById('filterAsset').value = ""; render(); };
-        function exportToCSV() { if(tasks.length === 0) return showToast("ไม่มีข้อมูล"); let csv = "\uFEFFID,Task,Asset,Type,StartDate,Deadline,Status,Technician,Priority,Reason\n"; tasks.forEach(t => { csv += `"${t.id}","${t.task}","${t.asset}","${t.type}","${t.startDate}","${t.deadline}","${t.status}","${t.vendor}","${t.priority || 'medium'}","${t.reason || ''}"\n`; }); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.setAttribute("download", `repair_report_${new Date().toLocaleDateString()}.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link); showToast("ส่งออกสำเร็จ"); }
-        window.onload = () => { fetchData(); switchTab('active'); };
-        window.onclick = e => { if (e.target.className === 'modal') { ['editModal', 'detailModal', 'categoryModal', 'compModal', 'delModal', 'scannerModal'].forEach(closeM); } };
+
+        window.buildSplitList = (filtered) => { 
+            const pending = filtered.filter(t => t.status === 'pending'); 
+            const completed = filtered.filter(t => t.status === 'completed'); 
+            let html = ""; 
+            if (pending.length > 0) { html += `<div class="font-black text-indigo-600 border-b-2 border-indigo-100 pb-2 mt-2 uppercase text-[10px] flex items-center gap-2"><i class="fas fa-spinner fa-spin"></i> กำลังทำ (${pending.length})</div>`; html += pending.map((t, i) => window.makeItem(t, i)).join(''); } 
+            if (completed.length > 0) { html += `<div class="font-black text-slate-600 border-b-2 border-slate-100 pb-2 mt-6 uppercase text-[10px] flex items-center gap-2"><i class="fas fa-check-circle"></i> เสร็จแล้ว (${completed.length})</div>`; html += completed.map((t, i) => window.makeItem(t, i)).join(''); } 
+            return html || '<p class="text-center py-10 text-slate-300 font-bold uppercase text-[10px]">No Records</p>'; 
+        };
+
+        window.showAssetDetails = (name) => { const filtered = tasks.filter(t => t.asset === name); document.getElementById('categoryTitle').innerText = name; document.getElementById('categoryBody').innerHTML = window.buildSplitList(filtered); document.getElementById('categoryModal').style.display = 'block'; };
+        window.showStatusDetails = (type) => { let filtered = []; let title = ""; const today = new Date().toLocaleDateString('en-CA'); if (type === 'all') { filtered = tasks; title = "งานทั้งหมด"; } else if (type === 'pending') { filtered = tasks.filter(t => t.status === 'pending'); title = "งานรอดำเนินการ"; } else if (type === 'completed') { filtered = tasks.filter(t => t.status === 'completed'); title = "งานเสร็จสิ้น"; } else if (type === 'overdue') { filtered = tasks.filter(t => t.status === 'pending' && t.deadline < today); title = "งานเกินกำหนด"; } document.getElementById('categoryTitle').innerText = title; document.getElementById('categoryBody').innerHTML = window.buildSplitList(filtered); document.getElementById('categoryModal').style.display = 'block'; };
+        window.showJobTypeDetails = (typeLabel) => { const filtered = tasks.filter(t => t.type === typeLabel); document.getElementById('categoryTitle').innerText = typeLabel; document.getElementById('categoryBody').innerHTML = window.buildSplitList(filtered); document.getElementById('categoryModal').style.display = 'block'; };
+
+        window.updateFilters = () => { const fA = document.getElementById('filterAsset'); const fM = document.getElementById('filterMonth'); if(!fA || !fM) return; const molds = [...new Set(tasks.map(t => t.asset))].sort(); fA.innerHTML = '<option value="">ทั้งหมด</option>' + molds.map(a => `<option value="${a}">${a}</option>`).join(''); const mons = [...new Set(tasks.filter(t => t.deadline).map(t => String(t.deadline).substring(0, 7)))].filter(m => m && m != "-").sort().reverse(); fM.innerHTML = '<option value="">ทั้งหมด</option>' + mons.map(m => `<option value="${m}">${m}</option>`).join(''); };
+        window.resetFilters = () => { if(document.getElementById('filterMonth')) document.getElementById('filterMonth').value = ""; if(document.getElementById('filterAsset')) document.getElementById('filterAsset').value = ""; window.render(); };
+        window.exportToCSV = () => { if(tasks.length === 0) return window.showToast("ไม่มีข้อมูล"); let csv = "\uFEFFID,Task,Asset,Type,StartDate,Deadline,Status,Technician,Priority,Reason\n"; tasks.forEach(t => { csv += `"${t.id}","${t.task}","${t.asset}","${t.type}","${t.startDate}","${t.deadline}","${t.status}","${t.vendor}","${t.priority || 'medium'}","${t.reason || ''}"\n`; }); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.setAttribute("download", `report_${new Date().toLocaleDateString()}.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link); window.showToast("ส่งออกสำเร็จ"); };
+        
+        window.onload = () => { setTimeout(() => { window.fetchData(); window.switchTab(isViewOnly ? 'dashboard' : 'active'); }, 100); };
+        window.onclick = e => { if (e.target.className.includes('modal')) { ['editModal', 'detailModal', 'categoryModal', 'compModal', 'delModal', 'scannerModal'].forEach(id => window.closeM(id)); } };
     </script>
 </body>
 </html>
